@@ -1,0 +1,398 @@
+---
+title: "Models predictius"
+author: Eudald Correig Fraga
+date: "29 de Gener de 2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+set.seed(2502)
+require(ggplot2)
+require(gridExtra)
+```
+
+## Què és un model predictiu
+
+- Fins ara hem estat fent **test d'hipòtesis**. 
+- És a dir, hem analitzat si, amb les dades que teníem, podíem refutar les hipòtesis nul·les i acceptar les nostres hipòtesis (alternatives).
+- Ara volem anar més enllà i poder **predir** el resultat de nous experiments.
+- Per fer-ho hem de construir un **model** amb les nostres dades.
+- Aplicarem el model a noves dades per conèixer-ne les prediccions.
+
+
+## Tipus de models predictius
+
+- N'hi ha moltissims: regressions, arbres, SVM, randomForests, etc
+- Una manera de classificar-los és segons la seva linealitat.
+- Què vol dir això?
+
+```{r}
+a = seq(length=100, from=-10, to=10)
+b = a + rnorm(100)
+c = 5*a + -8*a^2 + a^3  + 40*rnorm(100)
+
+par(mfrow=c(1,2)) # això serveix per poder tenir dues imatges costat per costat
+plot(a,b, main = "Model regressió lineal")
+plot(a, c, main = "Model regressió no lineal")
+```
+
+## En classificació
+
+```{r}
+x = rnorm(100)
+y = rnorm(100)
+df = as.data.frame(cbind(x,y))
+df$dist = x^2+y^2
+df$colour = as.factor(ifelse(df$dist>1, 0, 1))
+df$left = as.factor(ifelse(2*x-y>0, 0, 1))
+
+p1 = ggplot(df, aes(x=x, y=y, colour=left)) + 
+  geom_point() + 
+  geom_abline(slope = 2, intercept = 0, colour="blue") + 
+  ggtitle("Classificació lineal")  + 
+  theme_void() +
+  theme(legend.position="none")
+  
+
+p2 = ggplot(df, aes(x=x, y=y, colour=colour)) + 
+  geom_point() + 
+  annotate("path",
+   x=cos(seq(0,2*pi,length.out=100)),
+   y=sin(seq(0,2*pi,length.out=100)), 
+   colour = "blue") + 
+  ggtitle("Classificació no lineal") +
+  theme_void() +
+  theme(legend.position="none")
+  
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+## Regressió lineal
+
+- Mètode molt simple -> sovint simple és bo!
+- Assumim un model: 
+\[Y=\beta_0 + \beta_1X+\epsilon\]
+- Estimem els coeficients segons les nostres dades:
+\[\widehat{y}=\hat{\beta_0} + \hat{\beta_1}x\]
+
+On $\widehat{y}$ és una predicció de Y en el punt $X=x$.
+
+## Com es troben els coeficients?
+
+- Ajust per mínims quadrats
+
+```{r}
+liver = read.csv('indian_liver_patient.csv') #importo les dades
+sample = sample(1:nrow(liver),50) # no vull totes les dades perquè el dibuix no queda bé, n'agafo algunes
+
+liver$Albumin = liver$Albumin+runif(nrow(liver),min=-0.1, max=0.1) # aquí faig una mica de trampes perquè el dibuix quedi millor
+
+mod = lm(Total_Protiens~Albumin, data = liver[sample, ]) 
+preds = predict(mod)# construeixo un model lineal i predic els valors de y per poder dibuixar les ratlles verticals
+
+ggplot(liver[sample, ], aes(x=Albumin, y=Total_Protiens, colour="orange")) + 
+  geom_point() + 
+  geom_smooth(method="lm", colour = "blue", se=FALSE) +
+  geom_segment(data=liver[sample, ], 
+               aes( x = Albumin, xend = Albumin, y=preds,  yend = Total_Protiens),
+               colour = "black") +
+  theme_bw() +
+  theme(legend.position="none", 
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+## Regressió multivariant
+
+- Evidentment, la regressió pot tenir més d'una variable predictora
+\[Y=\beta_0 + \beta_1X_1+ \beta_2X_2+\ldots + \beta_nX_n+ \epsilon\]
+
+- $\beta_i$ és la variació d'Y amb una unitat d'$X_i$ *mantenint totes les altres variables fixades*
+
+- Alerta amb correlacions entre dades, ens poden jugar una mala passada.
+    - La variància dels coeficients augmenta.
+    - Difícil interpretació: no varia una variable $X_i$ sola.
+    - La causalitat se'n ressent.
+    - Passa "sovint" en medicina: e.g. tinc el pes en kg i en categories OMS.
+    
+## Regressió lineal en R - Univariant {.smaller}
+
+```{r, echo = TRUE}
+model1 = lm(Total_Protiens~Albumin, data = liver)
+summary(model1)
+```
+
+
+## Condicions per poder fer una regressió
+
+```{r}
+#plot(liver)
+#wilcox.test(liver$Aspartate_Aminotransferase~liver$Gender)
+#wilcox.test(log10(liver$Aspartate_Aminotransferase)~liver$Gender)
+mod1 = lm(liver$Alkaline_Phosphotase~liver$Alamine_Aminotransferase)
+mod2 = lm(log10(liver$Alkaline_Phosphotase)~log10(liver$Alamine_Aminotransferase))
+summary(mod1)
+summary(mod2)
+```
+
+## Visualització
+
+```{r}
+df1 = as.data.frame(cbind(liver$Alkaline_Phosphotase, 
+                          liver$Alamine_Aminotransferase))
+df2 = as.data.frame(cbind(log10(liver$Alkaline_Phosphotase), 
+                          log10(liver$Alamine_Aminotransferase)))
+p1 = ggplot(df1, aes(x=V1, y=V2)) + 
+  geom_point() + 
+  geom_smooth(method="lm", se=FALSE) +
+  ggtitle("Sense logaritme")  + 
+  xlab("Alkaline Phosphotase") + 
+  ylab("Alamine Aminotransferase") +
+  theme_bw() +
+  theme(legend.position="none")
+  
+
+p2 = ggplot(df2, aes(x=V1, y=V2)) + 
+  geom_point() + 
+  geom_smooth(method="lm", se=FALSE) +
+  ggtitle("Amb logaritme")  + 
+  xlab("Alkaline Phosphotase") + 
+  ylab("Alamine Aminotransferase") +
+  theme_bw() +
+  theme(legend.position="none")
+  
+grid.arrange(p1, p2, ncol=2)
+```
+
+
+## Regressió multivariant {.smaller}
+
+
+```{r}
+for (i in 3:7){
+  liver[,i] = log(liver[,i])
+}
+
+temp_liver = liver[,-c(4,10)]
+```
+
+```{r, echo=TRUE}
+model2 = lm(Total_Protiens~.-Dataset, data = temp_liver); summary(model2)
+```
+
+## RM - Colinealitats {.smaller}
+
+```{r}
+model3 = lm(Total_Protiens~.-Dataset, data = liver); summary(model3)
+```
+
+## RM - Intervals de confiança I {.smaller}
+
+```{r, echo=TRUE}
+ci = confint(model2)
+sum = summary(model2)
+resum = as.data.frame(cbind(ci[,1], sum$coefficients[,1],
+                            ci[,2],sum$coefficients[,4]))
+resum = round(resum, 3)
+colnames(resum) = c("IC-", "Coeficient", "IC+", "p-valor")
+resum
+```
+
+## RM - Intervals de confiança II {.smaller}
+
+```{r}
+ggplot(liver, aes(x=Aspartate_Aminotransferase, y=Total_Protiens)) + 
+  geom_point( colour="orange") + 
+  geom_smooth(method="lm", colour = "blue", se=TRUE) +
+  theme_bw() +
+  theme(legend.position="none")
+
+```
+
+## Regressió logística
+
+- Per què cal?
+
+```{r}
+#liver$Dataset = as.factor(liver$Dataset)
+colnames(liver)[ncol(liver)] = "Malaltia"
+#levels(liver$Malaltia) <- c("Sa","Malalt")
+quins = which(liver$Malaltia==1 & liver$Total_Bilirubin<1)
+samp = sample(quins, 135)
+ggplot(liver[-samp,], aes(x = Total_Bilirubin, y = Malaltia)) +
+  geom_point(colour="orange") + 
+#  geom_smooth(method="lm") +
+  theme_bw() +
+  scale_y_discrete(limits=c("1.0", "2.0"), 
+                   labels = c("1.0" = "Sa", "2.0" = "Malalt"))
+
+
+```
+
+## Regressió lineal
+
+\[Y= \beta_0 + \beta_1 X+\epsilon\]
+
+```{r}
+
+ggplot(liver[-samp, ], aes(x = Total_Bilirubin, y = Malaltia)) +
+  geom_point(colour="orange") + 
+  geom_smooth(method="lm") +
+  theme_bw() +
+  scale_y_discrete(limits=c("1.0", "2.0"), 
+                   labels = c("1.0" = "Sa", "2.0" = "Malalt"))
+
+```
+
+## Regressió logística
+
+\[\phantom{aa} Y = \frac{1}{1+e^{-(\beta_o+\beta_1X+\epsilon)}}\]
+
+```{r}
+#liver$Malaltia = as.factor(liver$Malaltia)
+#liver$Malaltia = as.numeric(as.character(liver$Malaltia))
+liver$Malaltia = liver$Malaltia-1
+ggplot(liver[-samp,], aes(x = Total_Bilirubin, y = Malaltia)) +
+  geom_point(colour="orange") + 
+  theme_bw() +
+  scale_y_discrete(limits=c("0", "1"), 
+                   labels = c("0" = "Sa", "1" = "Malalt")) +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"))
+
+```
+
+
+## Regressió logística en R {.smaller}
+
+```{r}
+tl = liver[,-c(4,6,7,10)]
+```
+
+```{r, echo=TRUE}
+model4 = glm(Malaltia~., data=tl, family="binomial"); summary(model4)
+```
+
+## RL - Intervals de confiança
+
+- Podem fer igual que en la regressió lineal:
+
+```{r, echo=FALSE, message=FALSE}
+ci = confint(model4)
+sum = summary(model4)
+resum = as.data.frame(cbind(ci
+                            [,1], sum$coefficients[,1],
+                            ci[,2],sum$coefficients[,4]))
+resum = round(resum, 3)
+colnames(resum) = c("IC-", "Coeficient", "IC+", "p-valor")
+resum
+```
+
+- En el cas del gènere puc calcular l'Odd Ratio i els seus IC:
+
+```{r, echo=TRUE}
+odd_r = exp(resum[3,1:3])
+colnames(odd_r) = c("OR IC-", "Odd Ratio", "OR IC+"); odd_r
+```
+
+- Veiem que l'edat no té efecte.
+
+## Prediccions
+
+- Hem calculat els models, ara ja podem fer prediccions
+- S'acosutma a reservar una part de les dades per provar el model que hem construït en la resta
+- D'aquesta manera ens assegurem que no tenim "overfitting"
+  - En parlarem més endavant
+- En R gairebé tots els models poden implementar el mètode "predict" per predir el resultat d'aplicar el model en noves dades
+
+## Predicció en regressió lineal
+
+```{r, echo=TRUE}
+train = sample(nrow(liver), round(nrow(liver)/5*4,0))
+test = -train
+model_lineal = lm(Total_Protiens~.-Malaltia, data=liver[train,])
+preds = predict(model_lineal ,newdata = liver[test,], 
+                interval ="confidence")
+head(preds)
+```
+
+Podem dibuixar com de bé ho hem fet:
+
+## Representació dels predictors
+
+Gens malament:
+
+```{r}
+df = as.data.frame(cbind(liver$Total_Protiens[test], preds[,1]))
+colnames(df) = c("Realitat", "Prediccions")
+cors = cor.test(liver$Total_Protiens[test], preds[,1])
+ggplot(df, aes(Realitat, Prediccions)) + 
+  geom_point() +
+  geom_smooth(method="lm") + 
+  labs(title = "Comparació entre prediccions i realitat") + 
+  annotate("text", x=4, y=8, label=paste0("r= ", round(cors$estimate,3), 
+                                          "\n p= ", round(cors$p.value,3)))
+```
+
+## Predictors en regressió logística
+
+```{r, echo = TRUE}
+model_log = glm(Malaltia~., data=liver[train,], family = "binomial")
+probs = predict(model_log ,newdata = liver[test,], type = "response")
+preds = rep(0, length(test))
+preds = ifelse(probs>0.5,1,0)
+tt = table(liver$Malaltia[test], preds, 
+           dnn=c("Realitat", "Prediccions"))
+#La matriu de confusió és:
+tt
+print(paste0("I la ràtio d'encert és ", round((tt[1]+tt[4])/sum(tt),2)))
+```
+
+## Paràmetres d'avaluació
+
+- Hem vist que el percentatge d'encert és del 75%
+- Tot i així la detecció de la malaltia no és molt bona
+- Volem altres paràmetres d'avaluació del model
+
+![Tipus d'errors](errors.png)
+\[Sensibilitat = \frac{VP}{VP+FN}\] 
+\[Especificitat =\frac{VN}{VN+FP} \]
+
+## Corba ROC
+- Controlem aquests valors a través del llindar de decisió.
+- Hem fixat que predíem malalt quan la RL predís $p(y)>0.5$, però potser ens interessaria un altre valor.
+
+```{r}
+source('corbes_roc.R')
+preroc = as.data.frame(cbind(liver$Malaltia[test],probs))
+preroc[,1]=as.factor(preroc[,1])
+colnames(preroc)=c('survived', 'pred') 
+preroc = preroc[complete.cases(preroc),]
+roc=calculate_roc(preroc, 1, 1, n = 100)
+plot_roc(roc, 0.5, 1, 1)
+```
+
+## Una altra forma de veure-ho
+
+```{r}
+plot_pred_type_distribution(preroc, 0.5)
+```
+
+## Àrea sota la corba (AUC)
+
+- Per tenir un sol valor sobre la qualitat general del model calculem l'àrea sota tota la corba ROC. 
+- Un model aleatori tindria una AUC = 0.5
+- Un model perfecte tindria una AUC = 1
+
+La calculem:
+
+```{r, warning=FALSE, message=FALSE}
+require(cvAUC)
+ci.cvAUC(preroc$pred,preroc$survived)
+```
+

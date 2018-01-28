@@ -1,0 +1,395 @@
+---
+title: "Selecció de model"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message=FALSE)
+require(ggplot2)
+require(leaps)
+set.seed(1)
+```
+
+## Introducció {.smaller}
+
+> "Essentially, all models are wrong, but some are useful"
+
+> George Box
+
+- El model l'imposo jo, i vull saber si les dades són compatibles amb aquest model
+- "A veure què surt" no sol ser una bona idea
+- En medicina, un model no només ha d'ajustar bé les dades, sinó que també ha de ser interpretable
+  - En borsa per exemple no cal: només cal saber quan pujarà, no perquè pujarà
+- En medicina està bé saber si algú tindrà una malaltia i les raons.
+- És molt important destriar les variables que tenen efecte de les que no.
+- És essencial provar el model amb **dades noves**, de manera que puguem calcular la fiabilitat de forma objectiva.
+- Tot això ho fem amb la selecció de model
+
+## Bias - Variance tradeoff
+
+- "Bias": error a causa d'escollir un model erroni que no reflecteixi informació rellevant sobre les dades ("**underfitting**")
+    - Les dades eren cúbiques i jo he escollit un model lineal
+- "Variance": Error a causa d'ajustar *massa* el model a les dades, de manera que no generalitza correctament ("**overfitting**")
+    - He escollit un model cúbic però en necessitava un de linea.
+    - He ajustat un model tant a les meves dades, que quan me n'arriben de noves no funciona bé.
+    - He fet servir les 40 variables que tenia, però resulta que amb 6 en tenia prou.
+
+## Bias {.smaller}
+
+Faig un model lineal:
+
+```{r}
+n=100
+x = seq(1, 101,length=n)
+y = log(x)+rnorm(n)
+z = 10*sin(x/10)+x+rnorm(n, 0, 4)
+data = as.data.frame(cbind(x, y, z))
+```
+
+```{r, echo=TRUE}
+model_lineal = lm(data=data, y~x)
+summary(model_lineal)
+```
+
+## Visualització
+
+```{r}
+ggplot(data, aes(x, y)) + 
+  geom_point() + 
+  geom_smooth(method="lm") +
+  labs(title = "Model lineal") +
+  annotate("text", label = "R^2 == 0.32",parse = TRUE, x=75, y=0, size=6)
+```
+
+## Model més complex
+
+```{r}
+model_log = lm(data=data, y~log(x))
+summary(model_log)
+```
+
+## Visualització
+
+```{r}
+ggplot(data, aes(x, y)) + 
+  geom_point() + 
+  geom_smooth(method="lm", formula = y~log(x)) +
+  labs(title = "Model logarítmic") +
+  annotate("text", label = "R^2 == 0.51",parse = TRUE, x=75, y=0, size=6)
+```
+
+## Variance {.smaller}
+
+Ajusto un model gairebé perfecte, un polinomi de grau 16:
+
+```{r}
+set.seed(11)
+m = 20
+x = seq(1, 21, length=m)
+y = x + runif(m, -5, 5)
+z = x + runif(m, -5, 5)
+data = as.data.frame(cbind(x, y))
+```
+
+```{r, echo = TRUE}
+model_poli = lm(data = data, y~poly(x, degree=16))
+```
+
+```{r}
+#par(mfrow=c(1,1))
+plot(x, y, col = "blue", pch = 20)
+lines(x, fitted(model_poli), col = "red")
+summary = summary(model_poli)
+RSEO = sum((y-fitted(model_poli))^2)
+text(15, 4, paste0("R^2 =", round(summary$r.squared,2)))
+text(15,2, paste0("RSE =", round(RSEO,2)))
+```
+
+## Què passa quan generalitzem
+
+```{r}
+plot(x, y, col = "blue", pch = 20)
+lines(x, fitted(model_poli), col = "red")
+
+points(x+0.5, z, col = "green", pch = 20)
+text(15, 6, paste0("R^2 =", round(summary$r.squared,2)))
+RSE = sum((fitted(model_poli)-z)^2)
+text(15,4, paste0("RSE_Original =", round(RSEO,2)))
+text(15,2, paste0("RSE =", round(RSE,2)))
+```
+
+## Amb una regressió lineal
+
+```{r}
+model_lin = lm(data = data, y~x)
+summary(model_lin)
+```
+
+## Generalització
+
+```{r}
+summary = summary(model_lin)
+plot(x, y, col = "blue", pch = 20)
+lines(x, fitted(model_lin), col = "red")
+points(x+0.5, z, col = "green", pch = 20)
+text(15, 6, paste0("R^2 =", round(summary$r.squared,2)))
+RSEO = sum((fitted(model_lin)-y)^2)
+RSE = sum((fitted(model_lin)-z)^2)
+text(15,4, paste0("RSE_Original =", round(RSEO,2)))
+text(15,2, paste0("RSE_Generalitzada =", round(RSE,2)))
+```
+
+## No sempre és veritat!
+
+```{r}
+m=20
+a = runif(m,0,100)
+b = 10*sin(a)+a
+t = 1000
+u = seq(length=t,0,100)
+v = 10*sin(u)+u
+
+data = as.data.frame(cbind(a,b))
+ggplot(data, aes(a, b)) + 
+  geom_point() + 
+  xlim(c(0,100)) + 
+  ylim(c(0,100))
+```
+
+## Com aquí
+
+```{r}
+
+data2 = as.data.frame(cbind(u,v))
+#require(mgcv)
+ggplot(data, aes(a, b)) + 
+  geom_point() + 
+  geom_path(data = data2, mapping = aes(u, v), colour = "blue") +
+  annotate("text", label = "y=10*sin(x)+x", x=25, y=90, size=6) + 
+  ylim(c(0,100))
+
+```
+
+
+## En classificació
+
+- Encara es veu més clar en classificació
+- Proposem tres línies de decisió en les mateixes dades
+
+```{r, warning=FALSE, message=FALSE}
+library(ElemStatLearn)
+require(class)
+x <- mixture.example$x
+g <- mixture.example$y
+xnew <- mixture.example$xnew
+mod15 <- knn(x, xnew, g, k=1, prob=TRUE)
+prob <- attr(mod15, "prob")
+prob <- ifelse(mod15=="1", prob, 1-prob)
+px1 <- mixture.example$px1
+px2 <- mixture.example$px2
+prob15 <- matrix(prob, length(px1), length(px2))
+par(mar=rep(2,4))
+prob = matrix(0, 69, 99)
+contour(px1, px2,prob, levels=0.5, labels="", xlab="", ylab="", main=
+        "Problema de classificació", axes=FALSE)
+points(x, col=ifelse(g==1, "coral", "cornflowerblue"), pch = 20)
+gd <- expand.grid(x=px1, y=px2)
+#points(gd, pch=".", cex=1.2, col=ifelse(prob15>0.5, "coral", "cornflowerblue"))
+box()
+
+```
+
+
+## Overfitting
+
+```{r, warning=FALSE, message=FALSE}
+x <- mixture.example$x
+g <- mixture.example$y
+xnew <- mixture.example$xnew
+mod15 <- knn(x, xnew, g, k=1, prob=TRUE)
+prob <- attr(mod15, "prob")
+prob <- ifelse(mod15=="1", prob, 1-prob)
+px1 <- mixture.example$px1
+px2 <- mixture.example$px2
+prob15 <- matrix(prob, length(px1), length(px2))
+par(mar=rep(2,4))
+contour(px1, px2, prob15, levels=0.5, labels="", xlab="", ylab="", main=
+        "1-nearest neighbour", axes=FALSE)
+points(x, col=ifelse(g==1, "coral", "cornflowerblue"), pch = 20)
+gd <- expand.grid(x=px1, y=px2)
+points(gd, pch=".", cex=1.2, col=ifelse(prob15>0.5, "coral", "cornflowerblue"))
+box()
+```
+
+
+
+
+## Underfitting
+
+```{r, warning=FALSE, message=FALSE}
+x <- mixture.example$x
+g <- mixture.example$y
+xnew <- mixture.example$xnew
+mod15 <- knn(x, xnew, g, k=70, prob=TRUE)
+prob <- attr(mod15, "prob")
+prob <- ifelse(mod15=="1", prob, 1-prob)
+px1 <- mixture.example$px1
+px2 <- mixture.example$px2
+prob15 <- matrix(prob, length(px1), length(px2))
+par(mar=rep(2,4))
+contour(px1, px2, prob15, levels=0.5, labels="", xlab="", ylab="", main=
+        "70-nearest neighbour", axes=FALSE)
+points(x, col=ifelse(g==1, "coral", "cornflowerblue"), pch = 20)
+gd <- expand.grid(x=px1, y=px2)
+points(gd, pch=".", cex=1.2, col=ifelse(prob15>0.5, "coral", "cornflowerblue"))
+box()
+
+```
+
+
+
+## Òptim?
+
+```{r, warning=FALSE, message=FALSE}
+x <- mixture.example$x
+g <- mixture.example$y
+xnew <- mixture.example$xnew
+mod15 <- knn(x, xnew, g, k=15, prob=TRUE)
+prob <- attr(mod15, "prob")
+prob <- ifelse(mod15=="1", prob, 1-prob)
+px1 <- mixture.example$px1
+px2 <- mixture.example$px2
+prob15 <- matrix(prob, length(px1), length(px2))
+par(mar=rep(2,4))
+contour(px1, px2, prob15, levels=0.5, labels="", xlab="", ylab="", main=
+        "15-nearest neighbour", axes=FALSE)
+points(x, col=ifelse(g==1, "coral", "cornflowerblue"), pch = 20)
+gd <- expand.grid(x=px1, y=px2)
+points(gd, pch=".", cex=1.2, col=ifelse(prob15>0.5, "coral", "cornflowerblue"))
+box()
+
+```
+
+## Resum
+
+- En medicina la gran majoria de vegades volem models lineals.
+- La regressió logística és un molt bon model.
+    - És simple i lineal.
+    - És interpretable.
+    - Podem calcular la corba ROC i la AUC.
+- Els models d'arbre són simples i interpretables però tendeixen a tenir "overfitting".
+- Per sol·lucionar-ho podem fer *random forests* o *boosted models*, però són molt poc interpretables.
+- En casos de models multinomials (més de dues possibilitats) també s'utilitza força el "*linear discriminant analysis*"
+
+## Selecció de model multivariant
+
+- Tinc un model amb moltes possibles variables predictores.
+- Vull trobar quines són predictores de veritat i quines no.
+- Opció "tradicional": mirar quins són significatius univariadament i després posar-los tots ens un model multivariant.
+- A causa de colinealitats pot ser que aquest mètode no funcioni.
+- Hi ha diverses possibilitats, en veurem dues:
+- Forward subset selection
+- Lasso
+
+## Valors evaluadors de models
+
+- Fins ara hem evaluat els models amb $R^2$, però hi ha problemes.
+- Si afegeixo dimensions $R^2$ augmenta, tant si aquestes ajuden al model com si no.
+- Alternatives
+    - $R^2$ ajustat
+    - Akaike Information Criterion: AIC
+    - Bayesian Information Criterion: BIC
+    - Mallow's Cp
+    - Cross-validation: calcul·lo el model en un subconjunt de les dades i el provo en l'altre -> Trio el millor model.
+
+## Forward subset selection
+
+- Volem mirar els models possibles, però el númeor de models és de l'orde de $2^d$, on d és el número de dimensions.
+- Per això apliquem FSS: Comencem amb 0 predictors i anem afegint el millor predictor a cada pas.
+- Quan el següent millor predictor ja no millora el model, parem de buscar.
+- Alerta: hi ha una (petita) probabilitat de no trobar el millor model.
+
+## A la pràctica {.smaller}
+
+```{r}
+liver = read.csv('indian_liver_patient.csv')
+colnames(liver)[ncol(liver)] = "Malaltia"
+liver$Malaltia = as.factor(liver$Malaltia)
+levels(liver$Malaltia) <- c("Sa","Malalt")
+```
+
+```{r, echo=TRUE}
+ffs_model = regsubsets(Malaltia ~., data=liver, nvmax=10, method = "forward")
+plot(ffs_model, scale = "Cp")
+#summary(ffs_model)
+```
+
+```{r}
+# per saber-ne més:
+# http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Seventh%20Printing.pdf pàg 244
+```
+
+## Lasso (amb cross-validació){.smaller}
+
+- Lasso és un mètode semblant a l'anterior però que elimina les variables no útils d'una forma contínua.
+- Intenta fer petits els coeficients sense que se'n ressenti el model.
+- Alguns dels coeficients arriben a ser 0 i per tant podem eliminar les variables. 
+- Va molt bé per simplificar models. 
+- Escull el millor model amb cross-validació
+- n-fold cross-validation divideix el model en n conjunts, entrena models en n-1 d'aquests i els prova en l'altre. 
+- La mitja de l'error de les 10 proves és l'error del model.
+- Ho fa per tots els models possibles i ens retorna el millor.
+
+\[ \min \left\{ \frac{1}{n}||y-X\beta||_2^2+\lambda ||\beta_1|| \right\} \]
+
+## Lasso en R
+
+```{r}
+require(glmnet)
+set.seed(1)
+liver = liver[complete.cases(liver),]
+
+test = sample(nrow(liver),round(nrow(liver)/5),replace = FALSE)
+train=(-test)
+
+x<- liver[,-c(ncol(liver))]
+y<- liver[,ncol(liver)]
+data<-cbind(x,y)
+x_train <- x[train,]
+y_train <- data$y[train]
+x_test <- x[test,]
+y_test <- data$y[test]
+model <- model.matrix(y~. , data=data[train,])
+fit <- cv.glmnet(model,y_train,alpha=1, family="binomial")
+
+finalc = predict(fit, type='coefficients', s = "lambda.1se")[1:12,]
+#finalc
+ffc = finalc[finalc!=0]
+```
+
+```{r}
+lambda_min<-fit$lambda.1se
+newX <- model.matrix(~. ,data=x_test)
+fit_test<-predict(fit,s=lambda_min, newx=newX, type='response')
+fit.pred=rep(0,nrow(x_test))
+fit.pred[fit_test >.5]=1
+ttt=table(fit.pred, y_test)
+rend = (ttt[1]+ttt[4])/sum(ttt)
+ffc
+rend
+
+```
+
+## Comparerm amb una RL "normal"
+
+```{r}
+mod = glm(data = liver[train,], Malaltia~., family="binomial")
+probs = predict(mod, liver[test,], type="response")
+fit.pred=rep(0,nrow(x_test))
+fit.pred[probs >.5]=1
+ttt=table(fit.pred, y_test)
+rend = (ttt[1]+ttt[4])/sum(ttt)
+coef(mod)
+rend
+```
+

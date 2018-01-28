@@ -1,0 +1,179 @@
+---
+title: "Classe - 2 - Estadística bàsica"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE) # no cal tocar-ho gaire
+set.seed(2901)
+```
+
+### Utilització del Markdown
+
+Aquí puc escriure el que vulgui, s'imprimirà com a text normal.
+
+```{r}
+# Aquí dins només puc escriure com si estés programant, si no em donarà error
+x = rnorm(10000)
+a = sin(pi*x)
+```
+
+Aquí puc tornar a escriure normal. Fins i tot puc fer coses com **negreta** o *cursiva*.
+
+```{r}
+# Puc fer que imprimeixi resultats
+liver = read.csv('indian_liver_patient.csv')
+summary(liver)
+```
+
+
+```{r}
+# o que tregui gràfics fets amb les dades:
+plot(x, a)
+```
+
+Puc fer llistes:
+
+* Un
+* Dos
+* Tres
+
+I enumeracions:
+
+1. Primer
+1. Segon
+1. Tercer  (sí, no m'he equivocat, el númeor del principi ha de ser sempre 1...)
+
+I fins i tot puc fer fórmues en làtex:
+
+\[ \sum\limits_{n=1}^{\infty} 2^{-n} = 1 \]
+
+També puc posar links de manera molt fàcil:
+
+[Exemple](www.urv.cat)
+
+I imatges!
+
+![Diagrama per escollir el test d'hipòesis que t'interessa](hip_test.png)
+
+
+
+I taules!
+
+Test | Comanda 1 | Comanda 2
+-------------------- | ---------------------- | ---------------------
+Chi 2 | chisq.test(x, y) | 
+Fisher exact test | fisher.test(x, y) | 
+Shapiro Wilk | shapiro.test(x) |
+Levene | levene.test(y, group) |
+T - Student | t.test(x, y) | t.test(formula, data)
+T - Welch | t.test(x, y, var.equal = FALSE) | t.test(formula, data, var.equal = FALSE)
+Mann-Whitney U | wilcox.test(x, y) | wilcox.test(formula, data)
+T - Student aparellada | t.test(x, y, paired = TRUE) | t.test(formula, data, paired = TRUE)
+Wilcoxon Signed Rank | wilcox.test(x, y, paired = TRUE) | wilcox.test(formula, data, paired = TRUE)
+ANOVA | aov(formula, data) |
+Kruskall Wallis | kruskal.test(x, g) | kruskal.test(formula, data)
+ANOVA mesures repetides | ez::ezANOVA(data, dv, wid) |
+Friedman | friedman.test(y, groups) | friedman.test(formula, data)
+
+
+Exemples:
+===
+
+Anem a veure com s'utilitzen. Seguim amb el fitxer de malalties del fetge.
+
+Quines dades teníem?
+```{r}
+head(liver)
+str(liver)
+liver$Dataset = as.factor(liver$Dataset)
+```
+
+Imaginem que volem veure si la bilirrubina total depèn segons el sexe: 
+
+Primer mirem si segueix una distribució normal:
+
+```{r}
+shapiro.test(liver$Total_Protiens)
+```
+
+No té una distribució normal, per tant hem de fer una U de Mann - Whitney:
+
+```{r}
+wilcox.test(Total_Protiens~Gender, data=liver)
+```
+
+La p<0.05 per tant hem rebutgem la hipòtesi nula i assumim que els nivells de "Total_Protiens" són diferents entre homes i dones ( en concret més alts pels homes).
+
+Això és veritat?
+
+```{r}
+plot(liver$Gender,liver$Total_Protiens)
+```
+
+Visualment sembla que potser sí, tot i que no està del tot clar. 
+
+Què passa si assumim normalitat?
+
+```{r}
+t.test(Total_Protiens~Gender, data=liver)
+```
+
+Gairebé el mateix!
+
+Provem amb una altra variable:
+
+```{r}
+wilcox.test(Albumin_and_Globulin_Ratio~Gender, data=liver)
+```
+
+A veure?
+
+```{r}
+plot(liver$Gender,liver$Albumin_and_Globulin_Ratio)
+```
+
+Ara volem veure si estadísticament la malaltia afecta més a homes o a dones:
+
+```{r}
+table(liver$Gender, liver$Dataset)
+chisq.test(liver$Gender, liver$Dataset)
+```
+
+Justet però sembla que no!
+
+Correlacions
+===
+
+I les Albumines i els Total_Protiens estan correlacionats?
+
+```{r}
+cor.test(liver$Albumin, liver$Total_Protiens) # per més info ?cor.test
+```
+
+Clarament sí! Anem a veure-ho:
+
+```{r}
+plot(liver$Albumin, liver$Total_Protiens)
+```
+
+
+```{r fig1, fig.width=12, fig.height=12}
+#require(GGally)
+#ggpairs(liver)
+```
+
+Veient aquest gràfic, ens trobem que hi ha moltes mesures que estan molt escorades a l'esquerra; això passa molt sovint en medicina i s'ha de mirar d'arreglar. Això se sol fer traient el logaritme de la variable, en R és molt senzill:
+
+```{r}
+liver$Total_Bilirubin=log(liver$Total_Bilirubin) # d'una en una
+
+# o totes a l'hora:
+for (i in 4:7){ # iterem sobre els números de columna
+  liver[,i] = log(liver[,i]) # convertim la columna a log i sobreescrivim l'antiga
+}
+```
+
+```{r fig2, fig.width=12, fig.height=12}
+#ggpairs(liver)
+```

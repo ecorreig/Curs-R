@@ -1,0 +1,82 @@
+---
+title: "classe - 5"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Gràfics
+
+- Hem vist al llarg del curs que dibuixar és primordial
+- R té moltíssimes maneres de dibuixar, i a més fa dibuixos a nivell de publicació amb relativament poc esforç (""""relativament"""")
+- Hi ha moltes llibreries, però la més utilitzada és "ggplot2"
+- N'hi ha d'altres d'interessants: plotly, ggvis, ggforce, etc.
+- Si algú està molt interessat, en python hi ha eines més potents: matplotlib, seaborn, etc.
+
+## ggplot2
+
+- El nom prové de Grammar of Graphics, un llibre teòric sobre com es fan els gràfics digitals.
+- Tradueix teòricament estètica a píxels. 
+- Si algú està molt interssat, [aquí](http://www.springer.com/us/book/9780387245447) el pot trobar.
+- Un exemple: 
+
+```{r}
+liver = read.csv('indian_liver_patient.csv')
+colnames(liver)[ncol(liver)] = "Malaltia"
+liver$Malaltia = as.factor(liver$Malaltia)
+levels(liver$Malaltia) <- c("Sa","Malalt")
+require(ggplot2)
+```
+
+```{r}
+ggplot(liver, aes(x = Gender, y = Total_Protiens, colour = Malaltia)) + 
+  geom_boxplot()
+```
+
+Com funciona:
+
+- La funció ggplot() crea el gràfic i sempre necessita dos paràmetres:
+    1. Les dades amb les que fer el gràfic; les posem al principi
+    1. Els estètics (aesthetics en anglès, d'aquí el nom): aquí hi posem quina variable volem a l'eix x i y, i si volem colors o formes diferents.
+- Per acabar, li diem quin tipus de gràfic volem, en aquest cas un diagrama de caixes (boxplot)
+
+A partir d'aquí hi ha moltíssimes maneres de personalitzar un diagrama:
+
+```{r}
+ggplot(liver, aes(x = log(Albumin), y = log(Total_Bilirubin), 
+                  colour = Malaltia, shape = Gender)) + 
+  geom_point(size=1.5) + 
+  labs(title = "Gràfic molt xulo", 
+       subtitle = "I molt fàcil de fer") + 
+  xlab("Logaritme de l'Alkaline algo") +
+  ylab("Logaritme de la bilirubina") +
+  geom_smooth(method = "loess", se = FALSE) +
+  theme_gray() + 
+  annotate("text", x = 0.5, y= 4, label = "puc escriure coses\n al mig del gràfic")
+```
+
+Per acabar, veiem com de fàcil és fer molts gràfics a la vegada; per exemple fem alguns histogrames i hi ajustem corbes de densitat. Aquí veiem que puc crear un objecte que sigui el gràfic i ensenyar-lo més endavant. És útil quan he de fer molts gràfics (com és el cas):
+
+```{r}
+for (i in 3:7){
+  liver[,i] = log(liver[,i])
+}
+```
+
+```{r}
+for (i in c(1, 3:10)){
+
+  p=wilcox.test(liver[,i]~liver$Malaltia)$p.value
+  
+plot = ggplot(liver, aes(liver[,i],  fill=liver$Malaltia)) +
+  geom_density(alpha=0.7)+
+  labs(title=colnames(liver)[i], 
+       subtitle = paste0("p = ",round(p,3))) +
+  xlab(colnames(liver)[i]) +
+  guides(fill=guide_legend(title="Malaltia"))
+ 
+print(plot)
+}
+```
