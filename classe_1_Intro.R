@@ -2,10 +2,17 @@
 
 # Aquesta classe està basada en les classes de Trevor Hastie i Rob Tibshirani (Stanford University)
 # i en el llibre An Introduction to Statistical Learning with Applications in R
-# Podeu trobar les classes aquí: (hem fet la Lab: Introduction to R (14:12) del capítol 2
-# i la Lab: Linear Regression (22:10) i Lab: Logistic Regression (10:14) dels capítols 3 i 4)
+
+# Podeu trobar les classes aquí:
 # https://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/
 # I el llibre està penjat gratuïtament aquí: http://www-bcf.usc.edu/~gareth/ISL/
+# Dee totes les que hi ha farem:
+# Lab: Introduction to R del capítol 2
+# Lab: Linear Regression 
+# Lab: Logistic Regression  dels capítols 3 i 4)
+# Lab: Forward Stepwise Selection and Model Selection Using Validation Set (tema 6)
+# Lab: Model Selection Using Cross-Validation (tema 6)
+# Evidentment també són útils les parts teòriques relacionades amb les pràctiques dels vídeos
 
 # La part de test d'hipòtesi no la cobreixen, aquesta està basada en el llibre:
 # Statistics, An introduction using R, de Michael J. Crawley i que podeu trobar a la biblio
@@ -22,10 +29,18 @@
 # Tutorials: https://www.statmethods.net/index.html, https://www.r-bloggers.com
 # Documentació: https://cran.r-project.org/manuals.html
 # LLibreries: exemple: https://cran.r-project.org/web/packages/lme4/lme4.pdf
-# Demanar ajuda: https://stackoverflow.com (prgramar)
+# Demanar ajuda: https://stackoverflow.com (prgramar en R)
 # Demanar ajuda: https://stats.stackexchange.com/ (estadística)
 
 # Per qualsevol altra cosa, google.
+
+
+    #####################################
+
+############## Introducció a R ####################
+
+    ####################################
+
 
 ###### Escalars, vectors i operacions simples #####
 
