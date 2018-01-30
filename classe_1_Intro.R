@@ -51,7 +51,6 @@ y = seq(0,1,100) # creem un vector a través de l'operació seqüència
 
 y = seq(from=0, to=1, length = 100)
 
-
 a = seq(from = 1, to =5, length=4)
 
 a/x # podem fer operacions de forma simple
@@ -94,26 +93,30 @@ llista[[1]]
 vec = seq(from=0, to=10, length=20)
 vec
 
-vec[1]
-vec[17]
-vec[17:20]
+vec[1] # agafem el primer element
+vec[17] # agafem l'element en posició 17
+vec[17:20] # agafem els elements en posicions de 17 a 20
 length(vec[17:20])
 
-vec[c(1,2,10:15,20)]
+vec[c(1,2,10:15,20)]  # agafem el primer, segon, del 10 al quinzè i el vintè
 
-vec[-9]
-vec[10:15]
+vec[-9] # tots menys el novè
+vec[10:15] # del 10 al 15
 vec[-10:15] # alerta amb aquest, s'ha de fer:
 
 vec[-c(10:15)]
 
-matriu = matrix(seq(1,12),4,3) 
 
+##### Matrius ######
+
+
+matriu = matrix(seq(1,12),4,3) # amb la comanda "matrix" creem matrius
+matriu
 # sempre, primer element són files i el segon són columnes
 
-matriu[1,1]
-matriu[2,1]
-matriu[1,2]
+matriu[1,1] # element a la primera fila, primera columna
+matriu[2,1] # element a la segona fila, primera columna
+matriu[1,2] # element a la primera fila, segona columna
 
 matriu[1:2,2:3]
 matriu[1:2,c(1,3)] # puc concatenar dins de la selecció
@@ -124,14 +127,6 @@ matriu[,1:2] # si no poso res m'agafa totes les columnes
 matriu[3,] # o totes les files
 
 nou_vector = matriu[2,]
-
-##### Directori #####
-
-ls()
-
-rm(y)
-
-rm(list = ls())
 
 ##### Gràfics #####
 
@@ -160,13 +155,21 @@ hist(rnorm(mean=0, sd=1, n=10000), main="histograma")
 
 # això són les coses bàsiques que es poden fer en R
 
-####### Dataframes #########
 
-# anem a coses més complicades, com ara tereballar amb dataframes
+##### Directori #####
+
+ls()
+
+rm(y)
+
+rm(list = ls())
 
 # per interactuar amb l'exterior, primer hem de saber on som
 
 setwd('~path')
+
+# podem fer servir un path global (C:/path/to/fitxer)
+# o relatiu (../Carpeta/)
 
 liver = read.csv('indian_liver_patient.csv')
 
@@ -178,6 +181,7 @@ liver = read.csv('indian_cast.csv') # error!
 
 liver = read.csv('indian_cast.csv', sep=";", dec = ",")
 
+####### Dataframes #########
 
 View(liver) # també es pot clicar al símbol blau al costat del nom a l'environment
 
