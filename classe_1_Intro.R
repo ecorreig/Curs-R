@@ -48,16 +48,17 @@
 
 a = 3
 x = c(1,9,3,4) # c ve de concatenar, és de les opeacions més útils
-y = seq(0,1,100) # creem un vector a través de l'operació seqüència
+y = seq(0.3,1.9,length = 100) # creem un vector a través de l'operació seqüència
 ?seq #mirem què és això de l'opearció seqüència
 
 # El signe = és totalment equivalent a <- en R
 
-y = seq(from=0, to=1, length = 100)
+
+y = seq(to=1, from=0, length = 100)
 
 a = seq(from = 1, to =5, length=4)
 
-a/x # podem fer operacions de forma simple
+b = a/x # podem fer operacions de forma simple
 a+x
 a^x
 
@@ -69,7 +70,7 @@ a+b # alerta pequè ha tret un warning, no un error,
 
 # això es queda presentat, però no es guarda en memòria, si volem crear nou element:
 
-c = a/x # no el mostra a la consola, però el guarda a l'environment
+c = b/x # no el mostra a la consola, però el guarda a l'environment
 
 sqrt(12)
 sin(3)
@@ -78,7 +79,7 @@ pi
 
 bools = c(TRUE, FALSE, FALSE, TRUE) # tipus lògic
 
-noms = c("pepet", "marieta", "un altre nom") # tipus caràcter
+noms = c("pepet", "marieta", "un altre nom", "l'urv ", 'reus') # tipus caràcter
 
 coses = c("una paraula", 2, FALSE, NA) # força tot menys NA a caràcter
 coses
@@ -103,6 +104,8 @@ vec[17:20] # agafem els elements en posicions de 17 a 20
 length(vec[17:20])
 
 vec[c(1,2,10:15,20)]  # agafem el primer, segon, del 10 al quinzè i el vintè
+sub = c(1,2,10:15,20)
+vec[sub]
 
 vec[-9] # tots menys el novè
 vec[10:15] # del 10 al 15
@@ -113,8 +116,7 @@ vec[-c(10:15)]
 
 ##### Matrius ######
 
-
-matriu = matrix(seq(1,12),4,3) # amb la comanda "matrix" creem matrius
+matriu = matrix(seq(1,12),4,3, byrow = T) # amb la comanda "matrix" creem matrius
 matriu
 # sempre, primer element són files i el segon són columnes
 
@@ -126,17 +128,24 @@ matriu[1:2,2:3]
 matriu[1:2,c(1,3)] # puc concatenar dins de la selecció
 
 matriu[-1,1:2] # puc fer servir negatius, com abans
+matriu[-1, -2]
 
-matriu[,1:2] # si no poso res m'agafa totes les columnes
-matriu[3,] # o totes les files
+matriu[,1:2] # si no poso res m'agafa totes les files
+matriu[3,] # o totes les columnes
 
 nou_vector = matriu[2,]
 
+matriu_nova = matriu[c(1,3), c(1,3)]
+
 ##### Gràfics #####
 
-a = seq(1,10) # seqüència d'1 a 10
-b = runif(10) # 10 números aleatoris trets d'una distribució uniforme de 0 a 1
-c = rnorm(10) # 10 números aleatoris trets d'una distribució normal de 0 a 1
+set.seed(123456)
+
+seq()
+runif()
+a = seq(1,100) # seqüència d'1 a 10
+b = runif(100) # 10 números aleatoris trets d'una distribució uniforme de 0 a 1
+c = rnorm(100) # 10 números aleatoris trets d'una distribució normal de 0 a 1
 
 # scatter plots
 
@@ -155,7 +164,7 @@ hist(a)
 hist(b)
 hist(c)
 
-hist(rnorm(mean=0, sd=1, n=10000), main="histograma")
+hist(rnorm(mean=0, sd=1, n=10000), main="histograma", xlab = "hola")
 
 # això són les coses bàsiques que es poden fer en R
 
@@ -172,14 +181,17 @@ rm(list = ls())
 
 setwd('~path')
 
+setwd('../Desktop/Curs-R-master/')
 # podem fer servir un path global (C:/path/to/fitxer)
 # o relatiu (../Carpeta/)
 
-liver = read.csv('indian_liver_patient.csv')
+setwd('C:/Users/raya2/Desktop/Curs-R-master')
 
+liver = read.csv('indian_liver_patient.csv')
+View(liver)
 # ALERTA: en castellà se sol guardar en tsv, no csv! 
 
-liver = read.csv('indian_cast.csv') # error!
+#liver = read.csv('indian_cast.csv') # error!
 
 ?read.csv # -> mirem les opcions de read.csv
 
@@ -224,17 +236,21 @@ str(liver)
 summary(liver) # molt útil per tenir una visió general
 pairs(liver) # o plot(liver) també per tenir una visió general
 
-liver$Dataset # accedir a una columna (variable) concreta
-liver[,c(1,3)] # accedir a diverses columnes
+liver
 
-head(liver) # 5 primeres files -> va bé per tenir una visió ràpida de com són els valors
-tail(liver) # 5 últimes files
+liver$Alkaline_Phosphotase # accedir a una columna (variable) concreta
+new_liver = liver[,c(1,3)] # accedir a diverses columnes
+liver[,c("Age", "Gender", "Dataset")]
+
+head(liver) # 6 primeres files -> va bé per tenir una visió ràpida de com són els valors
+tail(liver) # 6 últimes files
 
 # Podem combinar coses:
 head(liver[,c(1,3)])
 tail(liver[,c("Age","Dataset")])
 
 liver[1:10,c("Age","Dataset")]
+liver[1:10]
 
 # canviar tipus de variable, funcions: 
 # as.factor -> passar a categòrica (R crea els "dummies" automàticament!)
@@ -245,13 +261,29 @@ liver$Dataset = as.factor(liver$Dataset)
 
 str(liver)
 
+nivells = c("control", "pacient")
+
+levels(liver$Dataset) = nivells
+
 # liver$Dataset = as.numeric(as.character(liver$Dataset)) # a vegades s'ha de fer així
 
 # si volem canviar el tipus de moltes columnes:
 
-cols = c(1,5,6,7) # cols = c(1,5:7)
 
-for (i in cols){
+
+for (i in 1:10){
+  print(i)
+  print(i^2)
+  }
+
+for (i in 1:11){
+  print(colnames(liver)[i])
+}
+
+
+# cols =  # cols = c(1,5:7)
+
+for (i in c(1,5,6,7)){
   liver[,i] = as.numeric(liver[,i])
 }
 
@@ -280,20 +312,24 @@ hist(Age)
 
 detach(liver)
 
-
+liver$Alamine_Aminotransferase
 #### Manipulació de dades i "subsetting" ####
 
 # creem una nova columna a partir de les anteriors
-liver$prova = liver$prova+liver$Total_Bilirubin
+liver$prova = (liver$prova + 
+                 liver$Total_Bilirubin)
 
-# creem una nova columna categòrica amb l'ajuda de la funció ifelse()
+# creem una nova columna categòrica amb 
+# l'ajuda de la funció ifelse()
 # per a més info ?ifelse
 
 # dues categories:
 liver$cat = ifelse(liver$prova>5,1,0)
 
 # tres categories:
-liver$bins = ifelse(liver$prova>5,1,ifelse(liver$prova>2,2,3))
+liver$bins = ifelse(liver$prova>5, 
+                    1, 
+                    ifelse(liver$prova>2,2,3))
 
 # podem anar concatenant ifelse per tenir tantes categories com vulguem
 
