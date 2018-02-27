@@ -8,51 +8,89 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE) # no cal tocar-ho gaire
 set.seed(2901)
 ```
 
-### Utilització del Markdown
+### Què és l'estadística
 
-Aquí puc escriure el que vulgui, s'imprimirà com a text normal.
+![Probabilitat i estadística](estadistica.png)
 
-```{r}
-# Aquí dins només puc escriure com si estés programant, si no em donarà error
-x = rnorm(10000)
-a = sin(pi*x)
-```
+### Què fem en estadística
 
-Aquí puc tornar a escriure normal. Fins i tot puc fer coses com **negreta** o *cursiva*.
+- Creem hipòtesis nules (H0) i les intentem refutar per tal d'acceptar la hipòtesi alternativa
+- Quan les podem refutar?
+    - Depèn de la confiança (sovint en 95%)
+- **Quan la probabilitat de que la mostra vingui d'una distribució que segueix la hipòtesi nul·la sigui menor que 1 menys la confiança**
+    - Si la confiança és del 95% serà quan la p < 0.05
 
-```{r}
-# Puc fer que imprimeixi resultats
-liver = read.csv('indian_liver_patient.csv')
-summary(liver)
-```
-
+Exemple: tenim una pastilla per baixar el colesterol i un placebo, volem demostrar que la pastilla funciona i per tant hem de demostrar que els nivells de colesterol del grup que han pres la pastilla són significativamet més baixos que els que no han pres la pastilla.
 
 ```{r}
-# o que tregui gràfics fets amb les dades:
-plot(x, a)
+colesterol = c(rnorm(20, mean=85, sd = 10), rnorm(20, mean = 95, sd = 14))
+grup = c(rep("tractament", 20), rep("placebo", 20))
+df = as.data.frame(cbind(colesterol, grup))
+df$colesterol = as.numeric(as.character(df$colesterol))
+df$grup = as.factor(df$grup)
+plot(df$grup, df$colesterol, ylab="Colesterol", main="Comparació tractament-placebo")
 ```
 
-Puc fer llistes:
+- La pastilla funciona?
 
-* Un
-* Dos
-* Tres
+Un altre exemple: assumim que la mitja d'alçada d'aquesta classe és de 170cm i la desviació estàndard és de 10cm, quina probabilitat hi ha que entri per la porta una persona de 195cm?
 
-I enumeracions:
+Per respondre a aquestes preguntes hem de saber les probabilitats que hi ha de que aquestes mostres provinguin d'una població que compleix la hipòtesi nul·la. 
 
-1. Primer
-1. Segon
-1. Tercer  (sí, no m'he equivocat, el númeor del principi ha de ser sempre 1...)
+És a dir, en el cas del colesterol, hem de calcular la probabilitat de que trobem els valors observats en el cas de que la pastilla no tingui cap efecte. O dit d'una altra manera, la probabilitat de que les diferències que veiem siguin causades únicament per l'atzar. 
 
-I fins i tot puc fer fórmues en làtex:
+En el cas de l'alçada, hem de calcular les probabilitats de que una persona provinent de la mateixa població que nosaltres (investigadors, del camp, etc) tingui una alçada de 195cm.
 
-\[ \sum\limits_{n=1}^{\infty} 2^{-n} = 1 \]
+### Com calculem aquesta probabilitat?
 
-També puc posar links de manera molt fàcil:
+Per saber-ho hem de **tipificar** les mostres per trobar l'*estadístic de contrast*, és a dir, convertir els valors que tinc a una distribució coneguda, per tal de que pugui saber les probabilitats de que la meva mostra fos com a tal tot i provindre d'una població que segueix la hipòtesi nul·la. 
 
-[Exemple](www.urv.cat)
+Mostra -> Distribució -> Posició en la distribució -> Probabilitat (p)
 
-I imatges!
+Com es tipifica?
+
+- Depèn de la condició: en cada anàlisi hauré d'escollir una distribució i una "fórmula" per transformar les meves dades a aquella distribució.
+
+Per exmeple, si assumim que les mostres de colesterol són normals i tenen variàncies homogències, en el primer exemple el nostre estadístic de contrat és la t, que és un valor de la distribució T:
+
+![Distribució T per diferents graus de llibertat](t.png)
+
+Hem de colocar l'estadístic de contrast calculat amb les nostres dades en aquesta distribució i mirar a les taules les probabilitats de que el valor estigui on és, és a dir, l'àrea sota la corba més cap a fora del nostre punt (els valors més extrems del nostre punt).
+
+La fórmula per calcular l'estadístic de contrast en aquest cas és: 
+
+\[ t = \frac{\bar{x_A}-\bar{x_B}}{\sqrt{\frac{s_{conj}}{n_A}+\frac{s_{conj}}{n_B}}} \]
+
+Que, amb les nostres dades, dóna: \[ t = 1.856 \]
+
+Busquem a les taules la probabilitat de que això es doni, amb graus de llibertat: \[n_A+n_b-2\]):
+
+[Taula de T](https://www.medcalc.org/manual/t-distribution.php)
+
+
+Veiem que les probabilitats estan entre el 5 i el 10%, així que concloem que no podem abandonar la hipòtesi nul·la. 
+
+En el segon cas, la tipificació és molt més senzilla:
+
+\[ z = \frac{x-\mu}{\sigma} \]
+
+Que, en el nostre cas val: \[ z= 2.5 \]
+
+En aquest cas mirem a les taules de la distribució normal (amb graus de llibertat n-1):
+
+[Taula de Z](http://www.stat.ufl.edu/~athienit/Tables/Ztable.pdf)
+
+Per tant veiem que la probabilitat de que entri algú de 195cm o més és del 0,62%.
+
+Per tant, veiem que sempre és el mateix:
+
+Això ho condensem amb els *tests d'hipòtesi*, que fan tot aquest procediment d'una tirada:
+
+Test d'hipòtesi <-> Mostra -> Distribució -> Posició en la distribució -> Probabilitat (p)
+
+Ara la pregunta és: quin test d'hipòtesi he de fer servir?
+
+### Tests d'hipòtesi
 
 ![Diagrama per escollir el test d'hipòesis que t'interessa](hip_test.png)
 
@@ -84,6 +122,7 @@ Anem a veure com s'utilitzen. Seguim amb el fitxer de malalties del fetge.
 
 Quines dades teníem?
 ```{r}
+liver = read.csv('indian_liver_patient.csv')
 head(liver)
 str(liver)
 liver$Dataset = as.factor(liver$Dataset)

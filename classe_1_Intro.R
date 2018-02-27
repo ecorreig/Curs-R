@@ -382,5 +382,3 @@ levels(liver$malaltia) = c("no malalt", "malalt")
 
 liver_malalt = liver[liver$malaltia=="malalt",]
 
-
-
