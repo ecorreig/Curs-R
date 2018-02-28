@@ -31,9 +31,11 @@ t_student = t.test(liver$Total_Bilirubin, liver$Gender)
 # espera dues mostres per comparar-les, però si mirem més amunt també podem posar
 # una fórmula, per tant:
 
-t_student = t.test(liver$Total_Bilirubin~liver$Gender)
+t_student = t.test(liver$Total_Bilirubin ~ liver$Gender)
 
-model = lm(liver$Dataset~.)
+lm(liver$Age~liver$Total_Bilirubin)
+model = lm(liver$Dataset~., data=liver)
+
 # Error in terms.formula(formula, data = data) : 
 # '.' in formula and no 'data' argument
 # Ens hem oblidat de posar el dataframe
@@ -138,22 +140,90 @@ forest = randomForest(Dataset~., data=nou_liver)
 
 # Opció més difícil: podem imputar les dades
 # El millor paquet d'R per fer-ho és el mice:
+pairs(heart)
 
-require(mice)
+#### Missings en R ####
 
-miced = mice(liver, mathod = 'cart') # mètode basat en arbres trees
-nou_liver = complete(miced)
-forest = randomForest(Dataset~., data=nou_liver)
+# Els missings estan representats pel caràcter especial NA
 
-# Opció poc recomanable: reemplaçar els NA amb la mitja:
-m = mean(liver$Albumin_and_Globulin_Ratio, na.rm = TRUE)
-liver$Albumin_and_Globulin_Ratio[!complete.cases(liver)]=m
-forest = randomForest(Dataset~., data=liver)
+# NA és un caràcter curiós, per exemple:
+# NA = c(1,2,3)
+2 == 2
+"hola" == "hola"
+NA == NA
+
+#nova_liver = liver[liver$Age!=NA, ]
+
+# Maneres de trobar els nans en la nostra base de dades:
+
+is.na(NA)
+!is.na(NA)
+
+is.na(liver) # és la funció especial per trobar nans
+
+sum(is.na(liver))
+summary(liver) 
+
+# Si tenim una base de dades molt gran i el summary és massa, podem fer
+# un petit loop per trobar els número de missings de cada columa
+
+for (i in 1:ncol(liver)){
+  if (sum(is.na(liver[,i]))>0){
+    print(colnames(liver)[i])
+    print(sum(is.na(liver[,i])))
+  }
+}
+
+# Maneres d'interactuar amb els nans:
+
+mean(liver$Age)
+mean(liver$Albumin_and_Globulin_Ratio)
+?na.omit
+
+mean(liver$Albumin_and_Globulin_Ratio, na.rm = TRUE)
+mean(na.omit(liver$Albumin_and_Globulin_Ratio))
+
+
+
+#### Com netejar una base de dades ####
+
+# Opció 1:
+
+# treure els casos que tenen nans (és el que fa l'spss per defecte)
+nou_liver = na.omit(liver)
+complete.cases(liver)
+nou_liver = liver[complete.cases(liver),]
+
+# jo ho faig quan hi ha entrades amb un número exagerat de missings
+
+# Opció 2: 
+
+# treure variables en les que hi ha molts missings (jo ho faig segur)
+# a partir del 40-50%, fins i tot baixant fins al 15% si la variable
+# no és molt important
+
+# Opció 3: intermig dels dos: treure alguns pacients i algunes variables
+
+# Opció 4: combinar les opcions anteriors amb la imputació de missings:
+
+#### Imputació de missings ####
 
 # OPCIÓ ABSOLUTAMENT PROHIBIDA (en la majoria de casos): reemplaçar els NA amb 0:
 
-liver$Albumin_and_Globulin_Ratio[!complete.cases(liver)]=0
+liver$Albumin_and_Globulin_Ratio[!complete.cases(liver$Albumin_and_Globulin_Ratio)]=0
 forest = randomForest(Dataset~., data=liver)
+
+# Opció poc recomanable: reemplaçar els NA amb la mitja:
+m = mean(liver$Albumin_and_Globulin_Ratio, na.rm = TRUE)
+liver$Albumin_and_Globulin_Ratio[!complete.cases(liver)] = m
+forest = randomForest(Dataset~., data=liver)
+
+#install.packages('mice')
+require(mice)
+
+miced = mice(liver, method = 'rf') # mètode basat en arbres trees
+nou_liver = complete(miced)
+forest = randomForest(Dataset~., data=nou_liver)
 
 # centenars d'altres implacables, insensibles i inespearts errors que inexorablement
 # us amargaran les vostres primeres sessions d'R 

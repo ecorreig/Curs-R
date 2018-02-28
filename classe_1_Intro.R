@@ -313,29 +313,46 @@ hist(Age)
 detach(liver)
 
 liver$Alamine_Aminotransferase
+
+
 #### Manipulació de dades i "subsetting" ####
 
+
 # creem una nova columna a partir de les anteriors
-liver$prova = (liver$prova + 
-                 liver$Total_Bilirubin)
+liver$prova = rnorm(nrow(liver))
+
+liver$prova2 = liver$prova + liver$Total_Bilirubin
+
+# >
+# >=
+# <=
+# <
+# ==
+# !=
 
 # creem una nova columna categòrica amb 
 # l'ajuda de la funció ifelse()
 # per a més info ?ifelse
 
 # dues categories:
-liver$cat = ifelse(liver$prova>5,1,0)
+liver$cat = ifelse(liver$prova>5,"alt","baix")
+liver$cat = as.factor(liver$cat)
 
 # tres categories:
-liver$bins = ifelse(liver$prova>5, 
-                    1, 
-                    ifelse(liver$prova>2,2,3))
-
+liver$bins = ifelse(liver$prova>5, "baix", ifelse(liver$prova>2,"mitjà","alt"))
+liver$bins = as.factor(liver$bins)
+levels(liver$bins) = c("primer", "segon", "tercer")
 # podem anar concatenant ifelse per tenir tantes categories com vulguem
 
 # Eliminem una columna; es pot fer de dues maneres:
-liver = liver[,-12]
+#fora = c(1,4,5)
+#liver = liver[,-fora]
+
 liver$bins = NULL
+
+liver$prova2 = NULL
+
+liver$Age
 
 # Seguim creant columnes fent opearcions amb altres columnes
 liver$prova = liver$Direct_Bilirubin*2.3
@@ -350,10 +367,12 @@ liver$prova = liver$Direct_Bilirubin*2.3
 
 # Com funciona:
 
-# L'R escull files (o columnes) basat en booleans, és a dir, en columnes de veritat i false; 
+# L'R escull files (o columnes) basat en booleans, és a dir, en columnes de True i false; 
 # què vol dir això:
 
-liver$Gender=="Female"
+hola <- c(1,2,3,4,5)
+
+liver$Gender == "Female"
 
 # Aquí veiem que, de totes les files del dataframe liver, ens surt un True si en aquella fila la 
 # variable Gender és igual a "Female" i un False si no ho és.
@@ -361,9 +380,9 @@ liver$Gender=="Female"
 # Si això ho poso en la següent estructura, estaré agafant només aquelles files on hi hagi un True
 # en la condició que explicito dins dels corxets.
 
-liver_dones = liver[liver$Gender=="Female",] # alerta amb la coma! 
+liver_dones = liver[liver$Gender=="Female", -2] # alerta amb la coma! 
                                             # -> La coma vol dir que volem agafar totes les columnes
-
+# liver_dones = liver_dones[,c(1,3,4,5)]
 # Aquí el mateix, tindrem un True per totles les files que tinguin la bilirrubina a més de 5 i 
 # un False a les altres; per tant estarem creant una nova base de dades amb pacients amb la 
 # bilirrubina més alta de 5. 
@@ -377,7 +396,7 @@ liver_bili = liver[(liver$Total_Bilirubin>1 & liver$Total_Bilirubin<5),]
 # Més exemples:
 
 colnames(liver)[ncol(liver)-1] = "malaltia"
-
+liver$malaltia = as.factor(liver$malaltia)
 levels(liver$malaltia) = c("no malalt", "malalt")
 
 liver_malalt = liver[liver$malaltia=="malalt",]

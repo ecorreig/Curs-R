@@ -4,7 +4,8 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = F)
+
 ```
 
 Pots fer tots els exercicis en aquest mateix document. Recorda mirar la documentació (?nom.de.la.funció) i en els documents linkats en la primera classe (classe - 1.R).
@@ -12,17 +13,80 @@ Pots fer tots els exercicis en aquest mateix document. Recorda mirar la document
 ## Part I: manipulació de dades
 
 1. Importa el fitxer que es diu "heart.csv". 
+
+```{r}
+heart = read.csv('Heart.csv')
+```
+
     - Visualitza la base de dades (recorda, View()).
     - Elimina la primera columna, que no serveix per res.
+
+```{r}
+heart$X = NULL
+```
+
     - Mira com són les variables i posa-les en el format correcte (numèric, factorial o caràcter).
-    - Resulta que no volem el MaxHR, si no que volem el normal, que és el 70$ del màxim (ja sé que no però com si sí.)
-    - Fes una nova variable que digui que si colesterol és dolent o no (és a dir, que sigui 1 a partir de 200 i 0 si no.)
-    - Fes un histograma de les edats
-    - Fes un gràfic de caixes comparant el MaxHR entre homes i dones
-    - Fes un gràfic de punts comparant l'edat i el RestBP
-    - Fes un nou dataframe on hi hagi només dones (Sex = 0)
-    - En aquest nou dataframe, calcula la mitja d'edat, de colesterol i fes una taula de freqüències dels nivels de "ChestPain"
+
+```{r}
+columnes_a_canviar = c(2, 6, 7, 9, 11, 12)
+
+for (i in columnes_a_canviar){
+  heart[ ,i] = as.factor(heart[, i])
+}
+
+```
+
+
+    - Resulta que no volem el MaxHR, si no que volem el normal, que és el 70% del màxim (ja sé que no però com si sí.)
     
+```{r}
+heart$HR = heart$MaxHR * 0.7
+```
+
+    
+    - Fes una nova variable que digui que si colesterol és dolent o no (és a dir, que sigui 1 a partir de 200 i 0 si no.)
+    
+```{r}
+heart$col = ifelse(heart$Chol > 200, "malo", "bueno")
+```
+
+    
+    - Fes un histograma de les edats
+    
+```{r}
+hist(heart$Age, main = "Histograma", xlab = "Edat", ylab = "Freqüència")
+```
+    
+
+    - Fes un gràfic de caixes comparant el MaxHR entre homes i dones
+    
+```{r}
+plot(heart$Sex, heart$MaxHR)
+```
+    
+
+    - Fes un gràfic de punts comparant l'edat i el RestBP
+    
+```{r}
+plot(heart$Age, heart$RestBP)
+```
+
+
+    - Fes un nou dataframe on hi hagi només dones (Sex = 0)
+
+```{r}
+dones = heart[heart$Sex==0, ]
+```
+
+    - En aquest nou dataframe, calcula la mitja d'edat, de colesterol i fes una taula de freqüències dels nivels de "ChestPain"
+
+```{r}
+mean(dones$Age)
+sd(dones$Chol)
+table(dones$ChestPain)
+#table(heart$Sex, heart$ChestPain)
+```
+
 Per més exercicis:
 
 [Aquí](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Seventh%20Printing.pdf), pàgina 52
