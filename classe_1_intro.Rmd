@@ -1,0 +1,800 @@
+---
+title: "Curs d'introducció a R"
+subtitle: "Classe 1: Introducció a R"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  beamer_presentation:
+    fig_caption: no
+    highlight: tango
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+institute: IISPV
+---
+
+
+# Primera sessió amb R
+
+## Consola
+
+- Aquest símbol ">" és el prompt i és on haurem d'escriure les nostres ordres.
+
+- Aquest símbol "#" serveix per introduir un comentari.
+
+- Per separar expressions podem fer servir el ";"
+
+
+
+
+**********************************************
+## Consola
+
+- Si ens equivoquem podem pitgem la tecla "ESC" i tornarà a aparèixer el símbol ">"
+
+- Podem navegar per les instruccions que ja hem executat fent servir les tecles  ![](input/key_arrow.png){ width=10% }
+
+- Per sortir del programa podem tancar o executar ">q()"
+
+
+
+**********************************************
+## Càlculs simples
+
+```{r}
+4+5
+
+sqrt(49)
+
+log(2)
+
+rnorm(3)
+
+```
+
+
+**********************************************
+##  Càlculs simples
+
+```{r }
+w<-4+5 #deso el resultat de 4+5 a l'objecte w
+w
+
+sqrt(w)
+
+x<-rnorm(3)
+print(x)
+
+```
+
+
+
+
+**********************************************
+## Espai de treball
+
+- És l'espai on es desen de forma temporal o no tots els objectes que anem creant o carregant.
+- Quan tanquem el programa el podem desar.
+
+
+```{r , eval=FALSE}
+getwd() #on és el meu espai de treball
+ls() #quins objectes hi ha?
+
+setwd("PATH") # hem de substituir el "path" pel de l'espai de 
+# treball on volem estar
+save.image("Prova.Rdata")
+
+
+```
+
+
+**********************************************
+## Ajuda
+
+Hi ha diferents maneres d'accedir a l'ajuda dins el programa:
+
+```{r , eval=FALSE}
+help.start()           # Inicialitzar l'ajuda
+
+help.search("normal")  # Buscar "normal" a l'ajuda
+
+help(package="base")   # Buscar info del paquet "base"
+
+?log                # Buscar ajuda d'una funció concreta
+
+```
+
+
+
+**********************************************
+
+## Com interpretar l'ajuda
+
+Imaginem que volem saber més sóbre les funcions de distribució normals en R, escrivim:
+
+```{r, eval = F}
+?sample
+```
+
+- Ens surt una informació com aquesta: 
+
+![](input/help.png){ width=70% }
+
+## Com interpretar l'ajuda
+
+
+- Hi ha informació sobre diverses funcions, amb tots els paràmetres explicats. 
+- Com veiem, les funcions a R sempre van amb el nom i parèntesis després on, si cal, hi poso els arguemnts (no s'ha de confondre amb les subseleccions, que van amb claudàtors).
+- Important: els paràmetres que no tenen signe "=", per exemple x, q, p o n, són *obligatoris*
+- Els que sí que tenen un signe "=", per exemple, mean o sd són opcionals i tenen valor per defecte el valor que trobem deprés de l'=. Per exemple el *valor per defecte* de la mitja és 0 i el de la desviació estàndard és 1. 
+
+
+## Paquets i les llibreries
+
+
+- R consta d'un sistema "base", que inclou molts mètodes estadístics, i un sistema per paquets que permeten anar molt més enllà.
+
+- La comunitat R és qui elabora i manté aquests paquets (alguns signats per estadístics de gran renom).
+
+
+**********************************************
+
+## Paquets i les llibreries
+
+Triem un repositori: 
+
+```{r , eval=FALSE}
+install.packages("foreign") #llegir Stata,SPSS...
+```
+
+Un cop instal·lat l'haurem de carregar a la biblioteca:
+
+```{r , eval=FALSE}
+library(foreign) #require(foreign)
+```
+Si volem saber-ne més... :
+
+
+```{r , eval=FALSE}
+library(help="foreign")
+```
+
+
+**********************************************
+
+# Objectes
+
+
+**********************************************
+
+## Variables
+
+- Les variables són els objectes més simple i poden ser:
+
+
+1. numèric: números reals (3.1415)
+
+2. complex: números complexes (2 + 5i)
+
+3. character: cadenes alfanumèriques de text ("patata")
+
+4. logical: variables lògiques (TRUE) 
+
+**********************************************
+
+## Objectes
+
+- Recordem que R és un llenguatge de programació orientat a objectes.
+- Els objectes estan formats per elements.
+
+```{r}
+w <- 3+4 #Creem l'objecte w 
+print(w)
+
+# per cert: <- és equivalent a = !
+```
+
+- 7 és l'unic element de l'objecte w
+- Els objectes més habituals són: variables, vectors, matrius, llistes i data frames.
+
+
+**********************************************
+
+## Tipus d'objectes
+
+- Bàsicament podem identificar 4 tipus d'objectes:
+
+1. Vectors
+2. Matrius
+3. Dataframes
+4. Llistes
+
+En aquest curs treballarem vectors i dataframes.
+
+*****************************
+
+## Tipus d'objectes: vectors
+\tiny
+
+- És una col·lecció ordenada d'elements del **mateix tipus** (numèric, factor...)
+- Es creen amb la funció c(), segurament la funció més important d'R!
+
+```{r }
+x<-c(2,4,6) #vector de 3 elements numèrics parells
+x
+y<-c("A","B","C") #vector de 3 elements cadena
+y
+z<-c(TRUE,FALSE,TRUE) #vector de 3 elements lògics
+z
+```
+
+*****************
+
+## Algunes operacions: vectors
+\tiny
+```{r}
+x<-1:10 #genera un vector d'1 a 10
+x
+x[4] #la posició 4 és
+ 
+x[x>7] #elements més grans de 7
+
+x+2 #sumar un escalar
+
+
+```
+
+*****************
+
+## Tipus d'objectes: dataframes
+
+- És una col·lecció ordenada d'elements de **qualsevol tipus** amb dues dimensions.
+
+\tiny
+```{r}
+id<-1:10
+
+sexe<-rep(c("M","D"),5)
+
+normal<-rnorm(10)
+
+curacio<- rep(c(FALSE,TRUE),5)
+
+dades<-data.frame(id,sexe,normal,curacio)
+
+head(dades) #Mostrar primeres files/registres
+
+```
+
+
+**************************
+## Algunes operacions: dataframes
+\tiny
+```{r}
+str(dades) #mostra estructura de les dades
+dades$id #mostra valors variable id
+dades.s<- dades[order(dades$id),]#ordena per id
+#podem afegir una nova variable
+edat<-c(67,78,89,86,56,90,68,82,92,67)
+dades.new<-data.frame(dades.s,edat)
+```
+**************************
+
+# Subseleccions
+
+- Els claudàtors "[ , ]" indiquen subselecció.
+- La primera posició pertany a les files, la segona a les columnes.
+- Poso un número o un vector dins de cada posició per indicar quines files o columnes vull.
+- Si no poso res en una de les posicions estic indicant totes les files/columnes
+- Si poso un número negatiu o un vector precedit d'un símbol "-" estic indicant totes les files/columnes menys aquella o aquelles.
+- Atenció que els vectors s'han de fer o bé en format a:b o bé amb la funció c().
+
+**************************
+
+## Subseleccions I
+
+```{r}
+# Seleccionem una cel·la en concret, p. e., 
+# fila 2 columna 1:
+dades.new[2,1]
+# Seleccionem una fila, per exemple la tercera:
+dades.new[3,] # Noteu la coma i l'espai buit!
+```
+**************************
+
+## Subseleccions II
+
+```{r}
+# Seleccionem una columna, per exemple la cinquena:
+dades.new[,5]
+#També ho podem fer amb el nom fent servir el símbol 
+# del dòlar "$"
+dades.new$edat
+```
+
+
+**************************
+
+## Subseleccions III
+
+- Podem seleccionar més d'una fila o columna
+- El resultat és una altra dataframe
+
+```{r}
+# Per exemple, seleccionem les tres primeres files 
+# i totes les columnes:
+dades.new[1:3,]
+```
+
+**************************
+
+## Subseleccions IV
+
+```{r}
+# Seleccionem les tres últimes columnes i totes les 
+# files:
+dades.new[,3:5] 
+```
+
+
+**************************
+
+## Subseleccions V
+
+```{r}
+# Seleccionem totes les files menys la 4 i 
+# totes les columnes menys la primera:
+dades.new[-4,-1]
+```
+
+**************************
+
+## Subseleccions VI
+
+```{r}
+# Podem crear una nova dataframe amb la subselecció:
+
+dades.sub = dades.new[c(4,5,7:9),-c(1,3)]
+dades.sub
+```
+
+**************************
+
+## Subseleccions VII
+
+```{r}
+# Podem posar una condició dins de la subselecció
+
+dones = dades.new[dades.new$sexe == "D",]
+dones
+```
+
+## Subseleccions VIII
+
+```{r}
+# Un altre exemple:
+
+grans = dades.new[dades.new$edat > 85,]
+grans
+```
+
+**************************
+
+# Llegir dades externes
+
+## Introducció
+\bgroup
+\hypersetup{linkcolor = blue}
+\listoffigures
+\egroup
+
+- R sap llegir dades de gairebé qualsevol format.
+- El sistema és habitualment senzill i només cal tenir en compte quina llibreria cal en cada cas.
+- En general, l'objecte generat és un dataframe
+
+```{r,echo=FALSE, results='hide'}
+set.seed(1)
+
+library(knitr)
+tab<-rbind(cbind("Text (.csv)"
+, "Base/Readr", 
+"read.csv(ruta, header=TRUE, row.names='id')"),
+
+cbind("Text (.txt/ .csv)"
+, "Base/Readr/data.table", 
+"read.table(ruta, header=TRUE, sep=',', row.names='id')"),
+
+cbind("MSExcel (.xls / .xlsx)"
+, "xlsx", 
+"read.xlsx( ruta, sheetName = 'Fulla1')"),
+
+
+cbind("SPSS (.sav)"
+, "foreign", 
+"read.spss(ruta)"),
+
+
+cbind("Stata (.dta)"
+, "foreign", 
+"read.dta( ruta)"),
+
+
+
+cbind("SAS (.xpt)"
+, "foreign", 
+"Read.xport(ruta)"))
+
+colnames(tab)<-c("Format", "Llibreria","Sintaxis")
+```
+
+\tiny
+```{r,echo=FALSE}
+kable(tab, row.names=FALSE)
+```
+
+*********
+
+## Importar fitxers de text (.txt, .csv)
+
+```{r, eval=FALSE}
+read.table("ruta",
+	header=TRUE,   #primera línia noms variables
+	sep="," ,  #separador entre variables  
+	stringsAsFactors = FALSE,   #no factors per defecte
+	na.strings=c("NA","**"), #codis per a missings
+	dec="." #simbol decimal
+	)
+
+```
+
+
+
+**************
+
+## Importar fitxers MS Excel 
+
+```{r, eval=FALSE}
+library(openxlsx)
+
+read.xlsx("ruta",
+	sheetIndex,  #nº de fulla (evitar posar el nom)
+	sheetName="Full1", #nom de la fulla
+	as.data.frame=TRUE, #com un data frame
+	header=TRUE,  #noms variables
+	rowIndex=20, #número de files per llegir
+	)
+
+``` 
+
+
+**************
+
+## Importar fitxers SPSS 
+
+
+```{r, eval=FALSE}
+library(foreign)
+
+read.spss("ruta",
+	use.value.labels=TRUE,  # factors
+	to.data.frame=TRUE, #data frame
+	)
+
+
+``` 
+
+**************
+
+##  Exemple
+
+```{r}
+dades = read.csv("input/dades.csv")
+```
+
+*********
+
+# Exploració de les dades
+
+## Estructura
+
+Fem una ullada a les dades
+
+```{r, eval=T}
+str(dades) #mostra estructura d'un objecte
+```
+
+*********
+
+## Primeres files
+
+```{r, eval=T}
+head(dades) #mostra les primeres files
+```
+
+*********
+
+## Altres funcions
+
+```{r, eval=FALSE}
+tail(dades) #mostra les darreres files
+```
+
+```{r, eval=FALSE}
+View(dades) #mostra tot el conjunt de dades 
+```
+
+
+**************
+
+# Manipulació de variables
+
+##  Creació noves variables
+
+Entrem les alçades i els pesos:
+
+```{r}
+dades$alcada = rnorm(nrow(dades), mean = 170, sd = 10)
+dades$pes = rnorm(nrow(dades), mean = 75, sd = 10)
+```
+
+Índex de massa corporal $imc= \frac{pes}{alçada^{2}}$
+
+```{r, eval=T}
+alcada.m<-dades$alcada/100
+dades$imc<-dades$pes/ alcada.m^2
+```
+**************
+
+## Visualitzem
+
+\small
+```{r}
+head(dades)
+```
+
+**************
+
+## Recodificació de variables
+
+re-codificar imc: <18;18-<25;25-<30;>30
+```{r, eval=T}
+dades$imccat[dades$imc<18]<-0
+dades$imccat[dades$imc>=18 & dades$imc<25]<-1
+dades$imccat[dades$imc>=25 & dades$imc<30]<-2
+dades$imccat[dades$imc>=30]<-3
+
+dades$imccat<-factor(dades$imccat,levels=c(0,1,2,3),
+                     labels=c("baix pes","normal",
+                              "sobrepes","obesitat"))
+
+# Alternativa
+dades$imccat <- cut(dades$imc, breaks=c(-Inf,18,25,30,Inf), 
+                    labels = c("baix pes","normal",
+                               "sobrepes","obesitat"))
+```
+
+**********
+
+## Modificació de nivells d'un factor
+```{r, eval=T}
+library(plyr) #llibreria tractament de dades
+
+dades$imccat <-revalue(dades$imccat, c("normal"="estàndar"))
+
+``` 
+
+*********
+
+## Funcions de transformació de variables
+
+- as.numeric()
+
+- as.character()
+
+- as.factor()
+
+*********
+
+## Transformació de variables:exemples
+
+- as.numeric
+
+```{r, eval=T}
+a<-c("1", "3", "5")
+as.numeric(a)
+
+```
+
+Compte quan passem de caràcter a numèric!!!
+
+```{r, eval=T}
+b<-c("1", "est", "5")
+as.numeric(b)
+```
+
+*********
+## Transformació de variables:exemples
+
+Compte quan passem de factor a numèric!!!
+
+```{r, eval=T}
+b<-factor(c("1", "10", "5"))
+as.numeric(b)
+```
+
+Passem sempre per as.character:
+```{r}
+as.numeric(as.character(b))
+```
+
+***********
+
+## Ordenar dataframes
+
+- Ordenar per una variable
+```{r, eval=FALSE}
+dades<-dades[order(dades$imc),]
+```
+
+- Ordenar per més d'una variable
+```{r, eval=FALSE}
+dades<-dades[order(dades$sexe,dades$imc),]
+```
+
+- Ordre descendent
+```{r, eval=FALSE}
+dades<-dades[order(dades$sexe,-dades$imc),]
+```
+
+
+**********
+
+## Keep/ drop
+
+- Triem les variables que volem
+```{r, eval=FALSE}
+variables<-c("id","sexe","imc")
+dades<-dades[variables]
+```
+
+- Descartem variables (símbol d'exclamació "!" equival a "NO")
+
+```{r, eval=FALSE}
+dades<-dades[!variables]
+```
+
+**********
+
+# Estadística descriptiva
+
+## Introducció
+
+- Variables contínues:
+  * mean()
+  * sd()
+  * range()
+  * median()
+  
+- Variables categòriques o de text:
+  * table()
+  
+- Tot a la vegada
+  * summary()
+
+*************
+
+## Descriptius: variables contínues
+
+\footnotesize
+```{r}
+# Mitjana:
+mean(dades$edat)
+
+# Desviació estàndard:
+sd(dades$imc)
+
+# Rang:
+range(dades$pes)
+
+# Mediana:
+median(dades$alcada)
+```
+
+************
+
+## Descriptius: variables categòriques
+
+```{r}
+table(dades$sexe)
+
+table(dades$sexe, dades$curacio)
+```
+
+
+***********
+
+## Descriptius: funció summary()
+
+
+\footnotesize
+
+```{r}
+summary(dades)
+```
+
+***********
+
+- També es pot fer summary de només una o algunes variables:
+
+```{r}
+summary(dades$edat)
+summary(dades[,c(1,3,5)])
+```
+
+
+# Gràfics amb ![](input/RLogo.png){ width=10% }
+
+## Introducció
+
+- En R hi ha moltes llibreries per fer gràfics
+- R base té capacitat per fer gràfics simples
+- Per gràfics més avançats la llibreria més utilitzada és "ggplot2"
+- N'hi ha d'altres, com ara "plotly".
+- En aquest curs utilitzarem el paquet base i ggplot2 a l'última classe.
+
+***********
+
+## Funció "plot"
+
+```{r, eval = F}
+plot(x = var.x, 
+     y = var.y, 
+     type = "tipus",
+     col = "color",
+     pch = "tipus de punt",
+     cex = "mida del punt",
+     lwd = "amplada de la línia",
+     main = "títol",
+     sub = "subtítol",
+     xlab = "nom de l'eix x",
+     ylab = "nom de l'eix y",
+     ...)
+
+```
+
+***********
+
+## Funció "plot": diagrames de caixes
+
+- Si li passem una variable categòrica sap que ha de fer boxplots:
+
+```{r fig1, fig.height=4.5}
+plot(dades$sexe, dades$edat, main = "diagrama de caixes",
+     xlab = "sexe", ylab = "edat")
+```
+
+***********
+
+## Funció "plot": diagrames de punts
+
+- Si les dues variables són contínues fa un gràfic de punts:
+
+```{r fig2, fig.height=4.5}
+plot(dades$pes, dades$imc, pch = 20, col = "red", cex = 2.5,
+     main = "diagrama de punts", xlab = "pes", ylab = "imc")
+```
+
+## Histograma
+
+```{r fig3, fig.height=5.5}
+hist( dades$edat, main = "histograma",xlab = "imc")
+```
+
+## Fi
+
+\center
+\Large
+
+Final de la classe 1.
+

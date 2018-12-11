@@ -1,6 +1,10 @@
 ---
-title: "Selecció de model"
-output: ioslides_presentation
+title: "Curs d'introducció a R"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  ioslides_presentation: default
+subtitle: 'Classe 6: Selecció de model'
 ---
 
 ```{r setup, include=FALSE}
@@ -312,7 +316,7 @@ box()
 ## A la pràctica {.smaller}
 
 ```{r}
-liver = read.csv('indian_liver_patient.csv')
+liver = read.csv('input/indian_liver_patient.csv')
 colnames(liver)[ncol(liver)] = "Malaltia"
 liver$Malaltia = as.factor(liver$Malaltia)
 levels(liver$Malaltia) <- c("Sa","Malalt")

@@ -1,6 +1,11 @@
 ---
-title: "classe - 5"
-output: html_document
+title: "Curs d'introducció a R"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+subtitle: 'Classe 7: Gràfics en ggplot2'
 ---
 
 ```{r setup, include=FALSE}
@@ -23,7 +28,7 @@ knitr::opts_chunk$set(echo = TRUE)
 - Un exemple: 
 
 ```{r}
-liver = read.csv('indian_liver_patient.csv')
+liver = read.csv('input/indian_liver_patient.csv')
 colnames(liver)[ncol(liver)] = "Malaltia"
 liver$Malaltia = as.factor(liver$Malaltia)
 levels(liver$Malaltia) <- c("Sa","Malalt")

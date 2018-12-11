@@ -1,41 +1,3 @@
-##### Intro #####
-
-# Aquesta classe està basada en les classes de Trevor Hastie i Rob Tibshirani (Stanford University)
-# i en el llibre An Introduction to Statistical Learning with Applications in R
-
-# Podeu trobar les classes aquí:
-# https://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/
-# I el llibre està penjat gratuïtament aquí: http://www-bcf.usc.edu/~gareth/ISL/
-# Dee totes les que hi ha farem:
-# Lab: Introduction to R del capítol 2
-# Lab: Linear Regression 
-# Lab: Logistic Regression  dels capítols 3 i 4)
-# Lab: Forward Stepwise Selection and Model Selection Using Validation Set (tema 6)
-# Lab: Model Selection Using Cross-Validation (tema 6)
-# Evidentment també són útils les parts teòriques relacionades amb les pràctiques dels vídeos
-
-# La part de test d'hipòtesi no la cobreixen, aquesta està basada en el llibre:
-# Statistics, An introduction using R, de Michael J. Crawley i que podeu trobar a la biblio
-
-# Tant en els llibres com en els vídeos hi ha moltíssima més informació de la que farem 
-# en el curs i és un lloc fantàstic pels que vulguin ampliar.
-
-# Un altre llibre que us pot interessar és "Discovering Statistics Using R", de Andy Field i altres
-# És potser una mica intimidant per aprendre, però és un molt bon compendi i un lloc d'on treure llibreries útils
-
-# Llocs on treure informació sobre llibreries, tutorials o demanar ajuda:
-
-# Tutorials: https://www.statmethods.net/index.html, https://www.r-bloggers.com
-# Documentació: https://cran.r-project.org/manuals.html
-# LLibreries: exemple: https://cran.r-project.org/web/packages/lme4/lme4.pdf
-# Demanar ajuda: https://stackoverflow.com (prgramar)
-# Demanar ajuda: https://stats.stackexchange.com/ (estadística)
-
-# Per qualsevol altra cosa, google.
-
-# Aquesta classe la podeu trobar actualitzada a 
-# https://github.com/ecorreig/Curs-R
-
 
     #####################################
 
@@ -43,6 +5,23 @@
 
     ####################################
 
+###### Iniciació a R
+
+## Consola
+
+# - Aquest símbol ">" és el prompt i és on haurem d'escriure les nostres ordres.
+
+# - Aquest símbol "#" serveix per introduir un comentari.
+
+# - Per separar expressions podem fer servir el ";"
+
+## Consola
+
+# - Si ens equivoquem podem pitgem la tecla "ESC" i tornarà a aparèixer el símbol ">"
+
+# - Podem navegar per les instruccions que ja hem executat fent servir les tecles  ![](input/key_arrow.png){ width=10% }
+
+# - Per sortir del programa podem tancar o executar ">q()"
 
 ###### Escalars, vectors i operacions simples #####
 
@@ -93,28 +72,12 @@ coses[1]
 llista[[1]]
 
 
-##### Subsetting #####
 
-vec = seq(from=0, to=10, length=20)
-vec
-
-vec[1] # agafem el primer element
-vec[17] # agafem l'element en posició 17
-vec[17:20] # agafem els elements en posicions de 17 a 20
-length(vec[17:20])
-
-vec[c(1,2,10:15,20)]  # agafem el primer, segon, del 10 al quinzè i el vintè
-sub = c(1,2,10:15,20)
-vec[sub]
-
-vec[-9] # tots menys el novè
-vec[10:15] # del 10 al 15
-vec[-10:15] # alerta amb aquest, s'ha de fer:
-
-vec[-c(10:15)]
 
 
 ##### Matrius ######
+
+#### No es fan servir gaire, veieu dataframes més avall
 
 matriu = matrix(seq(1,12),4,3, byrow = T) # amb la comanda "matrix" creem matrius
 matriu
@@ -137,55 +100,12 @@ nou_vector = matriu[2,]
 
 matriu_nova = matriu[c(1,3), c(1,3)]
 
-##### Gràfics #####
 
-set.seed(123456)
+####### Dataframes #########
 
-seq()
-runif()
-a = seq(1,100) # seqüència d'1 a 10
-b = runif(100) # 10 números aleatoris trets d'una distribució uniforme de 0 a 1
-c = rnorm(100) # 10 números aleatoris trets d'una distribució normal de 0 a 1
+# Dataframes són matrius però amb més funcionalitat; en una matriu només puc tenir 
 
-# scatter plots
-
-plot(a,b)
-plot(a,c)
-
-plot(a, b, xlab="eix x", ylab = "eix y", col ="red")
-
-plot(a, b, xlab="eix x", ylab = "eix y", col ="red", type='b')
-
-plot(a, b, xlab="eix x", ylab = "eix y", col ="red", type='b', pch ="*")
-
-
-# histogrames
-hist(a)
-hist(b)
-hist(c)
-
-hist(rnorm(mean=0, sd=1, n=10000), main="histograma", xlab = "hola")
-
-# això són les coses bàsiques que es poden fer en R
-
-
-##### Directori #####
-
-ls()
-
-rm(y)
-
-rm(list = ls())
-
-# per interactuar amb l'exterior, primer hem de saber on som
-
-setwd('~path')
-
-setwd('../Desktop/Curs-R-master/')
-# podem fer servir un path global (C:/path/to/fitxer)
-# o relatiu (../Carpeta/)
-
-setwd('C:/Users/raya2/Desktop/Curs-R-master')
+# Llegir un fitxer csv i passar-lo a dataframe:
 
 liver = read.csv('indian_liver_patient.csv')
 View(liver)
@@ -197,9 +117,41 @@ View(liver)
 
 liver = read.csv('indian_cast.csv', sep=";", dec = ",")
 
-####### Dataframes #########
-
 View(liver) # també es pot clicar al símbol blau al costat del nom a l'environment
+
+
+
+##### Subseleccions #####
+
+# Els claudàtors "[ , ]" indiquen subselecció.
+# La primera posició pertany a les files, la segona a les columnes.
+# Poso un número o un vector dins de cada posició per indicar quines files o columnes vull.
+# Si no poso res en una de les posicions estic indicant totes les files/columnes
+# Si poso un número negatiu o un vector precedit d'un símbol "-" estic indicant totes les files/columnes menys aquella o aquelles.
+# Atenció que els vectors s'han de fer o bé en format a:b o bé amb la funció c().
+
+
+### En vectors
+
+vec = seq(from=0, to=10, length=20)
+vec
+
+vec[1] # agafem el primer element
+vec[17] # agafem l'element en posició 17
+vec[17:20] # agafem els elements en posicions de 17 a 20
+length(vec[17:20])
+
+vec[c(1,2,10:15,20)]  # agafem el primer, segon, del 10 al quinzè i el vintè
+sub = c(1,2,10:15,20)
+vec[sub]
+
+vec[-9] # tots menys el novè
+vec[10:15] # del 10 al 15
+vec[-10:15] # alerta amb aquest, s'ha de fer:
+
+vec[-c(10:15)]
+
+#### En Dataframes
 
 # Només a tall informatiu, què hi ha en la base de dades que utilitzarem 
 
@@ -268,8 +220,6 @@ levels(liver$Dataset) = nivells
 # liver$Dataset = as.numeric(as.character(liver$Dataset)) # a vegades s'ha de fer així
 
 # si volem canviar el tipus de moltes columnes:
-
-
 
 for (i in 1:10){
   print(i)
@@ -401,3 +351,35 @@ levels(liver$malaltia) = c("no malalt", "malalt")
 
 liver_malalt = liver[liver$malaltia=="malalt",]
 
+
+
+
+
+##### Gràfics simples #####
+
+set.seed(123456)
+
+seq()
+runif()
+a = seq(1,100) # seqüència d'1 a 10
+b = runif(100) # 10 números aleatoris trets d'una distribució uniforme de 0 a 1
+c = rnorm(100) # 10 números aleatoris trets d'una distribució normal de 0 a 1
+
+# scatter plots
+
+plot(a,b)
+plot(a,c)
+
+plot(a, b, xlab="eix x", ylab = "eix y", col ="red")
+
+plot(a, b, xlab="eix x", ylab = "eix y", col ="red", type='b')
+
+plot(a, b, xlab="eix x", ylab = "eix y", col ="red", type='b', pch ="*")
+
+
+# histogrames
+hist(a)
+hist(b)
+hist(c)
+
+hist(rnorm(mean=0, sd=1, n=10000), main="histograma", xlab = "hola")

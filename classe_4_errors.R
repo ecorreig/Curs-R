@@ -1,4 +1,28 @@
-liver = read.csv('indian_liver_patient.csv')
+# Curs d'introducció a R
+# Errors i missigns
+# Eudald Correig i Fraga
+
+### Introducció
+
+# En aquesta classe repassarem els errors més comuns que tots fem en R i aprendrem a 
+# identificar-los i solucionar-los.
+
+# Per altra banda, també tractarem el tema dels missings, que en R requereix d'un tractament
+# més acurat que en altres paquets estadístics. 
+
+# Com veieu, aquesta classe no està en Markdown, si no en un script d'R normal i corrent. 
+# Això és perquè tindrem molts errors (evidentment) i amb el Markdown no seria possible compilar.
+# El primer que identifiquem és que en un script normal d'R no hi podem escriure de forma normal, 
+# si no que hem de posar un coixinet (#) davant de tot el que no sigui codi (que, com ja hem vist,
+# correspon a escriure un comentari).
+
+#### Carreguem les dades que farem servir
+
+liver = read.csv('indian_liver_patient.csv') # primer error!
+# Error in file(file, "rt") : cannot open the connection
+# cannot open file 'indian_liver_patient.csv': No such file or directory
+
+liver = read.csv('input/indian_liver_patient.csv')
 liver$Dataset = as.factor(liver$Dataset)
 
 #### Errors clàssics ####

@@ -1,0 +1,135 @@
+---
+title: "Curs d'introducció a R"
+subtitle: "Classe 2: Markdown"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Què és el Markdown?
+
+## Introducció a ![](input/rmarkdown-logo.png){ width=10% }
+
+- Markdown és un llenguatge d'edició molt simple.
+- Serveix per fer editar documents en HTML o PDF de forma ràpida i senzilla.
+- S'integra amb les operacions amb R per crear informes.
+- R utilitza el paquet knitr (knit, anglès per "fer mitja")
+- Es diu així perquè ajunta text i codi de forma elegant i senzilla.
+- És reproduïble: si d'aquí 6 mesos voleu repetir l'informe, només cal apretar un botó!
+
+![Inicialització](input/markdown.png)
+
+# Utilització del Markdown
+
+Aquí puc escriure el que vulgui, s'imprimirà com a text normal.
+
+```{r}
+# Aquí dins només puc escriure com si estés programant, si no em donarà error
+x = rnorm(10000)
+a = sin(pi*x)
+```
+
+Aquí puc tornar a escriure normal. Fins i tot puc fer coses com **negreta** o *cursiva*.
+
+```{r}
+# Puc fer que imprimeixi resultats
+liver = read.csv('input/indian_liver_patient.csv')
+summary(liver)
+```
+
+També puc afegir plots:
+```{r}
+# o que tregui gràfics fets amb les dades:
+plot(x, a)
+```
+
+Puc fer llistes:
+
+* Un
+* Dos
+* Tres
+
+I enumeracions:
+
+1. Primer
+1. Segon
+1. Tercer  (sí, no m'he equivocat, el númeor del principi ha de ser sempre 1...)
+
+I fins i tot puc fer fórmues en làtex:
+
+\[ \sum\limits_{n=1}^{\infty} 2^{-n} = 1 \]
+
+També puc posar links de manera molt fàcil:
+
+[Exemple](www.urv.cat)
+
+I per acabar, també puc incloure imatges (evidentment, les imatges a les que fan referència han d'estar a la mateixa carpeta que el fitxer de markdown):
+
+![Aquí poso el peu de foto](input/logo_urv.png)
+
+# Espais de treball
+
+```{r, eval = F}
+ls()
+
+rm(y)
+
+rm(list = ls())
+```
+
+Per interactuar amb l'exterior, primer hem de saber on som:
+
+```{r, eval = F}
+
+setwd('~path')
+
+setwd('../Desktop/Curs-R-master/')
+# podem fer servir un path global (C:/path/to/fitxer)
+# o relatiu (../Carpeta/)
+
+setwd('C:/Users/raya2/Desktop/Curs-R-master')
+```
+
+## Espai local
+
+L’espai de treball és el lloc de l’ordinador on treballa R; això vol dir dues coses:
+
+La carpeta on estem treballant i on podem accedir a altres fitxers (csv, excels, spss, etc).
+Les variables que hem creat (i que veiem dalt a la dreta de l’Rstudio).
+
+Per tal de poder treballar amb fitxers externs hem de posar el nostre espai de treball a la mateixa carpeta on tinguem els fitxers. Podem veure l’espai de treball on estem ara corrent getwd() a la consola o directament ho veiem sota la paraula “Console”, en gris. Si no estem a la carpeta que volem ho hem de canviar amb:
+
+setwd(“ruta”) (* Recorda que això no es pot posar al markdown, només a la consola per fer-ho en local!*)
+
+## Espai del markdown
+
+El markdown té un altre espai de treball, que és aquell on es troba el fitxer. Per tant, la recomanació és que poseu els fitxers externs a la mateixa carpeta que el markdown i que en cap cas poseu rutes dins del markdown.
+
+Penseu que els dos espais de treball són independents, per tant tot el que feu en local (requerir paquets, crear objectes, etc.) també ho heu de fer en el markdown!
+
+Per altra banda, quan esteu corrent codi que està dins del markdown, però NO esteu fent “knit”, això es corre el local, NO en el markdown! L’espai de treball del markdown només s’utilitza quan compilem (li donem a “knit”).
+
+## Espai de treball eteri
+
+Si obriu el markdown, treballeu, i després moveu el fitxer els espais de treball són complicats de seguir, per tant recomanem que no ho feu mai. Tampoc treballeu mai dins d’un fitxer zip, ja que no podreu fer-hi res. Assegureu-vos d’extreure-ho tot abans de començar a fer res.
+
+## Coses que no es poden posar al markdown
+
+```{r, eval = F}
+setwd("RUTA") # això s'ha de posar a la consola per estar a l'espai de treball que toca, però NO dins del markdown. L'espai de treball del markdown és el lloc on es troba el fitxer, per tant, l'únic que hem de fer és posar els arxius que necessitem a la matiexa carpeta que el fitxer .Rmd
+
+View(dades) # això tmabé ho fem en local però no en el markdown perquè el més probable és que em doni un error
+
+install.packages("paquet") # això també ho fem a la consola però no al markdown (el library(paquet) o require(paquet) sí que l'hem de posar!)
+
+dades # això no donarà un error però imprimirà pàgines i pàgines de dades que no cal.
+#
+
+read.csv("dades_prova.csv") # això només carrega el fitxer i l'imprimeix en pantalla, però no el guarda!
+```

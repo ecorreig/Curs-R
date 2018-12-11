@@ -1,8 +1,10 @@
 ---
-title: "Models predictius"
-author: Eudald Correig Fraga
-date: "29 de Gener de 2018"
-output: ioslides_presentation
+title: "Curs d'introducció a R"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  ioslides_presentation: default
+subtitle: 'Classe 5: Models predictius'
 ---
 
 ```{r setup, include=FALSE}
@@ -84,7 +86,7 @@ On $\widehat{y}$ és una predicció de Y en el punt $X=x$.
 - Ajust per mínims quadrats
 
 ```{r}
-liver = read.csv('indian_liver_patient.csv') #importo les dades
+liver = read.csv('input/indian_liver_patient.csv') #importo les dades
 sample = sample(1:nrow(liver),50) # no vull totes les dades perquè el dibuix no queda bé, n'agafo algunes
 
 liver$Albumin = liver$Albumin+runif(nrow(liver),min=-0.1, max=0.1) # aquí faig una mica de trampes perquè el dibuix quedi millor

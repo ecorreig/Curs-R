@@ -1,98 +1,42 @@
 ---
-title: "classe - exercicis"
-output: html_document
+title: "Curs d'introducció a R"
+subtitle: "Exercicis"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F)
-
 ```
 
-Pots fer tots els exercicis en aquest mateix document. Recorda mirar la documentació (?nom.de.la.funció) i en els documents linkats en la primera classe (classe - 1.R).
+Pots fer tots els exercicis en aquest mateix document. Recorda mirar la documentació (?nom_de_la_funció) i en els documents linkats en la classe 0.
 
-## Part I: manipulació de dades
+# Part I: manipulació de dades
 
-1. Importa el fitxer que es diu "heart.csv". 
+1. Importa el fitxer que es diu "Heart.csv". 
 
-```{r}
-heart = read.csv('Heart.csv')
-```
-
-    - Visualitza la base de dades (recorda, View()).
-    - Elimina la primera columna, que no serveix per res.
-
-```{r}
-heart$X = NULL
-```
-
-    - Mira com són les variables i posa-les en el format correcte (numèric, factorial o caràcter).
-
-```{r}
-columnes_a_canviar = c(2, 6, 7, 9, 11, 12)
-
-for (i in columnes_a_canviar){
-  heart[ ,i] = as.factor(heart[, i])
-}
-
-```
-
-
-    - Resulta que no volem el MaxHR, si no que volem el normal, que és el 70% del màxim (ja sé que no però com si sí.)
-    
-```{r}
-heart$HR = heart$MaxHR * 0.7
-```
-
-    
-    - Fes una nova variable que digui que si colesterol és dolent o no (és a dir, que sigui 1 a partir de 200 i 0 si no.)
-    
-```{r}
-heart$col = ifelse(heart$Chol > 200, "malo", "bueno")
-```
-
-    
-    - Fes un histograma de les edats
-    
-```{r}
-hist(heart$Age, main = "Histograma", xlab = "Edat", ylab = "Freqüència")
-```
-    
-
-    - Fes un gràfic de caixes comparant el MaxHR entre homes i dones
-    
-```{r}
-plot(heart$Sex, heart$MaxHR)
-```
-    
-
-    - Fes un gràfic de punts comparant l'edat i el RestBP
-    
-```{r}
-plot(heart$Age, heart$RestBP)
-```
-
-
-    - Fes un nou dataframe on hi hagi només dones (Sex = 0)
-
-```{r}
-dones = heart[heart$Sex==0, ]
-```
-
-    - En aquest nou dataframe, calcula la mitja d'edat, de colesterol i fes una taula de freqüències dels nivels de "ChestPain"
-
-```{r}
-mean(dones$Age)
-sd(dones$Chol)
-table(dones$ChestPain)
-#table(heart$Sex, heart$ChestPain)
-```
+  - Visualitza la base de dades (recorda, View()).
+  - Elimina la primera columna, que no serveix per res.
+  - Mira com són les variables i posa-les en el format correcte (numèric, factorial o caràcter).
+  - Resulta que no volem el MaxHR, si no que volem el normal, que és el 70% del màxim (ja sé que no però com si sí.)
+  - Fes una nova variable que digui que si colesterol és dolent o no (és a dir, que sigui 1 a partir de 200 i 0 si no.)
+  - Fes un histograma de les edats
+  - Fes un gràfic de caixes comparant el MaxHR entre homes i dones
+  - Fes un gràfic de punts comparant l'edat i el RestBP
+  - Fes un nou dataframe on hi hagi només dones (Sex = 0)
+  - En aquest nou dataframe, calcula la mitja d'edat, de colesterol i fes una taula de freqüències dels nivels de "ChestPain"
 
 Per més exercicis:
 
 [Aquí](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Seventh%20Printing.pdf), pàgina 52
+
 [Aquí](http://rstatistics.net/r-lang-practice-exercises-level-1-beginners/)
 
-## Part II: Estadística bàsica
+# Part II: Estadística bàsica
 
 2. Seguint amb l'anterior dataframe:
     - Les distribucionsn de les variables contínues són normals?
@@ -104,7 +48,7 @@ Per més exercicis:
     - Hi ha diferències significatives entre l'AHD segons el sexe?
     
 
-## Part III: Models predictius
+# Part III: Models predictius
 
 3. Encara amb el mateix dataframe:
     - Fes un model predictiu d'MaxHR segons totes les altres variables. (**Nota:** alerta amb les dues variables que potser has creat a la primera part dels exercicis, correlacionen molt amb les originals i et poden donar problemes, millor esborrar-les.) També hi ha un parell de variables amb NA's, s'ha de fer alguna cosa abans de continuar.

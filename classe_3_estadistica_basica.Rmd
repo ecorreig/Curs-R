@@ -1,5 +1,8 @@
 ---
-title: "Classe - 2 - Estadística bàsica"
+title: "Curs d'introducció a R"
+subtitle: "Classe 3: Estadística bàsica"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
 output: html_document
 ---
 
@@ -10,7 +13,7 @@ set.seed(2901)
 
 ### Què és l'estadística
 
-![Probabilitat i estadística](estadistica.png)
+![Probabilitat i estadística](input/estadistica.png)
 
 ### Què fem en estadística
 
@@ -53,7 +56,7 @@ Com es tipifica?
 
 Per exmeple, si assumim que les mostres de colesterol són normals i tenen variàncies homogències, en el primer exemple el nostre estadístic de contrat és la t, que és un valor de la distribució T:
 
-![Distribució T per diferents graus de llibertat](t.png)
+![Distribució T per diferents graus de llibertat](input/t.png)
 
 Hem de colocar l'estadístic de contrast calculat amb les nostres dades en aquesta distribució i mirar a les taules les probabilitats de que el valor estigui on és, és a dir, l'àrea sota la corba més cap a fora del nostre punt (els valors més extrems del nostre punt).
 
@@ -92,7 +95,7 @@ Ara la pregunta és: quin test d'hipòtesi he de fer servir?
 
 ### Tests d'hipòtesi
 
-![Diagrama per escollir el test d'hipòesis que t'interessa](hip_test.png)
+![Diagrama per escollir el test d'hipòesis que t'interessa](input/hip_test.png)
 
 
 
@@ -115,14 +118,14 @@ ANOVA mesures repetides | ez::ezANOVA(data, dv, wid) |
 Friedman | friedman.test(y, groups) | friedman.test(formula, data)
 
 
-Exemples:
-===
+# Exemples:
+
 
 Anem a veure com s'utilitzen. Seguim amb el fitxer de malalties del fetge.
 
 Quines dades teníem?
 ```{r}
-liver = read.csv('indian_liver_patient.csv')
+liver = read.csv('input/indian_liver_patient.csv')
 head(liver)
 str(liver)
 liver$Dataset = as.factor(liver$Dataset)
@@ -197,9 +200,9 @@ plot(liver$Albumin, liver$Total_Protiens)
 ```
 
 
-```{r fig1, fig.width=12, fig.height=12}
-#require(GGally)
-#ggpairs(liver)
+```{r fig1, fig.width=12, fig.height=12, warning=F, message=F}
+require(GGally)
+ggpairs(liver)
 ```
 
 Veient aquest gràfic, ens trobem que hi ha moltes mesures que estan molt escorades a l'esquerra; això passa molt sovint en medicina i s'ha de mirar d'arreglar. Això se sol fer traient el logaritme de la variable, en R és molt senzill:
@@ -213,6 +216,3 @@ for (i in 4:7){ # iterem sobre els números de columna
 }
 ```
 
-```{r fig2, fig.width=12, fig.height=12}
-#ggpairs(liver)
-```
