@@ -559,6 +559,7 @@ head(dades)
 
 re-codificar imc: <18;18-<25;25-<30;>30
 ```{r, eval=T}
+dades$imccat <- rep(0, nrow(dades))
 dades$imccat[dades$imc<18]<-0
 dades$imccat[dades$imc>=18 & dades$imc<25]<-1
 dades$imccat[dades$imc>=25 & dades$imc<30]<-2
@@ -579,9 +580,7 @@ dades$imccat <- cut(dades$imc, breaks=c(-Inf,18,25,30,Inf),
 ## Modificació de nivells d'un factor
 ```{r, eval=T}
 library(plyr) #llibreria tractament de dades
-
 dades$imccat <-revalue(dades$imccat, c("normal"="estàndar"))
-
 ``` 
 
 *********
@@ -647,90 +646,7 @@ dades<-dades[order(dades$sexe,dades$imc),]
 dades<-dades[order(dades$sexe,-dades$imc),]
 ```
 
-
 **********
-
-## Keep/ drop
-
-- Triem les variables que volem
-```{r, eval=FALSE}
-variables<-c("id","sexe","imc")
-dades<-dades[variables]
-```
-
-- Descartem variables (símbol d'exclamació "!" equival a "NO")
-
-```{r, eval=FALSE}
-dades<-dades[!variables]
-```
-
-**********
-
-# Estadística descriptiva
-
-## Introducció
-
-- Variables contínues:
-  * mean()
-  * sd()
-  * range()
-  * median()
-  
-- Variables categòriques o de text:
-  * table()
-  
-- Tot a la vegada
-  * summary()
-
-*************
-
-## Descriptius: variables contínues
-
-\footnotesize
-```{r}
-# Mitjana:
-mean(dades$edat)
-
-# Desviació estàndard:
-sd(dades$imc)
-
-# Rang:
-range(dades$pes)
-
-# Mediana:
-median(dades$alcada)
-```
-
-************
-
-## Descriptius: variables categòriques
-
-```{r}
-table(dades$sexe)
-
-table(dades$sexe, dades$curacio)
-```
-
-
-***********
-
-## Descriptius: funció summary()
-
-
-\footnotesize
-
-```{r}
-summary(dades)
-```
-
-***********
-
-- També es pot fer summary de només una o algunes variables:
-
-```{r}
-summary(dades$edat)
-summary(dades[,c(1,3,5)])
-```
 
 
 # Gràfics amb ![](input/RLogo.png){ width=10% }

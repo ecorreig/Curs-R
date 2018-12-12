@@ -251,5 +251,3 @@ forest = randomForest(Dataset~., data=nou_liver)
 
 # centenars d'altres implacables, insensibles i inespearts errors que inexorablement
 # us amargaran les vostres primeres sessions d'R 
-
-

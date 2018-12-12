@@ -210,6 +210,14 @@ Seguiu també les instruccions per instal·lar-lo.
 
 *****
 
+## Llibreries i funcions útils en R
+
+En aquests links podeu trobar tant llibreries com funcions en R que us podem ajudar:
+
+- Llibreries: https://support.rstudio.com/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages
+
+- Funcions http://www.sr.bham.ac.uk/~ajrs/R/r-function_list.html
+
 ## Fi
 
 \center
