@@ -225,9 +225,10 @@ ggplot(liver, aes(x=Aspartate_Aminotransferase, y=Total_Protiens)) +
 #liver$Dataset = as.factor(liver$Dataset)
 colnames(liver)[ncol(liver)] = "Malaltia"
 #levels(liver$Malaltia) <- c("Sa","Malalt")
-quins = which(liver$Malaltia==1 & liver$Total_Bilirubin<1)
-samp = sample(quins, 135)
-ggplot(liver[-samp,], aes(x = Total_Bilirubin, y = Malaltia)) +
+quins = which(liver$Malaltia==1 & liver$Total_Bilirubin<1.2)
+samp = sample(quins, round(length(quins)/4*3))
+liver$Malaltia[samp] =2
+ggplot(liver, aes(x = Total_Bilirubin, y = Malaltia)) +
   geom_point(colour="orange") + 
 #  geom_smooth(method="lm") +
   theme_bw() +
@@ -242,7 +243,6 @@ ggplot(liver[-samp,], aes(x = Total_Bilirubin, y = Malaltia)) +
 \[Y= \beta_0 + \beta_1 X+\epsilon\]
 
 ```{r}
-
 ggplot(liver[-samp, ], aes(x = Total_Bilirubin, y = Malaltia)) +
   geom_point(colour="orange") + 
   geom_smooth(method="lm") +
@@ -260,12 +260,12 @@ ggplot(liver[-samp, ], aes(x = Total_Bilirubin, y = Malaltia)) +
 #liver$Malaltia = as.factor(liver$Malaltia)
 #liver$Malaltia = as.numeric(as.character(liver$Malaltia))
 liver$Malaltia = liver$Malaltia-1
-ggplot(liver[-samp,], aes(x = Total_Bilirubin, y = Malaltia)) +
+ggplot(liver, aes(x = Total_Bilirubin, y = Malaltia)) +
   geom_point(colour="orange") + 
   theme_bw() +
-  scale_y_discrete(limits=c("0", "1"), 
-                   labels = c("0" = "Sa", "1" = "Malalt")) +
-  geom_smooth(method = "glm", method.args = list(family = "binomial"))
+  geom_smooth(method = "glm", method.args = list(family = "binomial"))+
+  scale_y_discrete(limits=c(0, 1), 
+                   labels = c("0" = "Sa", "1" = "Malalt")) 
 
 ```
 
@@ -337,8 +337,9 @@ ggplot(df, aes(Realitat, Prediccions)) +
   geom_point() +
   geom_smooth(method="lm") + 
   labs(title = "Comparació entre prediccions i realitat") + 
-  annotate("text", x=4, y=8, label=paste0("r= ", round(cors$estimate,3), 
-                                          "\n p= ", round(cors$p.value,3)))
+  theme_bw() +
+  annotate("text", x=4, y=8, label=paste0("r = ", round(cors$estimate,3), 
+                                          "\n p < 0.001"))
 ```
 
 ## Predictors en regressió logística

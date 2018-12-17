@@ -9,6 +9,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE) # no cal tocar-ho gaire
 set.seed(2901)
+
 dades = read.csv("input/dades.csv")
 dades$alcada = rnorm(nrow(dades), 170, 10)
 dades$pes = rnorm(nrow(dades), 75, 10)
@@ -96,6 +97,7 @@ summary(dades[,c(1,3,5)])
 Exemple: tenim una pastilla per baixar el colesterol i un placebo, volem demostrar que la pastilla funciona i per tant hem de demostrar que els nivells de colesterol del grup que han pres la pastilla són significativamet més baixos que els que no han pres la pastilla.
 
 ```{r}
+# Simulem les dades:
 colesterol = c(rnorm(20, mean=85, sd = 10), rnorm(20, mean = 95, sd = 14))
 grup = c(rep("tractament", 20), rep("placebo", 20))
 df = as.data.frame(cbind(colesterol, grup))
@@ -136,12 +138,12 @@ La fórmula per calcular l'estadístic de contrast en aquest cas és:
 
 Que, amb les nostres dades, dóna: \[ t = 1.856 \]
 
-Busquem a les taules la probabilitat de que això es doni, amb graus de llibertat: \[n_A+n_b-2\]):
+Busquem a les taules la probabilitat de que això es doni, amb graus de llibertat: \[n_A+n_b-2 = 38\]):
 
-[Taula de T](https://www.medcalc.org/manual/t-distribution.php)
+[Taula de T](https://www.statisticshowto.datasciencecentral.com/tables/t-distribution-table/)
 
 
-Veiem que les probabilitats estan entre el 5 i el 10%, així que concloem que no podem abandonar la hipòtesi nul·la. 
+Veiem que les probabilitats estan entre el 2.5 i el 5%, així que concloem que sí que  podem abandonar la hipòtesi nul·la i acceptar que la pastilla baixa el colesterol.
 
 En el segon cas, la tipificació és molt més senzilla:
 
@@ -175,16 +177,331 @@ Test | Comanda 1 | Comanda 2
 Chi 2 | chisq.test(x, y) | 
 Fisher exact test | fisher.test(x, y) | 
 Shapiro Wilk | shapiro.test(x) |
-Levene | levene.test(y, group) |
-T - Student | t.test(x, y) | t.test(formula, data)
-T - Welch | t.test(x, y, var.equal = FALSE) | t.test(formula, data, var.equal = FALSE)
+Levene | var.test(x, y) | levene.test(y, group) 
+T - Student | t.test(x, y, var.equal = TRUE) | t.test(formula, data, var.equal = TRUE)
+T - Welch | t.test(x, y) | t.test(formula, data)
 Mann-Whitney U | wilcox.test(x, y) | wilcox.test(formula, data)
-T - Student aparellada | t.test(x, y, paired = TRUE) | t.test(formula, data, paired = TRUE)
+T - Welch aparellada | t.test(x, y, paired = TRUE) | t.test(formula, data, paired = TRUE)
 Wilcoxon Signed Rank | wilcox.test(x, y, paired = TRUE) | wilcox.test(formula, data, paired = TRUE)
 ANOVA | aov(formula, data) |
 Kruskall Wallis | kruskal.test(x, g) | kruskal.test(formula, data)
 ANOVA mesures repetides | ez::ezANOVA(data, dv, wid) |
 Friedman | friedman.test(y, groups) | friedman.test(formula, data)
+
+
+# Contrastos d'hipòtesis 
+
+## Introducció
+
+
+1. Volem verificar si es compleix una hipòtesis sobre un conjunt de dades.
+
+- Hipòtesis nul·la (H$_0$):
+
+- Hipòtesis alternativa (H$_1$):
+
+2. Estadístic de contrast (sota la H$_0$)
+
+3. Valor observat del estadístic de contrast.
+
+4. Valor p: Si la H$_0$ és certa, probabilitat d'observar una diferència/ un valor igual o més extrem.
+
+
+## Dades de mostra
+
+Per mostrar els contrastos d'hipòtesi utilitzarem el següent conjunt:
+
+```{r, message=F}
+require(foreign)
+fitxer<-"input/pulse2sa.sav"
+dades<-read.spss(fitxer, to.data.frame = TRUE, use.value.labels=TRUE)
+head(dades)
+```
+
+
+# Constrastar la normalitat
+
+## Test de shapiro-wilk:
+
+H$_0$: variable ~ distribució normal
+
+H$_1$: variable no segueix distribució normal
+
+La funció en R és:
+
+```{r,  eval=FALSE}
+shapiro.test(x)
+```
+
+On x és un vector numèric.
+
+Exemple:
+
+```{r,  message=FALSE, warning=FALSE}
+shapiro.test(dades$HEIGHT)
+```
+
+
+## Comprovació visual
+
+- És interessant fer gràfics per comprovar la normalitat de forma visual.
+- Serveix, per exemple, per assegurar-nos d'haver fet bé el test de Shapiro.
+- Hi ha principalment dos gràfics que ens ajudaran a veure la normalitat.
+- Histograma: dibuixa les freqüències agrupades segons els resultats.
+- Dibuixem l'histograma amb la funció hist().
+- qqplot: dibuixa els quantils de la mostra en comparació amb quantils teòrics que segueixin una distribució normal.
+- Dibuixem el qqplot amb la funció qqnorm() i qqline() opcionalment per afegir una línia que marca la normal.
+
+## Comprovació visual: histograma
+
+```{r, fig.height=5}
+hist(dades$HEIGHT)
+```
+
+*******
+## Comprovació visual: qqplot
+
+```{r fig2, fig.height=5}
+qqnorm(dades$HEIGHT) # Dibuixa els punts
+qqline(dades$HEIGHT) # Dibuixa una línia que marca la normal
+```
+
+*******
+# Comparació de mitjanes
+
+## Test - T
+
+- Respecte una mitjana ($\mu$) de referència
+
+H$_0$: $\mu$= $\mu_0$
+
+H$_1$: $\mu$ $\neq$ $\mu_0$
+
+La funció en R és:
+
+
+```{r, eval = F}
+t.test(x,          #  vector numèric
+       y = NULL,   #  segon vector numèric, en cas de que en vulguem comparar 2
+       alternative = c("two.sided", "less", "greater"), #  T d'Student bivariada o
+       # univariada per l'esquerra o per la dreta
+       mu = 0,     #  mitjana real, en cas de que vulguem comparar un vector x 
+       # amb una mitjana donada
+       paired = FALSE, #  dades aparellades
+       var.equal = FALSE, #  homogeneïtat de variàncies (per defecte considera que 
+       # les variàncies NO són homogències i fa el test de Welch)
+       conf.level = 0.95, #  nivell de confiança
+       ... #  altres arguments
+       )
+```
+
+
+
+## Comparació de mitjanes
+
+També es pot donar en forma de funció:
+
+```{r, eval = F}
+t.test(x ~ y ,  #  x és un vector numèric i y categòric
+       data, #  el dataframe del qual traiem les dades
+       ... #  els mateixos arguments que abans
+       )
+```
+
+
+Exemple:
+
+- Comoparar un conjunt amb una mitjana poblacional coneguda.
+
+```{r,  message=FALSE, warning=FALSE}
+t.test(dades$WEIGHT, mu=70)
+```
+
+
+
+## Interval de confiança
+
+- La funció t.test, així com les que veurem a continuació, també ens donen l'interval de confiança.
+- En l'exmeple anterior amb una confiança del 95% podem dir que la mitjana es troba entre 63.9 i 69.6.
+- Veiem que correspon amb la p, ja que el 70 no està dins l'interval i per tant la mitjana és significativamet diferent a aquest valor.
+- En els propers exemples fixeu-vos que sempre rebem un interval de confiança d'allò que estem analitzant.
+
+
+Exemple:
+
+Test-t: comparació de dues mitjanes amb variàncies heterogènies
+
+H$_0$: $\mu$= $\mu_0$ \hspace{2cm} H$_0$: $\mu$$\leq$ $\mu_0$
+
+H$_1$: $\mu$ $\neq$ $\mu_0$ \hspace{2cm} H$_1$: $\mu$ > $\mu_0$      
+
+
+
+```{r,  message=FALSE, warning=FALSE}
+t.test(WEIGHT ~ TRT, dades) 
+```
+
+
+Exemple:
+
+Test-t: comaparació de dues mitjanes amb variàncies homogenies
+
+H$_0$: $\mu$= $\mu_0$ \hspace{2cm} H$_0$: $\mu$$\leq$ $\mu_0$
+
+H$_1$: $\mu$ $\neq$ $\mu_0$ \hspace{2cm} H$_1$: $\mu$ > $\mu_0$      
+
+```{r,  message=FALSE, warning=FALSE}
+t.test(HEIGHT~TRT, dades, var.equal=TRUE)
+```
+
+
+Dades aparellades:
+
+H$_0$: $\mu_1$ - $\mu_2$ = 0
+
+H$_1$: $\mu_2$ - $\mu_2$ $\neq$ 0
+
+
+```{r,  message=FALSE, warning=FALSE}
+t.test(dades$PULSE1,dades$PULSE2,paired=TRUE) #dades aparellades
+```
+
+
+# Comparació de variàncies
+
+H$_0$: $\sigma_1$ / $\sigma_2$ =1
+
+H$_1$: $\sigma_1$/ $\sigma_2$  $\neq$ 1
+
+
+```{r,  eval=FALSE}
+var.test(x, y, #  els dos vectors a comparar
+         ratio = 1, #  valor esperat per l'hipòtesi 0 de la relació entre variàncies
+         alternative = c("two.sided", "less", "greater"), #  bivariat o univariat
+         conf.level = 0.95, #  nivell de confiança
+         ... #  altres arguments
+         )
+
+```
+
+
+
+Exemple:
+
+```{r,  message=FALSE, warning=FALSE}
+var.test(WEIGHT~TRT, dades)
+
+```
+
+
+
+# Comparació de medianes (no paramètric)
+
+## Wilcoxon-Mann-Whitney test
+
+
+H$_0$: Mediana$_1$ = Mediana$_2$
+
+H$_1$: Mediana$_1$ $\neq$ Mediana$_2$
+
+La funció en R és: 
+
+```{r, eval = F}
+wilcox.test(x,          #  vector numèric
+            y = NULL,   #  segon vector numèric, en cas de que en vulguem comparar 2
+            alternative = c("two.sided", "less", "greater"), #  T d'Student bivariada o univariada per l'esquerra o per la dreta
+            mu = 0,     #  mitjana real, en cas de que vulguem comparar un vector x amb una mitjana donada
+           paired = FALSE, #  dades aparellades
+           var.equal = FALSE, #  homogeneïtat de variàncies (per defecte fa considera que les variàncies NO són homogències i fa el test de Welch)
+           conf.level = 0.95, #  nivell de confiança
+           ... #  altres arguments
+           )
+```
+
+
+També es pot donar en forma de funció:
+
+```{r, eval = F}
+wilcox.test(x ~ y ,          #  x és un vector numèric i y categòric
+            data, #  el dataframe del qual traiem les dades
+            ... #  els mateixos arguments que abans
+            )
+```
+
+
+
+Exemple
+
+```{r,  message=FALSE, warning=FALSE}
+wilcox.test(PULSE1~TRT,data=dades)
+
+```
+
+
+
+
+Dades aparellades
+
+y=x1-x2
+
+H$_0$: Mediana$_y$ =0
+
+H$_1$: Mediana$_y$ $\neq$ 0
+
+
+
+```{r,  message=FALSE, warning=FALSE}
+wilcox.test(dades$PULSE1, dades$PULSE2, paired=TRUE)
+```
+
+
+
+# Taules de contingència
+
+## Chi quadrat
+
+
+H$_0$: Variables independents
+
+H$_1$:Variables no independents
+
+Per comparar dues variables categòriques fem servir el test de Chi^2, que en R és:
+
+\footnotesize
+
+```{r, eval = F}
+chisq.test(x, #  vector 1 a comparar
+           y = NULL, #  vector 2 a comparar
+           simulate.p.value = FALSE, #  simular el valor p, 
+           # s'utilitza en mostres petites
+           ... #  altres arguments
+           )
+```
+
+Exemple:
+
+```{r,  message=FALSE, warning=FALSE}
+chisq.test(dades$SMOKES,dades$TRT)
+```
+
+
+Test exacte de Fisher en R:
+
+```{r, eval = F}
+fisher.test(x, y = NULL, #  els dos vectors categòrics a comparar
+            alternative = "two.sided", #  bivariat o univariat
+            conf.int = TRUE,  #  volem que mostri els intervals de confiança?
+            conf.level = 0.95,   #  nivell de confiança
+            simulate.p.value = FALSE, #  simular el valor p, usat en mostres petites
+            ... #  altres arguments
+            )
+```
+
+Exemple:
+
+```{r,  message=FALSE, warning=FALSE}
+fisher.test(dades$SMOKES,dades$TRT)
+```
 
 
 ## Exemples:
@@ -269,9 +586,9 @@ plot(liver$Albumin, liver$Total_Protiens)
 ```
 
 
-```{r fig1, fig.width=12, fig.height=12, warning=F, message=F}
-require(GGally)
-ggpairs(liver)
+```{r, fig.width=12, fig.height=12, warning=F, message=F}
+#require(GGally)
+#ggpairs(liver)
 ```
 
 Veient aquest gràfic, ens trobem que hi ha moltes mesures que estan molt escorades a l'esquerra; això passa molt sovint en medicina i s'ha de mirar d'arreglar. Això se sol fer traient el logaritme de la variable, en R és molt senzill:

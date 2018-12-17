@@ -1,10 +1,11 @@
 ---
 title: "Curs d'introducció a R"
+subtitle: 'Classe 6: Selecció de model'
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
 output:
   ioslides_presentation: default
-subtitle: 'Classe 6: Selecció de model'
+
 ---
 
 ```{r setup, include=FALSE}
@@ -55,13 +56,14 @@ model_lineal = lm(data=data, y~x)
 summary(model_lineal)
 ```
 
-## Visualització
+## Visualització {.smaller}
 
 ```{r}
 ggplot(data, aes(x, y)) + 
   geom_point() + 
   geom_smooth(method="lm") +
   labs(title = "Model lineal") +
+  theme_bw() +
   annotate("text", label = "R^2 == 0.32",parse = TRUE, x=75, y=0, size=6)
 ```
 
@@ -72,17 +74,18 @@ model_log = lm(data=data, y~log(x))
 summary(model_log)
 ```
 
-## Visualització
+## Visualització {.smaller}
 
 ```{r}
 ggplot(data, aes(x, y)) + 
   geom_point() + 
   geom_smooth(method="lm", formula = y~log(x)) +
   labs(title = "Model logarítmic") +
+    theme_bw() +
   annotate("text", label = "R^2 == 0.51",parse = TRUE, x=75, y=0, size=6)
 ```
 
-## Variance {.smaller}
+## Variància {.smaller}
 
 Ajusto un model gairebé perfecte, un polinomi de grau 16:
 
@@ -379,10 +382,15 @@ fit.pred=rep(0,nrow(x_test))
 fit.pred[fit_test >.5]=1
 ttt=table(fit.pred, y_test)
 rend = (ttt[1]+ttt[4])/sum(ttt)
-ffc
-rend
-
 ```
+
+Els coeficients són: 
+
+```{r}
+ffc
+```
+
+El percentatge d'encert és `r round(rend*100, 1)`%.
 
 ## Comparerm amb una RL "normal"
 
@@ -393,7 +401,12 @@ fit.pred=rep(0,nrow(x_test))
 fit.pred[probs >.5]=1
 ttt=table(fit.pred, y_test)
 rend = (ttt[1]+ttt[4])/sum(ttt)
-coef(mod)
-rend
 ```
 
+Els coeificients són:
+```{r}
+coef(mod)
+
+```
+
+El percentatge d'encert és `r round(rend*100, 1)`%.

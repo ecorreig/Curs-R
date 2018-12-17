@@ -75,26 +75,7 @@ I per acabar, també puc incloure imatges (evidentment, les imatges a les que fa
 
 # Espais de treball
 
-```{r, eval = F}
-ls()
-
-rm(y)
-
-rm(list = ls())
-```
-
-Per interactuar amb l'exterior, primer hem de saber on som:
-
-```{r, eval = F}
-
-setwd('~path')
-
-setwd('../Desktop/Curs-R-master/')
-# podem fer servir un path global (C:/path/to/fitxer)
-# o relatiu (../Carpeta/)
-
-setwd('C:/Users/raya2/Desktop/Curs-R-master')
-```
+Per tal de fer servir Markdown de forma eficient hem d'entendre què són els espais de treball i la relació entre el del Markdown i el local. Ho expliquem a continuació:
 
 ## Espai local
 

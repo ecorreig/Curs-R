@@ -114,7 +114,7 @@ forest = randomForest(Dataset~., data=liver)
 # could not find function "randomForest"
 
 # No troba la funció perquè li he de carregar la llibreria, això es pot fer 
-# de dues manesr equivalents, un cop carregada la tindré durant tota la sessió
+# de dues maneres equivalents, un cop carregada la tindré durant tota la sessió
 # si tanco la sessió l'hauré de tornar a carregar.
 
 require(randomForest)
