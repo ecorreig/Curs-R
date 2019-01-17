@@ -3,7 +3,6 @@ title: "Curs d'introducció a R"
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
 output:
-  pdf_document: default
   html_document: default
 subtitle: 'Classe 7: Gràfics en ggplot2'
 ---
@@ -47,6 +46,67 @@ Com funciona:
     1. Els estètics (aesthetics en anglès, d'aquí el nom): aquí hi posem quina variable volem a l'eix x i y, i si volem colors o formes diferents.
 - Per acabar, li diem quin tipus de gràfic volem, en aquest cas un diagrama de caixes (boxplot)
 
+Ho mirem en el plot:
+
+```{r}
+ggplot(liver, # liver és el nom del dataframe
+       aes(x = Gender, # Variable en l'eix x 
+           y = Total_Protiens, # Variable en l'eix y
+           colour = Malaltia # Color: alerta, perquè el color crea grups!
+           )) + # fixeu-vos en el signe "+" per afegir més comandes a la instrucció
+  geom_boxplot() # geom_alguna_cosa() crea el tipus de plot que vulguem, en aquest cas un boxplot. Per saber els tipus de plots que hi ha podem anar a https://ggplot2.tidyverse.org/reference/
+```
+
+Un altre exemple:
+
+```{r}
+ggplot(liver, aes(Total_Bilirubin, Alamine_Aminotransferase, colour = Malaltia)) + 
+  geom_point()
+```
+
+Veiem que necessitem una escala logarítmica, ho podem fer en el plot mateix:
+
+```{r}
+ggplot(liver, aes(log(Total_Bilirubin), log(Alamine_Aminotransferase), 
+                  colour = Malaltia)) + 
+  geom_point()
+```
+
+Potser ens agrada més amb el fons blanc:
+
+```{r}
+ggplot(liver, aes(log(Total_Bilirubin), log(Alamine_Aminotransferase), 
+                  colour = Malaltia)) + 
+  geom_point() +
+  theme_bw()
+```
+
+En lloc dels boxplots, a vegades volem els violin plots:
+
+```{r}
+ggplot(liver, aes(x = Gender, y = Total_Protiens, colour = Malaltia)) + 
+  geom_violin() +
+  theme_bw() + 
+  labs(title = "Violin plot, que són molt monos", 
+       subtitle = "I aquí hi va un subtítol si volem") + 
+  xlab("El logaritme de la bilirrubina total") + 
+  ylab("El logaritme de l'alamina aminotransferase")
+```
+
+Vaja, sembla que no estan plens de color, hem de fer servir “fill”:
+
+```{r}
+ggplot(liver, aes(x = Gender, y = Total_Protiens, 
+                  colour = Malaltia, fill = Malaltia)) + 
+  geom_violin(alpha = 0.7) + # aquesta alpha fa que el color no sigui sòlid
+  theme_bw() + 
+  labs(title = "Violin plot, que són molt monos", 
+       subtitle = "I aquí hi va un subtítol si volem") + 
+  xlab("El logaritme de la bilirrubina total") + 
+  ylab("El logaritme de l'alamina aminotransferase")
+```
+
+
 A partir d'aquí hi ha moltíssimes maneres de personalitzar un diagrama:
 
 ```{r}
@@ -85,3 +145,19 @@ plot = ggplot(liver, aes(liver[,i],  fill=liver$Malaltia)) +
 print(plot)
 }
 ```
+
+# Gràfics en 3D
+
+A vegades també ens poden interessar els gràfics en 3D, tot i que per publicar no solen ser gaire acceptats (ja que quan els imprimim no es veuen gaire bé). De totes maneres, en R són molt senzills de fer amb la llibreria plotly. Anem a veure un exemple:
+
+```{r, warning=F, message=F}
+require(plotly)
+plot_ly(liver, 
+        x = ~Total_Bilirubin, 
+        y = ~Alkaline_Phosphotase, 
+        z = ~Total_Protiens, 
+        color = ~Malaltia, 
+        colors = c('#BF382A', '#0C4B8E'))
+```
+
+Fixeu-vos que tenim un petit "widget", on podem fer zoom, rotar i fins i tot fer desaparèixer alguna de les opcions, i tot amb una sola línia de codi!
