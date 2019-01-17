@@ -4,13 +4,12 @@ subtitle: "Exercicis"
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
 output:
-  pdf_document: default
   html_document: default
 
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(echo = T)
 ```
 
 Pots fer tots els exercicis en aquest mateix document. Recorda mirar la documentació (?nom_de_la_funció) i en els documents linkats en la classe 0.
@@ -19,7 +18,7 @@ Pots fer tots els exercicis en aquest mateix document. Recorda mirar la document
 
 1. Importa el fitxer que es diu "Heart.csv". 
 
-  - Visualitza la base de dades (recorda, View()).
+  - Visualitza la base de dades (recorda, View(), però fes-ho a la consola, no ho deixis al markdown perquè si no després pot dóna problemes). 
   - Elimina la primera columna, que no serveix per res.
   - Mira com són les variables i posa-les en el format correcte (numèric, factorial o caràcter).
   - Resulta que no volem el MaxHR, si no que volem el normal, que és el 70% del màxim (ja sé que no però com si sí.)
@@ -51,8 +50,9 @@ Per més exercicis:
 # Part III: Models predictius
 
 3. Encara amb el mateix dataframe:
-    - Fes un model predictiu d'MaxHR segons totes les altres variables. (**Nota:** alerta amb les dues variables que potser has creat a la primera part dels exercicis, correlacionen molt amb les originals i et poden donar problemes, millor esborrar-les.) També hi ha un parell de variables amb NA's, s'ha de fer alguna cosa abans de continuar.
+    - Fes un model predictiu simple d'MaxHR segons totes les altres variables. (**Nota:** alerta amb les dues variables que potser has creat a la primera part dels exercicis, correlacionen molt amb les originals i et poden donar problemes, millor esborrar-les.) També hi ha un parell de variables amb NA's, s'ha de fer alguna cosa abans de continuar.
     - Fes un resum del model i intenta fer gràfics per explicar-lo.
     - Fes un model predictiu  d'AHD segons totes les altres variables.
     - També, intenta dibuixar.
+    - Fes un model utilititzant el mètode de "backwards subset selection" i fes un gràfic explicatiu de quines variables estem prenent (com el dels apunts).
     - *Ampliació:* Fes selecció de model utilitzant el lasso.

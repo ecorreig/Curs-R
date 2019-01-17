@@ -91,9 +91,6 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
-.html-widget {
-  margin-bottom: 20px;
-}
 button.code-folding-btn:focus {
   outline: none;
 }
@@ -122,9 +119,9 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Curs d’introducció a R</h1>
-<h3 class="subtitle"><em>Classe 1</em></h3>
+<h3 class="subtitle"><em>Exercicis</em></h3>
 <h4 class="author"><em>Eudald Correig i Fraga</em></h4>
-<h4 class="date"><em>11 de desembre de 2018</em></h4>
+<h4 class="date"><em>17 de January de 2019</em></h4>
 
 </div>
 
@@ -136,7 +133,7 @@ $(document).ready(function () {
 <li>Importa el fitxer que es diu “Heart.csv”.</li>
 </ol>
 <ul>
-<li>Visualitza la base de dades (recorda, View()).</li>
+<li>Visualitza la base de dades (recorda, View(), però fes-ho a la consola, no ho deixis al markdown perquè si no després pot dóna problemes).</li>
 <li>Elimina la primera columna, que no serveix per res.</li>
 <li>Mira com són les variables i posa-les en el format correcte (numèric, factorial o caràcter).</li>
 <li>Resulta que no volem el MaxHR, si no que volem el normal, que és el 70% del màxim (ja sé que no però com si sí.)</li>
@@ -148,7 +145,8 @@ $(document).ready(function () {
 <li>En aquest nou dataframe, calcula la mitja d’edat, de colesterol i fes una taula de freqüències dels nivels de “ChestPain”</li>
 </ul>
 <p>Per més exercicis:</p>
-<p><a href="http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Seventh%20Printing.pdf">Aquí</a>, pàgina 52 <a href="http://rstatistics.net/r-lang-practice-exercises-level-1-beginners/">Aquí</a></p>
+<p><a href="http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Seventh%20Printing.pdf">Aquí</a>, pàgina 52</p>
+<p><a href="http://rstatistics.net/r-lang-practice-exercises-level-1-beginners/">Aquí</a></p>
 </div>
 <div id="part-ii-estadistica-basica" class="section level1">
 <h1>Part II: Estadística bàsica</h1>
@@ -170,10 +168,11 @@ $(document).ready(function () {
 <ol start="3" style="list-style-type: decimal">
 <li>Encara amb el mateix dataframe:
 <ul>
-<li>Fes un model predictiu d’MaxHR segons totes les altres variables. (<strong>Nota:</strong> alerta amb les dues variables que potser has creat a la primera part dels exercicis, correlacionen molt amb les originals i et poden donar problemes, millor esborrar-les.) També hi ha un parell de variables amb NA’s, s’ha de fer alguna cosa abans de continuar.</li>
+<li>Fes un model predictiu simple d’MaxHR segons totes les altres variables. (<strong>Nota:</strong> alerta amb les dues variables que potser has creat a la primera part dels exercicis, correlacionen molt amb les originals i et poden donar problemes, millor esborrar-les.) També hi ha un parell de variables amb NA’s, s’ha de fer alguna cosa abans de continuar.</li>
 <li>Fes un resum del model i intenta fer gràfics per explicar-lo.</li>
 <li>Fes un model predictiu d’AHD segons totes les altres variables.</li>
 <li>També, intenta dibuixar.</li>
+<li>Fes un model utilititzant el mètode de “backwards subset selection” i fes un gràfic explicatiu de quines variables estem prenent (com el dels apunts).</li>
 <li><em>Ampliació:</em> Fes selecció de model utilitzant el lasso.</li>
 </ul></li>
 </ol>
