@@ -1,0 +1,67 @@
+---
+title: "Exercicis sessió 5"
+subtitle: "Exercicis"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  html_document: default
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(1234)
+```
+
+En aquesta sessió estudiarem la relació entre diverses variables clíniques de **3187 pacients**, alguns dels quals han desenvoupat diabetis.
+
+Les variables de la BBDD són les següens:
+
+- ID: Identificador
+- Edat --> Edat del pacient en anys
+- Sexe --> Sexe  on 0=Dona i 1=Home
+- Diabetis --> Diabetis on 0=No i 1=Sí
+- TAS --> Tensió Arterial Sistòlica
+- TAD --> Tensió Arterial Diastòlica
+- Glicemia --> Glicemia
+- Creatinina --> Creatinina
+- Hgb --> Hemoglobina
+- Sobrepes --> on 0=No i 1=Sí
+
+Estem interessats en estudiar tant la diabetis com la hemoglobina (Hgb). Per tant estudiarem diverses relacions entre aquestes variables. 
+
+Fixem un error de tipus I al 5% a no sé que es digui el contrari en algun apartat. 
+
+# Exercici 1: Introducció
+
+Importa el fitxer **"dades_exercicis.csv"** de la carpeta **"input"** i guarda'l en un dataframe.
+
+- Fes un anàlisi exploratori de l'estructura de les dades i reformateja les variables que creguis necessàries.
+- Fes un anàlisi descriptiu (mitjana, desviació estàndard, mediana i rang) de les variables contínues.
+- Fes un anàlisi descriptiu de les variables categòriques.
+
+# Exercici 2: Proves d'hipòtesi
+
+Resol aquest apartat analíticament i afegeix als resultats els gràfics oportuns.
+
+- La Creatinina i la Glicemia són normals? 
+- Assumeix que la variable Hgb és normal, hi ha associació entre l'Hgb i el Sobrepes?
+- Hi ha associació entre la Hgb i la TAS? 
+- Hi ha associació entre el Diabestis i el Sexe? 
+
+
+# Exercici 3: models predictius
+
+Assumeix que la variable Hgb i la variable Edat segueixen una distribució normal:
+
+- Fes un model lineal on intentis predir l'Hgb a partir de l'edat. Quins coeficients "a" i "b" (també anomenats $\beta_0$ i $\beta_1$) trobem? Escriu l'equació del model.
+- Quant val el coeficient de correlació? i el de determinació?
+- Fes un gràfic les dues variables i on es vegi la recta de regressió lineal.
+- Quant valdria l'Hgb d'una persona que tingués l'edat mitjana de la població? I una persona a la mediana? 
+- Explora els residus i digues si haguéssim pogut fer la regressió lineal o no. 
+- Fes ara un model on intentis predir la Hgb a partir de totes les altres variables (menys el SAP!). Quines variables són significativament predictores? Escriu l'equació del model. Quin coeficient de determinació tenim ara? És millor que l'anterior? Per què? 
+
+# Exercici 4: selecció de model
+
+- Compara el model sencer amb les dues seleccions de model que hem estudiat i argumenta quin és el millor model.
+- Què ens diu el model?
