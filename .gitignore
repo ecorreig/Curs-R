@@ -2,3 +2,5 @@ exercicis_resolts.Rmd
 exercicis_resolts.html
 .Rhistory
 .Rproj.user
+*.Rproj
+*_files
