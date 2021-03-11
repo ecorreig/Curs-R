@@ -3,9 +3,7 @@ title: "Curs d'introducció a R"
 subtitle: "Classe 2: Markdown"
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
-output:
-  html_document:
-    df_print: paged
+output: html_document
 ---
 
 ```{r setup, include=FALSE}

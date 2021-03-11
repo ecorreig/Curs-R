@@ -3,14 +3,7 @@ title: "Curs d'introducció a R"
 subtitle: "Classe 1: Introducció a R"
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
-output:
-  beamer_presentation:
-    fig_caption: no
-    highlight: tango
-    slide_level: 2
-    theme: Montpellier
-    toc: yes
-institute: IISPV
+output: ioslides_presentation
 ---
 
 
@@ -26,8 +19,6 @@ institute: IISPV
 
 
 
-
-**********************************************
 ## Consola
 
 - Si ens equivoquem podem pitgem la tecla "ESC" i tornarà a aparèixer el símbol ">"
@@ -37,8 +28,6 @@ institute: IISPV
 - Per sortir del programa podem tancar o executar ">q()"
 
 
-
-**********************************************
 ## Càlculs simples
 
 ```{r}
@@ -53,7 +42,7 @@ rnorm(3)
 ```
 
 
-**********************************************
+
 ##  Càlculs simples
 
 ```{r }
@@ -70,7 +59,7 @@ print(x)
 
 
 
-**********************************************
+
 ## Espai de treball
 
 - És l'espai on es desen de forma temporal o no tots els objectes que anem creant o carregant.
@@ -89,7 +78,7 @@ save.image("Prova.Rdata")
 ```
 
 
-**********************************************
+
 ## Ajuda
 
 Hi ha diferents maneres d'accedir a l'ajuda dins el programa:
@@ -107,7 +96,7 @@ help(package="base")   # Buscar info del paquet "base"
 
 
 
-**********************************************
+
 
 ## Com interpretar l'ajuda
 
@@ -138,7 +127,7 @@ Imaginem que volem saber més sóbre les funcions de distribució normals en R, 
 - La comunitat R és qui elabora i manté aquests paquets (alguns signats per estadístics de gran renom).
 
 
-**********************************************
+
 
 ## Paquets i les llibreries
 
@@ -161,12 +150,12 @@ library(help="foreign")
 ```
 
 
-**********************************************
+
 
 # Objectes
 
 
-**********************************************
+
 
 ## Variables
 
@@ -181,7 +170,7 @@ library(help="foreign")
 
 4. logical: variables lògiques (TRUE) 
 
-**********************************************
+
 
 ## Objectes
 
@@ -199,7 +188,7 @@ print(w)
 - Els objectes més habituals són: variables, vectors, matrius, llistes i data frames.
 
 
-**********************************************
+
 
 ## Tipus d'objectes
 
@@ -212,7 +201,7 @@ print(w)
 
 En aquest curs treballarem vectors i dataframes.
 
-*****************************
+
 
 ## Tipus d'objectes: vectors
 \tiny
@@ -229,7 +218,7 @@ z<-c(TRUE,FALSE,TRUE) #vector de 3 elements lògics
 z
 ```
 
-*****************
+
 
 ## Algunes operacions: vectors
 \tiny
@@ -245,7 +234,7 @@ x+2 #sumar un escalar
 
 ```
 
-*****************
+
 
 ## Tipus d'objectes: dataframes
 
@@ -268,7 +257,7 @@ head(dades) #Mostrar primeres files/registres
 ```
 
 
-**************************
+
 ## Algunes operacions: dataframes
 \tiny
 ```{r}
@@ -279,7 +268,7 @@ dades.s<- dades[order(dades$id),]#ordena per id
 edat<-c(67,78,89,86,56,90,68,82,92,67)
 dades.new<-data.frame(dades.s,edat)
 ```
-**************************
+
 
 # Subseleccions
 
@@ -290,7 +279,7 @@ dades.new<-data.frame(dades.s,edat)
 - Si poso un número negatiu o un vector precedit d'un símbol "-" estic indicant totes les files/columnes menys aquella o aquelles.
 - Atenció que els vectors s'han de fer o bé en format a:b o bé amb la funció c().
 
-**************************
+
 
 ## Subseleccions I
 
@@ -301,7 +290,7 @@ dades.new[2,1]
 # Seleccionem una fila, per exemple la tercera:
 dades.new[3,] # Noteu la coma i l'espai buit!
 ```
-**************************
+
 
 ## Subseleccions II
 
@@ -314,7 +303,7 @@ dades.new$edat
 ```
 
 
-**************************
+
 
 ## Subseleccions III
 
@@ -327,7 +316,7 @@ dades.new$edat
 dades.new[1:3,]
 ```
 
-**************************
+
 
 ## Subseleccions IV
 
@@ -338,7 +327,7 @@ dades.new[,3:5]
 ```
 
 
-**************************
+
 
 ## Subseleccions V
 
@@ -348,7 +337,7 @@ dades.new[,3:5]
 dades.new[-4,-1]
 ```
 
-**************************
+
 
 ## Subseleccions VI
 
@@ -359,7 +348,7 @@ dades.sub = dades.new[c(4,5,7:9),-c(1,3)]
 dades.sub
 ```
 
-**************************
+
 
 ## Subseleccions VII
 
@@ -379,7 +368,7 @@ grans = dades.new[dades.new$edat > 85,]
 grans
 ```
 
-**************************
+
 
 # Llegir dades externes
 
@@ -433,7 +422,7 @@ colnames(tab)<-c("Format", "Llibreria","Sintaxis")
 kable(tab, row.names=FALSE)
 ```
 
-*********
+
 
 ## Importar fitxers de text (.txt, .csv)
 
@@ -450,7 +439,7 @@ read.table("ruta",
 
 
 
-**************
+
 
 ## Importar fitxers MS Excel 
 
@@ -468,7 +457,7 @@ read.xlsx("ruta",
 ``` 
 
 
-**************
+
 
 ## Importar fitxers SPSS 
 
@@ -484,15 +473,15 @@ read.spss("ruta",
 
 ``` 
 
-**************
+
 
 ##  Exemple
 
 ```{r}
-dades = read.csv("input/dades.csv")
+dades = read.csv("input/dades.csv", stringsAsFactors = T)
 ```
 
-*********
+
 
 # Exploració de les dades
 
@@ -504,7 +493,7 @@ Fem una ullada a les dades
 str(dades) #mostra estructura d'un objecte
 ```
 
-*********
+
 
 ## Primeres files
 
@@ -512,7 +501,7 @@ str(dades) #mostra estructura d'un objecte
 head(dades) #mostra les primeres files
 ```
 
-*********
+
 
 ## Altres funcions
 
@@ -525,7 +514,7 @@ View(dades) #mostra tot el conjunt de dades
 ```
 
 
-**************
+
 
 # Manipulació de variables
 
@@ -544,7 +533,7 @@ dades$pes = rnorm(nrow(dades), mean = 75, sd = 10)
 alcada.m<-dades$alcada/100
 dades$imc<-dades$pes/ alcada.m^2
 ```
-**************
+
 
 ## Visualitzem
 
@@ -553,7 +542,7 @@ dades$imc<-dades$pes/ alcada.m^2
 head(dades)
 ```
 
-**************
+
 
 ## Recodificació de variables
 
@@ -575,15 +564,13 @@ dades$imccat <- cut(dades$imc, breaks=c(-Inf,18,25,30,Inf),
                                "sobrepes","obesitat"))
 ```
 
-**********
-
 ## Modificació de nivells d'un factor
 ```{r, eval=T}
 library(plyr) #llibreria tractament de dades
 dades$imccat <-revalue(dades$imccat, c("normal"="estàndar"))
 ``` 
 
-*********
+
 
 ## Funcions de transformació de variables
 
@@ -593,7 +580,7 @@ dades$imccat <-revalue(dades$imccat, c("normal"="estàndar"))
 
 - as.factor()
 
-*********
+
 
 ## Transformació de variables:exemples
 
@@ -612,7 +599,7 @@ b<-c("1", "est", "5")
 as.numeric(b)
 ```
 
-*********
+
 ## Transformació de variables:exemples
 
 Compte quan passem de factor a numèric!!!
@@ -626,8 +613,6 @@ Passem sempre per as.character:
 ```{r}
 as.numeric(as.character(b))
 ```
-
-***********
 
 ## Ordenar dataframes
 
@@ -646,8 +631,6 @@ dades<-dades[order(dades$sexe,dades$imc),]
 dades<-dades[order(dades$sexe,-dades$imc),]
 ```
 
-**********
-
 
 # Gràfics amb ![](input/RLogo.png){ width=10% }
 
@@ -659,7 +642,6 @@ dades<-dades[order(dades$sexe,-dades$imc),]
 - N'hi ha d'altres, com ara "plotly".
 - En aquest curs utilitzarem el paquet base i ggplot2 a l'última classe.
 
-***********
 
 ## Funció "plot"
 
@@ -679,7 +661,6 @@ plot(x = var.x,
 
 ```
 
-***********
 
 ## Funció "plot": diagrames de caixes
 
@@ -690,7 +671,7 @@ plot(dades$sexe, dades$edat, main = "diagrama de caixes",
      xlab = "sexe", ylab = "edat")
 ```
 
-***********
+**
 
 ## Funció "plot": diagrames de punts
 

@@ -109,7 +109,7 @@ matriu_nova = matriu[c(1,3), c(1,3)]
 
 liver = read.csv('indian_liver_patient.csv')
 View(liver)
-# ALERTA: en castellà se sol guardar en tsv, no csv! 
+# ALERTA: en castellà el separador sol ser punt i coma, no coma; aleshores ens passarà que: 
 
 #liver = read.csv('indian_cast.csv') # error!
 

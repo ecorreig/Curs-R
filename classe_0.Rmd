@@ -2,16 +2,9 @@
 title: "Curs d'introducció a R"
 subtitle: "Classe 0: Què és R"
 author: "Eudald Correig i Fraga"
-institute: "IISPV"
 
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
-output: 
-  beamer_presentation:
-    theme: "Montpellier"
-    highlight: tango
-    fig_caption: FALSE
-    toc: true
-    slide_level: 2
+output: ioslides_presentation
 
 ---
 
@@ -30,8 +23,6 @@ output:
 - Què és R
 - Què és i com s'utilitza RStudio
 
-**********************************************
-
 ## Classe 1: Introducció a R
 
 - Objectes de R: vectors, matrius, llistes i dataframes
@@ -46,8 +37,6 @@ output:
 
 - Gràfics simples
 
-**********************************************
-
 ## Classe 2: Markdown
 - Markdown
 - Espais de treball
@@ -61,8 +50,6 @@ output:
 - Identificació i tractament d'errors
 - Identificació i tractament de missings
 
-
-***************************************
 
 ## Classe 5: Models predictius
 - Regressió lineal
@@ -79,11 +66,11 @@ output:
 ## Classe 7: Gràfics
 - Utilització de ggplot2
 
-**********************************************
+
 
 #  Classe 0
 
-**********************************************
+
 ## Fonts test d'hipòtesi
 
 
@@ -95,7 +82,7 @@ Tant en els llibres com en els vídeos hi ha moltíssima més informació de la 
 
 Un altre llibre que us pot interessar és "Discovering Statistics Using R", de Andy Field i altres. Es un molt bon compendi i un lloc d'on treure llibreries útils.
 
-**********************************************
+
 
 ## Fonts models predictius
 
@@ -127,7 +114,7 @@ De totes les classes que hi ha, farem:
 
 
 
-**********************************************
+
 ## Obtenir informació i ajuda
 
 Llocs on treure informació sobre llibreries, tutorials o demanar ajuda:
@@ -148,7 +135,7 @@ Aquesta classe la podeu trobar actualitzada a
 
 > https://github.com/ecorreig/Curs-R
 
-******************************
+
 
 ## Introducció
 
@@ -158,7 +145,7 @@ Aquesta classe la podeu trobar actualitzada a
 
 - És programari lliure i funciona sota Windows, MAC OS i Linux.
 
-**********************************************
+
 ## Baixar i instal·lar R
 
 R és un llenguatge de programació, però s'instal·la a l'ordinador com qualsevol altre programa.
@@ -168,11 +155,11 @@ El podeu trobar a:
 
 On trobareu versions per linux, mac i windows. 
 
-Baixeu-vos l'última versió disponible, que en el moment d'escriure aquest text és la 3.5.1.
+Baixeu-vos l'última versió disponible, que en el moment d'escriure aquest text és la 3.6.0.
 
 Seguiu després les instruccions per instal·lar-lo al vostre ordinador. 
 
-**********************************************
+
 
 ## RStudio
 
@@ -188,14 +175,14 @@ L'IDE més utilitzat per R és RStudio, i és el que nosaltres utilitzarem. El p
 
 Seguiu també les instruccions per instal·lar-lo.
 
-**********************************************
+
 
 ## ![](input/RStudio-Ball.png){ width=7% } Studio
 
 ![](input/RStudio2.png)
 
 
-*****************
+
 ## Codificacions (encodings)
 - A vegades, sobre tot en Windows, quan obrim un fitxer no es veuen bé els accents.
 
@@ -208,7 +195,7 @@ Seguiu també les instruccions per instal·lar-lo.
 - Si tot i així no es veu bé, feu: File -> Reopen with encoding -> Show all encodings -> LATIN1.
 
 
-*****
+
 
 ## Llibreries i funcions útils en R
 
