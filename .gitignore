@@ -4,3 +4,5 @@ exercicis_resolts.html
 .Rproj.user
 *.Rproj
 *_files
+.Rhistory
+proves*
