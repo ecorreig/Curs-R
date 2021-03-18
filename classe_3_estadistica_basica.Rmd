@@ -94,7 +94,9 @@ summary(dades[,c(1,3,5)])
 - **Quan la probabilitat de que la mostra vingui d'una distribució que segueix la hipòtesi nul·la sigui menor que 1 menys la confiança**
     - Si la confiança és del 95% serà quan la p < 0.05
 
-Exemple: tenim una pastilla per baixar el colesterol i un placebo, volem demostrar que la pastilla funciona i per tant hem de demostrar que els nivells de colesterol del grup que han pres la pastilla són significativamet més baixos que els que no han pres la pastilla.
+## Exemple 1
+
+Tenim una pastilla per baixar el colesterol i un placebo, volem demostrar que la pastilla funciona i per tant hem de demostrar que els nivells de colesterol del grup que han pres la pastilla són significativamet més baixos que els que no han pres la pastilla.
 
 ```{r}
 # Simulem les dades:
@@ -106,9 +108,13 @@ df$grup = as.factor(df$grup)
 plot(df$grup, df$colesterol, ylab="Colesterol", main="Comparació tractament-placebo")
 ```
 
-- La pastilla funciona?
+**La pastilla funciona?**
 
-Un altre exemple: assumim que la mitjana d'alçada d'aquesta classe és de 170cm i la desviació estàndard és de 10cm, quina probabilitat hi ha que entri per la porta una persona de 195cm?
+## Exemple 2 
+
+Assumim que la mitjana d'alçada d'aquesta classe és de 170cm i la desviació estàndard és de 10cm, quina probabilitat hi ha que entri per la porta una persona de 195cm?
+
+## Com es resol?
 
 Per respondre a aquestes preguntes hem de saber les probabilitats que hi ha de que aquestes mostres provinguin d'una població que compleix la hipòtesi nul·la. 
 
@@ -120,7 +126,7 @@ En el cas de l'alçada, hem de calcular les probabilitats de que una persona pro
 
 Per saber-ho hem de **tipificar** les mostres per trobar l'*estadístic de contrast*, és a dir, convertir els valors que tinc a una distribució coneguda, per tal de que pugui saber les probabilitats de que la meva mostra fos com a tal tot i provindre d'una població que segueix la hipòtesi nul·la. 
 
-Mostra -> Distribució -> Posició en la distribució -> Probabilitat (p)
+**Mostra -> Distribució -> Posició en la distribució -> Probabilitat (p)**
 
 Com es tipifica?
 
@@ -138,7 +144,7 @@ La fórmula per calcular l'estadístic de contrast en aquest cas és:
 
 Que, amb les nostres dades, dóna: \[ t = 1.856 \]
 
-Busquem a les taules la probabilitat de que això es doni, amb graus de llibertat: \[n_A+n_b-2 = 38\]):
+Busquem a les taules la probabilitat de que això es doni, amb graus de llibertat: \[n_A+n_b-2 = 38\]
 
 [Taula de T](https://www.statisticshowto.datasciencecentral.com/tables/t-distribution-table/)
 
@@ -151,9 +157,9 @@ En el segon cas, la tipificació és molt més senzilla:
 
 Que, en el nostre cas val: \[ z= 2.5 \]
 
-En aquest cas mirem a les taules de la distribució normal (amb graus de llibertat n-1):
+En aquest cas mirem a les taules de la distribució normal:
 
-[Taula de Z](http://www.stat.ufl.edu/~athienit/Tables/Ztable.pdf)
+[Taula de Z](http://www.z-table.com/)
 
 Per tant veiem que la probabilitat de que entri algú de 195cm o més és del 0,62%.
 
@@ -212,9 +218,9 @@ Friedman | friedman.test(y, groups) | friedman.test(formula, data)
 Per mostrar els contrastos d'hipòtesi utilitzarem el següent conjunt:
 
 ```{r, message=F}
-require(foreign)
-fitxer<-"input/pulse2sa.sav"
-dades<-read.spss(fitxer, to.data.frame = TRUE, use.value.labels=TRUE)
+library(foreign)
+fitxer <- "input/pulse2sa.sav"
+dades <- read.spss(fitxer, to.data.frame = TRUE,  use.value.labels = TRUE)
 head(dades)
 ```
 
@@ -241,7 +247,6 @@ Exemple:
 shapiro.test(dades$HEIGHT)
 ```
 
-
 ## Comprovació visual
 
 - És interessant fer gràfics per comprovar la normalitat de forma visual.
@@ -258,7 +263,6 @@ shapiro.test(dades$HEIGHT)
 hist(dades$HEIGHT)
 ```
 
-*******
 ## Comprovació visual: qqplot
 
 ```{r fig2, fig.height=5}
@@ -266,7 +270,6 @@ qqnorm(dades$HEIGHT) # Dibuixa els punts
 qqline(dades$HEIGHT) # Dibuixa una línia que marca la normal
 ```
 
-*******
 # Comparació de mitjanes
 
 ## Test - T
@@ -295,8 +298,6 @@ t.test(x,          #  vector numèric
        )
 ```
 
-
-
 ## Comparació de mitjanes
 
 També es pot donar en forma de funció:
@@ -308,7 +309,6 @@ t.test(x ~ y ,  #  x és un vector numèric i y categòric
        )
 ```
 
-
 Exemple:
 
 - Comoparar un conjunt amb una mitjana poblacional coneguda.
@@ -316,8 +316,6 @@ Exemple:
 ```{r,  message=FALSE, warning=FALSE}
 t.test(dades$WEIGHT, mu=70)
 ```
-
-
 
 ## Interval de confiança
 
@@ -503,18 +501,39 @@ Exemple:
 fisher.test(dades$SMOKES,dades$TRT)
 ```
 
+Funció útil: CrossTable (paquet gmodels)
+
+```{r}
+gmodels::CrossTable(dades$SMOKES, dades$TRT, chisq = T, fisher = T)
+```
 
 ## Exemples:
-
 
 Anem a veure com s'utilitzen. Seguim amb el fitxer de malalties del fetge.
 
 Quines dades teníem?
 ```{r}
-liver = read.csv('input/indian_liver_patient.csv')
+liver = read.csv('input/indian_liver_patient.csv', stringsAsFactors = T)
+```
+
+```{r}
 head(liver)
+```
+
+```{r}
 str(liver)
-liver$Dataset = as.factor(liver$Dataset)
+```
+
+```{r}
+# Canviem el nom i formategem la variable d'interès
+names(liver)[ncol(liver)] = "Malaltia"
+liver$Malaltia = factor(liver$Malaltia, levels = c(1, 2), labels = c("No malalt", "Malalt"))
+```
+
+Comprovem que ho hem fet bé:
+
+```{r}
+str(liver)
 ```
 
 Imaginem que volem veure si la bilirrubina total depèn segons el sexe: 
@@ -528,15 +547,15 @@ shapiro.test(liver$Total_Protiens)
 No té una distribució normal, per tant hem de fer una U de Mann - Whitney:
 
 ```{r}
-wilcox.test(Total_Protiens~Gender, data=liver)
+wilcox.test(Total_Protiens ~ Gender, data = liver)
 ```
 
-La p<0.05 per tant hem rebutgem la hipòtesi nula i assumim que els nivells de "Total_Protiens" són diferents entre homes i dones ( en concret més alts pels homes).
+La p < 0.05 per tant hem rebutgem la hipòtesi nula i assumim que els nivells de "Total_Protiens" són diferents entre homes i dones (en concret més alts pels homes).
 
 Això és veritat?
 
 ```{r}
-plot(liver$Gender,liver$Total_Protiens)
+plot(liver$Gender, liver$Total_Protiens)
 ```
 
 Visualment sembla que potser sí, tot i que no està del tot clar. 
@@ -564,19 +583,24 @@ plot(liver$Gender,liver$Albumin_and_Globulin_Ratio)
 Ara volem veure si estadísticament la malaltia afecta més a homes o a dones:
 
 ```{r}
-table(liver$Gender, liver$Dataset)
-chisq.test(liver$Gender, liver$Dataset)
+table(liver$Gender, liver$Malaltia)
+chisq.test(liver$Gender, liver$Malaltia)
 ```
 
 Justet però sembla que no!
 
-## Correlacions
+Ho podem fer també amb la nostra taula creuada amb tot integrat:
 
+```{r}
+gmodels::CrossTable(liver$Gender, liver$Malaltia, chisq = T, fisher = T)
+```
+
+## Correlacions
 
 I les Albumines i els Total_Protiens estan correlacionats?
 
 ```{r}
-cor.test(liver$Albumin, liver$Total_Protiens) # per més info ?cor.test
+cor.test(liver$Albumin, liver$Total_Protiens, method = "spearman")
 ```
 
 Clarament sí! Anem a veure-ho:
@@ -587,18 +611,23 @@ plot(liver$Albumin, liver$Total_Protiens)
 
 
 ```{r, fig.width=12, fig.height=12, warning=F, message=F}
-#require(GGally)
-#ggpairs(liver)
+GGally::ggpairs(liver)
 ```
 
 Veient aquest gràfic, ens trobem que hi ha moltes mesures que estan molt escorades a l'esquerra; això passa molt sovint en medicina i s'ha de mirar d'arreglar. Això se sol fer traient el logaritme de la variable, en R és molt senzill:
 
 ```{r}
-liver$Total_Bilirubin=log(liver$Total_Bilirubin) # d'una en una
+liver$Total_Bilirubin = log(liver$Total_Bilirubin) # d'una en una
 
 # o totes a l'hora:
 for (i in 4:7){ # iterem sobre els números de columna
   liver[,i] = log(liver[,i]) # convertim la columna a log i sobreescrivim l'antiga
 }
+```
+
+Compte amb els logaritmes quan hi ha valors que són exactament 0! En aquests casos podem fer:
+
+```{r}
+liver$Total_Bilirubin = log(liver$Total_Bilirubin + 0.01)
 ```
 

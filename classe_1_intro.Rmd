@@ -548,29 +548,13 @@ head(dades)
 
 re-codificar imc: <18;18-<25;25-<30;>30
 ```{r, eval=T}
-dades$imccat <- rep(0, nrow(dades))
-dades$imccat[dades$imc<18]<-0
-dades$imccat[dades$imc>=18 & dades$imc<25]<-1
-dades$imccat[dades$imc>=25 & dades$imc<30]<-2
-dades$imccat[dades$imc>=30]<-3
-
-dades$imccat<-factor(dades$imccat,levels=c(0,1,2,3),
-                     labels=c("baix pes","normal",
-                              "sobrepes","obesitat"))
-
-# Alternativa
-dades$imccat <- cut(dades$imc, breaks=c(-Inf,18,25,30,Inf), 
-                    labels = c("baix pes","normal",
-                               "sobrepes","obesitat"))
+dades$imccat <- cut(
+  dades$imc,
+  breaks = c(-Inf, 18, 25, 30, Inf),
+  labels = c("baix pes", "normal",
+             "sobrepes", "obesitat")
+)
 ```
-
-## Modificació de nivells d'un factor
-```{r, eval=T}
-library(plyr) #llibreria tractament de dades
-dades$imccat <-revalue(dades$imccat, c("normal"="estàndar"))
-``` 
-
-
 
 ## Funcions de transformació de variables
 
@@ -579,8 +563,6 @@ dades$imccat <-revalue(dades$imccat, c("normal"="estàndar"))
 - as.character()
 
 - as.factor()
-
-
 
 ## Transformació de variables:exemples
 
@@ -628,7 +610,7 @@ dades<-dades[order(dades$sexe,dades$imc),]
 
 - Ordre descendent
 ```{r, eval=FALSE}
-dades<-dades[order(dades$sexe,-dades$imc),]
+dades<-dades[order(dades$sexe, -dades$imc),]
 ```
 
 
