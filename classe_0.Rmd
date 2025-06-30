@@ -76,12 +76,11 @@ output: ioslides_presentation
 
 La part de test d'hipòtesi no la cobreixen, aquesta està basada en el llibre:
 
-> Statistics, An introduction using R, de Michael J. Crawley i que podeu trobar a la biblio
+> Statistics, An introduction using R, de Michael J. Crawley
 
 Tant en els llibres com en els vídeos hi ha moltíssima més informació de la que farem en el curs i és un lloc fantàstic pels que vulguin ampliar.
 
-Un altre llibre que us pot interessar és "Discovering Statistics Using R", de Andy Field i altres. Es un molt bon compendi i un lloc d'on treure llibreries útils.
-
+Un altre llibre que us pot interessar és "Discovering Statistics Using R", de Andy Field i altres. És un molt bon compendi i un lloc d'on treure llibreries útils.
 
 
 ## Fonts models predictius
@@ -111,8 +110,6 @@ De totes les classes que hi ha, farem:
 - Lab: Model Selection Using Cross-Validation (tema 6)
 
 - Evidentment també són útils les parts teòriques relacionades amb les pràctiques dels vídeos
-
-
 
 
 ## Obtenir informació i ajuda
@@ -155,7 +152,7 @@ El podeu trobar a:
 
 On trobareu versions per linux, mac i windows. 
 
-Baixeu-vos l'última versió disponible, que en el moment d'escriure aquest text és la 3.6.0.
+Baixeu-vos l'última versió disponible, que en el moment d'escriure aquest text és la 4.5.1.
 
 Seguiu després les instruccions per instal·lar-lo al vostre ordinador. 
 
@@ -183,27 +180,11 @@ Seguiu també les instruccions per instal·lar-lo.
 
 
 
-## Codificacions (encodings)
-- A vegades, sobre tot en Windows, quan obrim un fitxer no es veuen bé els accents.
+## Dialectes d'R
 
-- Això és a causa de les codificacions, és a dir, com el sistema interpreta els números i lletres.
+R té el que s'anomena un dialecte, que és el conjunt de funcions i llibreries que s'utilitzen en el llenguatge i que segueixen la mateixa filosofia.
 
-- En cas de que, en obrir un fitxer, no s'us vegin bé els accents, heu de fer el següent:
-
-- Apreteu a File -> Reopen with encoding -> UTF-8.
-
-- Si tot i així no es veu bé, feu: File -> Reopen with encoding -> Show all encodings -> LATIN1.
-
-
-
-
-## Llibreries i funcions útils en R
-
-En aquests links podeu trobar tant llibreries com funcions en R que us podem ajudar:
-
-- Llibreries: https://support.rstudio.com/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages
-
-- Funcions http://www.sr.bham.ac.uk/~ajrs/R/r-function_list.html
+Nosaltres farem servir el dialecte "tidyverse", creada per Hadley Wickham i altres, i que es basa en oferir una manipulació de dades ordenada i el que se'n diu "opinionada", és a dir, que redueix la flexibilitat per homogeneitzar l'ús i reduir els errors.
 
 ## Fi
 

@@ -15,9 +15,6 @@ output: ioslides_presentation
 
 - Aquest símbol "#" serveix per introduir un comentari.
 
-- Per separar expressions podem fer servir el ";"
-
-
 
 ## Consola
 
@@ -31,7 +28,7 @@ output: ioslides_presentation
 ## Càlculs simples
 
 ```{r}
-4+5
+4 + 5
 
 sqrt(49)
 
@@ -46,12 +43,12 @@ rnorm(3)
 ##  Càlculs simples
 
 ```{r }
-w<-4+5 #deso el resultat de 4+5 a l'objecte w
+w <- 4 + 5 #deso el resultat de 4 + 5 a l'objecte w
 w
 
 sqrt(w)
 
-x<-rnorm(3)
+x <- rnorm(3)
 print(x)
 
 ```
@@ -72,33 +69,11 @@ ls() #quins objectes hi ha?
 
 setwd("PATH") # hem de substituir el "path" pel de l'espai de 
 # treball on volem estar
-save.image("Prova.Rdata")
-
-
 ```
 
 
 
 ## Ajuda
-
-Hi ha diferents maneres d'accedir a l'ajuda dins el programa:
-
-```{r , eval=FALSE}
-help.start()           # Inicialitzar l'ajuda
-
-help.search("normal")  # Buscar "normal" a l'ajuda
-
-help(package="base")   # Buscar info del paquet "base"
-
-?log                # Buscar ajuda d'una funció concreta
-
-```
-
-
-
-
-
-## Com interpretar l'ajuda
 
 Imaginem que volem saber més sóbre les funcions de distribució normals en R, escrivim:
 
@@ -124,9 +99,9 @@ Imaginem que volem saber més sóbre les funcions de distribució normals en R, 
 
 - R consta d'un sistema "base", que inclou molts mètodes estadístics, i un sistema per paquets que permeten anar molt més enllà.
 
-- La comunitat R és qui elabora i manté aquests paquets (alguns signats per estadístics de gran renom).
+- A sobre d'aquí, hi ha conjunts de paquets que s'anomenen dialectes, que són conjunts de paquets que segueixen la mateixa filosofia.
 
-
+- Finalment, hi ha paquets amb eines extres que s'anomenen "llibreries", i que instal·larem quan ho necessitem.
 
 
 ## Paquets i les llibreries
@@ -134,21 +109,20 @@ Imaginem que volem saber més sóbre les funcions de distribució normals en R, 
 Triem un repositori: 
 
 ```{r , eval=FALSE}
-install.packages("foreign") #llegir Stata,SPSS...
+install.packages("readr") # Importar dades de text
 ```
 
 Un cop instal·lat l'haurem de carregar a la biblioteca:
 
 ```{r , eval=FALSE}
-library(foreign) #require(foreign)
+library(readr)
 ```
+
 Si volem saber-ne més... :
 
-
 ```{r , eval=FALSE}
-library(help="foreign")
+library(help="readr")
 ```
-
 
 
 
@@ -178,13 +152,12 @@ library(help="foreign")
 - Els objectes estan formats per elements.
 
 ```{r}
-w <- 3+4 #Creem l'objecte w 
+w <- 3 + 4 #Creem l'objecte w 
 print(w)
 
-# per cert: <- és equivalent a = !
 ```
 
-- 7 és l'unic element de l'objecte w
+- 7 és l'únic element de l'objecte w
 - Els objectes més habituals són: variables, vectors, matrius, llistes i data frames.
 
 
@@ -210,11 +183,11 @@ En aquest curs treballarem vectors i dataframes.
 - Es creen amb la funció c(), segurament la funció més important d'R!
 
 ```{r }
-x<-c(2,4,6) #vector de 3 elements numèrics parells
+x <- c(2, 4, 6) #vector de 3 elements numèrics parells
 x
-y<-c("A","B","C") #vector de 3 elements cadena
+y <- c("A", "B", "C") #vector de 3 elements cadena
 y
-z<-c(TRUE,FALSE,TRUE) #vector de 3 elements lògics
+z <- c(TRUE, FALSE, TRUE) #vector de 3 elements lògics
 z
 ```
 
@@ -223,13 +196,13 @@ z
 ## Algunes operacions: vectors
 \tiny
 ```{r}
-x<-1:10 #genera un vector d'1 a 10
+x <- 1:10 #genera un vector d'1 a 10
 x
 x[4] #la posició 4 és
- 
-x[x>7] #elements més grans de 7
 
-x+2 #sumar un escalar
+x[x > 7] #elements més grans de 7
+
+x + 2 #sumar un escalar
 
 
 ```
@@ -242,243 +215,134 @@ x+2 #sumar un escalar
 
 \tiny
 ```{r}
-id<-1:10
+library(tibble)
 
-sexe<-rep(c("M","D"),5)
+id <- 1:10
 
-normal<-rnorm(10)
+sexe <- rep(c("M","D"),5)
 
-curacio<- rep(c(FALSE,TRUE),5)
+normal <- rnorm(10)
 
-dades<-data.frame(id,sexe,normal,curacio)
+curacio <- rep(c(FALSE, TRUE), 5)
 
-head(dades) #Mostrar primeres files/registres
+dades <- tibble(id, sexe, normal, curacio)
+
+head(dades) # Mostrar primeres files/registres
 
 ```
 
+# Manipulació de dades
 
+Ara utilitzarem les funcions del paquet **dplyr** per fer les subseleccions més habituals.  
+Algunes de les funcions bàsiques són:
 
-## Algunes operacions: dataframes
-\tiny
+* `select()` – escull columnes  
+* `slice()` – escull files per posició  
+* `filter()` – escull files que compleixen una condició  
+* `arrange()` – ordena files  
+* `mutate()` – crea o transforma variables
+
+Totes aquestes funcions es poden combinar amb l'operador de tub `|>` (pipe natiu de R 4.1) per llegir-les de manera natural: "agafa `dades`, després ...".
+
 ```{r}
-str(dades) #mostra estructura de les dades
-dades$id #mostra valors variable id
-dades.s<- dades[order(dades$id),]#ordena per id
-#podem afegir una nova variable
-edat<-c(67,78,89,86,56,90,68,82,92,67)
-dades.new<-data.frame(dades.s,edat)
+library(dplyr)
+```
+
+## Subseleccions
+
+```{r}
+# Seleccionem una cel·la concreta: fila 2
+dades |> slice(2)
+
+# Seleccionem una fila, per exemple de la 4 a la 10
+dades |> slice(4:10)
+
+# També ho podem fer pel nom de la variable
+dades |> select(normal)
+
+# També ho podem fer amb el símbol del dòlar "$"
+dades$normal
 ```
 
 
-# Subseleccions
-
-- Els claudàtors "[ , ]" indiquen subselecció.
-- La primera posició pertany a les files, la segona a les columnes.
-- Poso un número o un vector dins de cada posició per indicar quines files o columnes vull.
-- Si no poso res en una de les posicions estic indicant totes les files/columnes
-- Si poso un número negatiu o un vector precedit d'un símbol "-" estic indicant totes les files/columnes menys aquella o aquelles.
-- Atenció que els vectors s'han de fer o bé en format a:b o bé amb la funció c().
-
-
-
-## Subseleccions I
+## Subseleccions
 
 ```{r}
-# Seleccionem una cel·la en concret, p. e., 
-# fila 2 columna 1:
-dades.new[2,1]
-# Seleccionem una fila, per exemple la tercera:
-dades.new[3,] # Noteu la coma i l'espai buit!
+# Seleccionem un conjunt de columnes
+dades |> select(id, sexe, normal)
+
+# O totes menys algunes
+dades |> select(-id, -normal)
 ```
 
-
-## Subseleccions II
+## Subseleccions
 
 ```{r}
-# Seleccionem una columna, per exemple la cinquena:
-dades.new[,5]
-#També ho podem fer amb el nom fent servir el símbol 
-# del dòlar "$"
-dades.new$edat
+# Creem un nou objecte amb la subselecció
+dades2 <- dades |> select(id, sexe, normal)
+
+head(dades2)
 ```
 
-
-
-
-## Subseleccions III
-
-- Podem seleccionar més d'una fila o columna
-- El resultat és una altra dataframe
+## Filtres
 
 ```{r}
-# Per exemple, seleccionem les tres primeres files 
-# i totes les columnes:
-dades.new[1:3,]
-```
+# Subseleccionar amb una condició lògica
+dones <- dades |> filter(sexe == "D")
+head(dones)
 
-
-
-## Subseleccions IV
-
-```{r}
-# Seleccionem les tres últimes columnes i totes les 
-# files:
-dades.new[,3:5] 
-```
-
-
-
-
-## Subseleccions V
-
-```{r}
-# Seleccionem totes les files menys la 4 i 
-# totes les columnes menys la primera:
-dades.new[-4,-1]
-```
-
-
-
-## Subseleccions VI
-
-```{r}
-# Podem crear una nova dataframe amb la subselecció:
-
-dades.sub = dades.new[c(4,5,7:9),-c(1,3)]
-dades.sub
-```
-
-
-
-## Subseleccions VII
-
-```{r}
-# Podem posar una condició dins de la subselecció
-
-dones = dades.new[dades.new$sexe == "D",]
-dones
-```
-
-## Subseleccions VIII
-
-```{r}
-# Un altre exemple:
-
-grans = dades.new[dades.new$edat > 85,]
-grans
+# Un altre exemple
+grans <- dades |> filter(normal > 1.96)
+head(grans)
 ```
 
 
 
 # Llegir dades externes
 
-## Introducció
-\bgroup
-\hypersetup{linkcolor = blue}
-\listoffigures
-\egroup
+## Paquets del tidyverse per a la lectura de dades
 
-- R sap llegir dades de gairebé qualsevol format.
-- El sistema és habitualment senzill i només cal tenir en compte quina llibreria cal en cada cas.
-- En general, l'objecte generat és un dataframe
+- **readr** : fitxers de text (\*.csv, \*.tsv, \*.txt …)  
+- **readxl** : fulls de càlcul Excel (\*.xls, \*.xlsx)  
+- **haven** : fitxers d'altres programes estadístics (SPSS, Stata, SAS)
 
-```{r,echo=FALSE, results='hide'}
-set.seed(1)
+Totes aquestes funcions retornen un **tibble** i encaixen a la perfecció amb la resta del flux `tidyverse`.
 
-library(knitr)
-tab<-rbind(cbind("Text (.csv)"
-, "Base/Readr", 
-"read.csv(ruta, header=TRUE, row.names='id')"),
-
-cbind("Text (.txt/ .csv)"
-, "Base/Readr/data.table", 
-"read.table(ruta, header=TRUE, sep=',', row.names='id')"),
-
-cbind("MSExcel (.xls / .xlsx)"
-, "xlsx", 
-"read.xlsx( ruta, sheetName = 'Fulla1')"),
-
-
-cbind("SPSS (.sav)"
-, "foreign", 
-"read.spss(ruta)"),
-
-
-cbind("Stata (.dta)"
-, "foreign", 
-"read.dta( ruta)"),
-
-
-
-cbind("SAS (.xpt)"
-, "foreign", 
-"Read.xport(ruta)"))
-
-colnames(tab)<-c("Format", "Llibreria","Sintaxis")
+```{r, message = FALSE}
+library(readr)  # read_csv(), read_delim(), …
+library(readxl) # read_excel()
+library(haven)  # read_spss(), read_dta(), read_sas()
 ```
 
-\tiny
-```{r,echo=FALSE}
-kable(tab, row.names=FALSE)
+### Importar fitxers de text (.csv, .tsv, …)
+
+```{r, eval=FALSE}
+# Fitxer CSV amb separador ","
+dades <- read_csv("ruta/fitxer.csv", show_col_types = FALSE)
+
+# Fitxer delimitat per punt i coma
+dades <- read_delim("ruta/fitxer.csv", delim = ";", show_col_types = FALSE)
 ```
 
-
-
-## Importar fitxers de text (.txt, .csv)
+### Importar fitxers Excel
 
 ```{r, eval=FALSE}
-read.table("ruta",
-	header=TRUE,   #primera línia noms variables
-	sep="," ,  #separador entre variables  
-	stringsAsFactors = FALSE,   #no factors per defecte
-	na.strings=c("NA","**"), #codis per a missings
-	dec="." #simbol decimal
-	)
-
+full <- read_excel("ruta/fitxer.xlsx", sheet = "Full1")
 ```
 
-
-
-
-
-## Importar fitxers MS Excel 
+### Importar fitxers SPSS / Stata / SAS
 
 ```{r, eval=FALSE}
-library(openxlsx)
+enc   <- read_spss("ruta/dades.sav")      # SPSS
+stata <- read_dta("ruta/dades.dta")       # Stata
+sas   <- read_sas("ruta/dades.sas7bdat") # SAS
+```
 
-read.xlsx("ruta",
-	sheetIndex,  #nº de fulla (evitar posar el nom)
-	sheetName="Full1", #nom de la fulla
-	as.data.frame=TRUE, #com un data frame
-	header=TRUE,  #noms variables
-	rowIndex=20, #número de files per llegir
-	)
-
-``` 
-
-
-
-
-## Importar fitxers SPSS 
-
-
-```{r, eval=FALSE}
-library(foreign)
-
-read.spss("ruta",
-	use.value.labels=TRUE,  # factors
-	to.data.frame=TRUE, #data frame
-	)
-
-
-``` 
-
-
-
-##  Exemple
+### Exemple
 
 ```{r}
-dades = read.csv("input/dades.csv", stringsAsFactors = T)
+# Llegim les dades d'exemple amb readr
+dades <- read_csv("input/dades.csv", show_col_types = FALSE)
 ```
 
 
@@ -490,27 +354,26 @@ dades = read.csv("input/dades.csv", stringsAsFactors = T)
 Fem una ullada a les dades
 
 ```{r, eval=T}
-str(dades) #mostra estructura d'un objecte
+str(dades) # mostra estructura d'un objecte
+glimpse(dades) # mostra estructura d'un objecte
+
 ```
 
 
 
-## Primeres files
+## Primeres / últimes files
 
 ```{r, eval=T}
-head(dades) #mostra les primeres files
+head(dades) # mostra les primeres files
+
+tail(dades) # mostra les últimes files
 ```
 
 
-
-## Altres funcions
-
-```{r, eval=FALSE}
-tail(dades) #mostra les darreres files
-```
+## Tota la taula (en una finestra nova)
 
 ```{r, eval=FALSE}
-View(dades) #mostra tot el conjunt de dades 
+View(dades) # mostra tot el conjunt de dades 
 ```
 
 
@@ -518,99 +381,102 @@ View(dades) #mostra tot el conjunt de dades
 
 # Manipulació de variables
 
-##  Creació noves variables
+## Creació de noves variables
 
-Entrem les alçades i els pesos:
+Fem servir `mutate()` per afegir columnes al nostre tibble:
 
 ```{r}
-dades$alcada = rnorm(nrow(dades), mean = 170, sd = 10)
-dades$pes = rnorm(nrow(dades), mean = 75, sd = 10)
+dades <- dades |> 
+  mutate(
+    alçada = rnorm(n(), mean = 170, sd = 10),
+    pes    = rnorm(n(), mean = 75,  sd = 10),
+    imc    = pes / (alçada / 100) ^ 2   # índex de massa corporal
+  )
 ```
-
-Índex de massa corporal $imc= \frac{pes}{alçada^{2}}$
-
-```{r, eval=T}
-alcada.m<-dades$alcada/100
-dades$imc<-dades$pes/ alcada.m^2
-```
-
 
 ## Visualitzem
 
-\small
 ```{r}
 head(dades)
 ```
 
-
-
 ## Recodificació de variables
 
-re-codificar imc: <18;18-<25;25-<30;>30
-```{r, eval=T}
-dades$imccat <- cut(
-  dades$imc,
-  breaks = c(-Inf, 18, 25, 30, Inf),
-  labels = c("baix pes", "normal",
-             "sobrepes", "obesitat")
-)
-```
+Podem crear una variable categòrica a partir de `imc` amb `case_when()` (o bé `cut()` si ho preferim):
 
-## Funcions de transformació de variables
-
-- as.numeric()
-
-- as.character()
-
-- as.factor()
-
-## Transformació de variables:exemples
-
-- as.numeric
-
-```{r, eval=T}
-a<-c("1", "3", "5")
-as.numeric(a)
-
-```
-
-Compte quan passem de caràcter a numèric!!!
-
-```{r, eval=T}
-b<-c("1", "est", "5")
-as.numeric(b)
-```
-
-
-## Transformació de variables:exemples
-
-Compte quan passem de factor a numèric!!!
-
-```{r, eval=T}
-b<-factor(c("1", "10", "5"))
-as.numeric(b)
-```
-
-Passem sempre per as.character:
 ```{r}
-as.numeric(as.character(b))
+dades <- dades |>
+  mutate(
+    imccat = case_when(
+      imc < 18 ~ "baix pes",
+      imc < 25 ~ "normal",
+      imc < 30 ~ "sobrepes",
+      TRUE ~ "obesitat"
+    ) 
+  )
 ```
 
-## Ordenar dataframes
 
-- Ordenar per una variable
-```{r, eval=FALSE}
-dades<-dades[order(dades$imc),]
+## Factors
+
+Els factors són un tipus de variable especial en R que serveix per representar dades categòriques. Són molt útils per:
+
+- Representar variables qualitatives (nominal o ordinal)
+- Mantenir un ordre específic en les categories
+- Fer anàlisis estadístics i gràfics
+
+Per treballar amb factors, el paquet `forcats` (part de tidyverse) ofereix moltes funcions útils:
+
+```{r}
+library(forcats)
+
+# Convertim imccat a factor i ordenem els nivells
+dades <- dades |>
+  mutate(
+    imccat = fct_relevel(imccat, 
+                         "baix pes", 
+                         "normal",
+                         "sobrepes", 
+                         "obesitat")
+  )
+
+# Comprovem els nivells
+levels(dades$imccat)
 ```
 
-- Ordenar per més d'una variable
-```{r, eval=FALSE}
-dades<-dades[order(dades$sexe,dades$imc),]
+
+## Transformació de variables
+
+Algunes funcions útils per canviar el tipus d'una columna dins de `mutate()`:
+
+- `as.numeric()`
+- `as.character()`
+- `as.factor()`
+
+```{r}
+# Exemple: convertim una columna character a numèrica
+dades <- dades |> 
+  mutate(alçada_num = as.numeric(alçada))
 ```
 
-- Ordre descendent
-```{r, eval=FALSE}
-dades<-dades[order(dades$sexe, -dades$imc),]
+Compte quan convertim factors directament a numèrics; sovint convé passar per `as.character()`:
+
+```{r}
+levels_ex <- factor(c("1", "10", "5"))
+# Conversió incorrecta:
+as.numeric(levels_ex)
+# Conversió correcta:
+as.numeric(as.character(levels_ex))
+```
+
+## Ordenar files
+
+```{r}
+# Per una sola variable
+dades |> arrange(imc) |> head()
+
+# Per més d'una variable i en ordre descendent
+dades |> arrange(sexe, desc(imc)) |> head()
 ```
 
 
@@ -648,12 +514,11 @@ plot(x = var.x,
 
 - Si li passem una variable categòrica sap que ha de fer boxplots:
 
-```{r fig1, fig.height=4.5}
-plot(dades$sexe, dades$edat, main = "diagrama de caixes",
-     xlab = "sexe", ylab = "edat")
-```
+```{r fig1, fig.height=4}
+dades <- dades |> mutate(sexe = as.factor(sexe))
 
-**
+plot(edat ~ sexe, dades)
+```
 
 ## Funció "plot": diagrames de punts
 
@@ -667,7 +532,7 @@ plot(dades$pes, dades$imc, pch = 20, col = "red", cex = 2.5,
 ## Histograma
 
 ```{r fig3, fig.height=5.5}
-hist( dades$edat, main = "histograma",xlab = "imc")
+hist( dades$normal, main = "histograma",xlab = "imc")
 ```
 
 ## Fi
