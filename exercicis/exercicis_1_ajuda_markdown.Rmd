@@ -1,0 +1,105 @@
+---
+# Aquí dins hi ha informació sobre com s'editarà el markdown; no ho toqueu si no sabeu què esteu fent.
+title: "Introducció al Markdown"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# No toqueu aquesta part
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = T}
+# Vegeu el comentari final per aquesta part
+set.seed(1234)
+library(ggplot2)
+library(readr)
+```
+
+# Introducció a ![](input/rmarkdown-logo.png){ width=10% }
+
+* Markdown és un llenguatge d'edició molt simple.
+* Serveix per fer editar documents en HTML o PDF de forma ràpida i senzilla.
+* S'integra amb les operacions amb R per crear informes.
+* R utilitza el paquet knitr (knit, anglès per "fer mitja")
+* Es diu així perquè ajunta text i codi de forma elegant i senzilla.
+* És reproduïble: si d'aquí 6 mesos voleu repetir l'informe, només cal apretar un botó!
+
+![Inicialització](input/markdown.png)
+
+# Utilització del Markdown
+
+Aquí puc escriure el que vulgui, s'imprimirà com a text normal.
+
+```{r}
+# Aquí dins només puc escriure com si estés programant, si no em donarà error
+# Cada un d'aquests trossos s'anomena "chunk"
+x <- rnorm(10000)
+a <- sin(pi * x)
+```
+
+Aquí puc tornar a escriure normal. Fins i tot puc fer coses com **negreta** o *cursiva*.
+
+```{r}
+# Puc fer que imprimeixi resultats
+liver = read_csv('input/indian_liver_patient.csv')
+summary(liver)
+```
+
+També puc afegir plots:
+```{r}
+# o que tregui gràfics fets amb les dades:
+plot(x, a)
+```
+
+Puc fer llistes:
+
+* Un
+* Dos
+* Tres
+
+I enumeracions:
+
+1. Primer
+1. Segon
+1. Tercer  (sí, no m'he equivocat, el númeor del principi ha de ser sempre 1...)
+
+I fins i tot puc fer fórmues en làtex:
+
+\[ \sum\limits_{n=1}^{\infty} 2^{-n} = 1 \]
+
+També puc posar links de manera molt fàcil:
+
+[Exemple](www.urv.cat)
+
+I per acabar, també puc incloure imatges (alerta que he de posar el path correctament):
+
+![Aquí poso el peu de foto](input/urv-centrat-color.png){width=50%}
+
+### Important
+
+* Si necessito una llibreria, l'he de carregar dins del markdown encara que la tingui carregada a l'entorn local (library(paquet)).
+* L'he de carregar *abans* de fer-la servir (per exemple al principi de tot).
+* Les instal·lacions de llibreries **no** les he de posar en el markdown (install.packages("paquet")).
+* Si vull que els resultats surtin sempre iguals, he de posar un set.seed(), és a dir, una llavor pel generador de números aleatoris.
+* M'he d'assegurar que el "working directory" sigui el correcte:
+
+```{r}
+getwd()
+# setwd("path_al_fitxer")
+```
+
+* Si hi ha algun error en qualsevol punt, no es compilarà res!
+* Per tant, és útil anar fent "knit" sovint per anar depurant els errors.
+* És útil separar cada tipus de càlculs en "chunks" per tenir el fitxer ordenat.
+* De forma automàtica l'informe es genera en html (s'obre amb un navegador web).
+* També el puc treure en pdf; aleshores he d'instal·lar un compilador de [latex](https://www.latex-project.org/).
+* Els podeu trobar, per MAC i LINUX [aquí](https://www.tug.org/texlive/) i per WINDOWS [aquí](https://miktex.org/).
+* Un cop instal·lat, per crear un PDF he d'anar a la fletxeta de la dreta de knit i apretar "Knit to PDF".
+* També es poden crear documents WORD de la mateixa manera. 
+* No només es poden fer fitxers com aquest, també es poden fer presentacions (per exemple les classes ho són!)
+* [Aquí](https://rmarkdown.rstudio.com/articles_intro.html) podeu trobar un petit tutorial.
+* En els WINDOWs a vegades no es veuen bé els accents, hem d'anar a "File" -> "Reopen with encoding" i allà cliclar "UTF-8".
+
+
+

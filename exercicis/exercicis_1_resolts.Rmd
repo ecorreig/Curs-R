@@ -1,0 +1,135 @@
+---
+title: 'Classe 1: Solucions als exercicis'
+author: "Departament de bioestadística URV"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(1234)
+```
+
+
+# Exercici 1
+
+* On és físicament el teu espai de treball?
+* Llista els objectes d'aquest espai de treball
+* Crea un nou objecte que sigui la suma de dos nombres
+* Esborra aquest objecte
+
+```{r}
+# Recorda, crea "chunks" per les solucions, en pots crear un per cada exercici o un per cada pregunta.
+getwd() 
+
+ls()
+
+x <- 3 + 2
+
+rm(x)
+```
+
+# Exercici 2
+
+
+* Descarrega el paquet RXKCD (fora del markdown)
+* Consulta l'ajuda per saber què fa aquest paquet (fora del markdown)
+* Afegeix la llibreria 
+* Investiga què fa la funció getXKCD (fora del markdown)
+* Consulta el còmic 539
+
+Primer, heu d'escriure a la consola (és a dir, a baix)
+
+install.packages("RXKCD")
+
+per instal·lar el paquet. Si ho feu dins dels chunks del markdown us donarà error.
+
+Per obtenir ajuda del paquet, encara a la consola, escrivim:
+
+help(package="RXKCD")
+
+I per tenir informació sobre la funció getXKCD:
+
+?getXKCD
+
+La resta la fem dins del markdown:
+
+```{r}
+
+library(RXKCD)
+
+getXKCD(539)
+
+```
+
+# Exercici 3: vectors
+
+
+* Busca informació de la funció sample() (fora del markdown, és a dir, a la consola). Per exemple, si volem 10 números entre el 0 i 20 escriurem:
+sample(0:20, 10).
+
+A la consola escrivim:
+
+?sample
+
+* Genera una mostra aleatòria de 20 nombres entre 1 i 100.
+* Genera un vector de nom a amb 20 elements del 1 al 40 cada 2.
+* Genera un vector de nom b amb 20 elements on es repeteixin alternativament els valors "home" i "dona"
+* Genera un vector de nom c amb 20 elements on es repeteixin alternativament els valors "control" i "intervenció"
+* Genera un vector de nom "y" resultat de triar els valor < 4 del vector "x".
+
+ Genera un vector de nom y resultat de triar els valor < 4 del vector x.
+
+```{r}
+
+x <- sample(1:100, 20)
+x
+
+a <- seq(1, 20, by = 2)
+a
+
+b <- rep(c("home", "dona"), 10)
+b
+
+c <- rep(c("control", "intervenció"), 10)
+c
+
+y <- x[x < 4]
+#or
+y <- subset(x, x < 4)
+y
+
+```
+
+
+#Exercici 4 data frame
+
+* Genera un data frame de nom "dades" amb informació (generada de forma aleatòria) d'un grup de 10 pacients:
+	- Index (numèrica)
+	- Edat  (numèrica: normal de mitjana 60 i desviació estàndard 10)
+	- Sexe  (factor, Home/ Dona)
+* Ordena el data frame en funció de l'edat dels pacients.
+* crea un nou dataframe amb les 3 primeres fileres i les variables d'índex i edat. 
+* Crea un nou dataframe amb només les dones. 
+* Crea un altre dataframe amb els pacients d'edat per sobre de la mitja.
+
+
+```{r}
+Index <- 1:10
+Edat <- sample(18:99 , 10)
+Sexe <- rep(c("Home", "Dona"), 5)
+dades <- data.frame(Index = Index, Edat = Edat, Sexe = Sexe)
+dades
+
+dades.ordenat <- dades[order(dades$Edat), ]
+dades.ordenat
+
+subseleccio = dades.ordenat[1:3, 1:2]
+subseleccio
+
+dones = dades.ordenat[dades.ordenat$Sexe == "Dona", ]
+dones
+
+grans = dades.ordenat[dades.ordenat$Edat > mean(dades.ordenat$Edat),]
+grans
+
+```

@@ -16,167 +16,192 @@
 # si no que hem de posar un coixinet (#) davant de tot el que no sigui codi (que, com ja hem vist,
 # correspon a escriure un comentari).
 
+# Carreguem les llibreries necessàries
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+library(tidyr)
+library(mice)
+library(randomForest)
+
 #### Carreguem les dades que farem servir
 
-liver = read.csv('indian_liver_patient.csv') # primer error!
-# Error in file(file, "rt") : cannot open the connection
-# cannot open file 'indian_liver_patient.csv': No such file or directory
+liver <- read_csv('indian_liver_patient.csv') # primer error!
+# Error: 'indian_liver_patient.csv' does not exist in current working directory.
+# (equivalent al antic: Error in file(file, "rt") : cannot open the connection)
 
-liver = read.csv('input/indian_liver_patient.csv')
-liver$Dataset = as.factor(liver$Dataset)
+# Versió correcta:
+liver <- read_csv('input/indian_liver_patient.csv', show_col_types = FALSE)
+
+# Preparació de dades amb tidyverse:
+liver <- liver |> 
+  mutate(
+    Dataset = case_when(
+      Dataset == 1 ~ "No malalt",
+      Dataset == 2 ~ "Malalt",
+      .default = NA_character_
+    ) |> fct_inorder()
+  )
 
 #### Errors clàssics ####
 
+# Relacionats amb filtrat (antic subsetting):
   
-#Relacionats amb subsetting:
-  
-liver_dones = liver[liver$Gender=Female]
-# Error: unexpected '=' in "liver_dones = liver[liver$Gender="
+liver_dones <- liver |> filter(Gender = "Female")
+# Error: Can't transform a vector with class <function>.
+# ℹ The error occurred in group 1.
 
-liver_dones = liver[liver$Gender == Female]
-# Error in `[.data.frame`(liver, liver$Gender == Female) : object 'Female' not found
+liver_dones <- liver |> filter(Gender == Female)
+# Error: object 'Female' not found
 
-liver_dones = liver[liver$Gender == "Female"]
-# Error in `[.data.frame`(liver, liver$Gender == "Female") : undefined columns @ selected
+liver_dones <- liver |> filter(Gender == "Female")
 
-liver_dones = liver[liver$Gender == "Female",]
+# Error relacionat amb pipes:
+liver_dones <- liver %>% filter(Gender == "Female")  # Error si no hem carregat magrittr
+# Error: could not find function "%>%"
 
 # Relacionats amb arguments de funcions:
 
-t_student = t.test(liver$Gender)
-# Calling var(x) on a factor x is deprecated and will become an error.
+t_student <- t.test(liver$Gender)
+# Error in var(x, na.rm = na.rm) : invalid 'type' (character) of argument
 
-t_student = t.test(liver$Total_Bilirubin, liver$Gender)
-# error molt semblant, però ara: missing value where TRUE/FALSE needed
+t_student <- t.test(liver$Total_Bilirubin, liver$Gender)
+# Error in if (stderr < 10 * .Machine$double.eps * max(abs(mx), abs(my))) stop("data are essentially constant") : 
+# missing value where TRUE/FALSE needed
 
 ?t.test
 
-# Veiem que el segon argument també és un non-emtpy numeric vector, o sigui que 
+# Veiem que el segon argument també és un non-empty numeric vector, o sigui que 
 # espera dues mostres per comparar-les, però si mirem més amunt també podem posar
 # una fórmula, per tant:
 
-t_student = t.test(liver$Total_Bilirubin ~ liver$Gender)
+t_student <- t.test(Total_Bilirubin ~ Gender, data = liver)
 
-lm(liver$Age~liver$Total_Bilirubin)
-model = lm(liver$Dataset~., data=liver)
+# Error amb model lineal:
+model <- lm(Age ~ Total_Bilirubin, data = liver)  # Correcte
+model <- lm(Dataset ~ ., liver)  # Error! Falta data =
+# Error in eval(predvars, data, env) : object 'Age' not found
 
-# Error in terms.formula(formula, data = data) : 
-# '.' in formula and no 'data' argument
-# Ens hem oblidat de posar el dataframe
+model <- lm(Dataset ~ ., data = liver)
+# Warning: using type = "numeric" with a factor response will be ignored
 
-model = lm(Gender~., data=liver)
-
-#Warning messages:
-# 1: In model.response(mf, "numeric") :
-#   using type = "numeric" with a factor response will be ignored
-# 2: In Ops.factor(y, z$residuals) : ‘-’ not meaningful for factors
-
-# o bé: Error in quantile.default(resid) : factors are not allowed quan fem 
-# summary(model)
-  
-  
 # bàsicament ens està dient que compte perquè estem fent una regressió lineal
 # amb una variable depenent categòrica... Hem de passar a regressió logística:
 
-model = glm(liver$Dataset~., data=liver, family = "binomial")
+model <- glm(Dataset ~ ., data = liver, family = "binomial")
 
-# Fent operacions
+# Fent operacions amb dplyr:
 
-mean(liver$Dataset)
-sd(liver$Dataset)
-# NA
-# és un factorial, per tant no podem fer ni mitja ni la desviació estàndard
+liver |> summarise(mitjana_dataset = mean(Dataset))
+# Warning: NAs introduced by coercion
 
-# Dibuixant potser?
+# és un factor, per tant no podem fer la mitjana
 
-plot(Total_Bilirubin, Alkaline_Phosphotase)
-# Error in plot(Total_Bilirubin, Alkaline_Phosphotase) : 
-# object 'Total_Bilirubin' not found
-#Molt fàcil, ens hem oblidat de dir-li de quin dataframe ha de treure les dades
+# Versió correcta per estadístiques descriptives:
+liver |> 
+  group_by(Dataset) |> 
+  summarise(
+    n = n(),
+    mitjana_edat = mean(Age, na.rm = TRUE),
+    .groups = 'drop'
+  )
 
-plot(Total_Bilirubin, Alkaline_Phosphotase, data=liver)
-# vaja, sembla que la funció plot no deix tenir un valor data, ho haurem de fer
-# de la forma llarga: 
+# Error amb select:
+liver |> select(Edat)  # Error! La columna no existeix
+# Error: Can't subset columns that don't exist.
+# ✖ Column `Edat` doesn't exist.
 
-plot(liver$Total_Bilirubin, liver$Alkaline_Phosphotase)
+liver |> select(Age)  # Correcte
+
+# Dibuixant amb ggplot:
+
+liver |> ggplot(aes(x = Total_Bilirubin, y = Alkaline_Phosphotase))
+# Error: No layers in plot
+
+liver |> 
+  ggplot(aes(x = Total_Bilirubin, y = Alkaline_Phosphotase)) +
+  geom_point()
+
+# Error comú: oblidar carregar ggplot2
+# ggplot(liver, aes(...))  # Si no hem carregat ggplot2
+# Error: could not find function "ggplot"
 
 # a vegades no estem al directori que toca, aleshores surt:
-
-# Error in file(file, "rt") : cannot open the connection
+# Error: 'file.csv' does not exist in current working directory.
 
 # setwd('correct_path')
+# o millor: utilitzar here::here() o projects d'RStudio
 
 # o a vegades no he carregat la llibreria...
 
-forest = randomForest(Dataset~., data=liver)
+forest <- randomForest(Dataset ~ ., data = liver)
 
-# Error in randomForest(Dataset ~ ., data = liver) : 
+# Error in randomForest.default(m, y, ...) : 
 # could not find function "randomForest"
 
-# No troba la funció perquè li he de carregar la llibreria, això es pot fer 
-# de dues maneres equivalents, un cop carregada la tindré durant tota la sessió
-# si tanco la sessió l'hauré de tornar a carregar.
-
-require(randomForest)
+# No troba la funció perquè li he de carregar la llibreria
 library(randomForest) 
 
-# Error in library(randomForest) : there is no package called ‘ggvis’
+# Error en instal·lació:
+# Error in library(randomForest) : there is no package called 'randomForest'
 
 # Sembla que no tinc la llibreria, és molt fàcil instal·larla:
-
 install.packages('randomForest')
 
 # Ara ja sí que la podré carregar:
-
-require(randomForest)
+library(randomForest)
 
 # I aplico la funció:
-  
-forest = randomForest(Dataset~., data=liver)
+forest <- randomForest(Dataset ~ ., data = liver)
 # Error in na.fail.default(list(Dataset = c(1L, 1L, 1L, 1L, 1L, 1L, 1L,  : 
 #                                             missing values in object
 
 # Però sembla que encara ho hem de suar una mica més
-# a veure què diu l'stack overflow...
-forest = randomForest(Dataset~., data=liver, na.action=na.exclude)
+forest <- randomForest(Dataset ~ ., data = liver, na.action = na.exclude)
 
 # Ha passat que teníem NAs al nostre dataframe, i a randomForest no li han agradat.
 # En la comanda de dalt li hem dit que les traiés, però hem de pensar bé què fem
 
-# Per començar mirem on són i si n'hi ha gaires. Una manera és fer:
+# Per començar mirem on són i si n'hi ha gaires:
 
 summary(liver)
+
+# Versió tidyverse per explorar missings:
+liver |> 
+  summarise(across(everything(), ~ sum(is.na(.x)))) |> 
+  pivot_longer(everything(), names_to = "variable", values_to = "missings") |> 
+  filter(missings > 0)
 
 # Veiem doncs que a la columna d'Albumin_and_Globulin_Ratio hi ha 4 nans
 
 # Tenim diverses opcions:
 
 # Podem eliminar els casos (els pacients) que tenen algun NA:
+nou_liver <- liver |> drop_na()
+forest <- randomForest(Dataset ~ ., data = nou_liver)
 
-nou_liver = liver[complete.cases(liver),]
-forest = randomForest(Dataset~., data=nou_liver)
-
-# Podem eliminar les columnes on hi ha NAs (en aquest cas no té gaire sentit, 
-# però en casos on hi ha columnes amb mols NAs sí que en té):
-
-nou_liver = liver[,-10]
-forest = randomForest(Dataset~., data=nou_liver)
+# Podem eliminar les columnes on hi ha NAs:
+nou_liver <- liver |> 
+  select(-Albumin_and_Globulin_Ratio)
+forest <- randomForest(Dataset ~ ., data = nou_liver)
 
 # Opció més difícil: podem imputar les dades
-# El millor paquet d'R per fer-ho és el mice:
-pairs(heart)
+# El millor paquet d'R per fer-ho és el mice
 
 #### Missings en R ####
 
 # Els missings estan representats pel caràcter especial NA
 
 # NA és un caràcter curiós, per exemple:
-# NA = c(1,2,3)
+# NA <- c(1,2,3)  # això sobreescriuria NA!
 2 == 2
 "hola" == "hola"
 NA == NA
 
-#nova_liver = liver[liver$Age!=NA, ]
+# Error comú amb missings:
+# liver |> filter(Age != NA)  # Error! Ha de ser !is.na()
+# Error: Type mismatch: `Age` (double) != `NA` (logical).
 
 # Maneres de trobar els nans en la nostra base de dades:
 
@@ -188,66 +213,67 @@ is.na(liver) # és la funció especial per trobar nans
 sum(is.na(liver))
 summary(liver) 
 
-# Si tenim una base de dades molt gran i el summary és massa, podem fer
-# un petit loop per trobar els número de missings de cada columa
-
-for (i in 1:ncol(liver)){
-  if (sum(is.na(liver[,i]))>0){
-    print(colnames(liver)[i])
-    print(sum(is.na(liver[,i])))
-  }
-}
+# Versió tidyverse per trobar missings per columna:
+liver |>
+  summarise(across(everything(), \(x) sum(is.na(x)))) |>
+  pivot_longer(everything(), names_to = "variable", values_to = "missings") |>
+  filter(missings > 0) |>
+  print()
 
 # Maneres d'interactuar amb els nans:
 
 mean(liver$Age)
 mean(liver$Albumin_and_Globulin_Ratio)
-?na.omit
 
 mean(liver$Albumin_and_Globulin_Ratio, na.rm = TRUE)
-mean(na.omit(liver$Albumin_and_Globulin_Ratio))
 
-
+# Versió tidyverse:
+liver |> 
+  summarise(mitjana_ratio = mean(Albumin_and_Globulin_Ratio, na.rm = TRUE))
 
 #### Com netejar una base de dades ####
 
-# Opció 1:
+# Opció 1: treure els casos que tenen nans
+nou_liver <- liver |> drop_na()
 
-# treure els casos que tenen nans (és el que fa l'spss per defecte)
-nou_liver = na.omit(liver)
-complete.cases(liver)
-nou_liver = liver[complete.cases(liver),]
+# Opció 2: treure variables amb molts missings
+# (jo ho faig a partir del 40-50%, fins i tot baixant fins al 15% si la variable no és molt important)
 
-# jo ho faig quan hi ha entrades amb un número exagerat de missings
+# Opció 3: combinació dels anteriors
 
-# Opció 2: 
-
-# treure variables en les que hi ha molts missings (jo ho faig segur)
-# a partir del 40-50%, fins i tot baixant fins al 15% si la variable
-# no és molt important
-
-# Opció 3: intermig dels dos: treure alguns pacients i algunes variables
-
-# Opció 4: combinar les opcions anteriors amb la imputació de missings:
+# Opció 4: combinar amb imputació de missings
 
 #### Imputació de missings ####
 
-# OPCIÓ ABSOLUTAMENT PROHIBIDA (en la majoria de casos): reemplaçar els NA amb 0:
+# OPCIÓ ABSOLUTAMENT PROHIBIDA: reemplaçar els NA amb 0:
+liver <- liver |> 
+  mutate(Albumin_and_Globulin_Ratio = replace_na(Albumin_and_Globulin_Ratio, 0))
+forest <- randomForest(Dataset ~ ., data = liver)
 
-liver$Albumin_and_Globulin_Ratio[!complete.cases(liver$Albumin_and_Globulin_Ratio)]=0
-forest = randomForest(Dataset~., data=liver)
+# Opció poc recomanable: reemplaçar els NA amb la mitjana:
+liver <- liver |> 
+  mutate(
+    mitjana_ratio = mean(Albumin_and_Globulin_Ratio, na.rm = TRUE),
+    Albumin_and_Globulin_Ratio = replace_na(Albumin_and_Globulin_Ratio, mitjana_ratio)
+  ) |> 
+  select(-mitjana_ratio)
 
-# Opció poc recomanable: reemplaçar els NA amb la mitja:
-m = mean(liver$Albumin_and_Globulin_Ratio, na.rm = TRUE)
-liver$Albumin_and_Globulin_Ratio[!complete.cases(liver)] = m
-forest = randomForest(Dataset~., data=liver)
+# Millor opció: mice per imputació
+library(mice)
 
-#install.packages('mice')
-require(mice)
+# ATENCIÓ: amb la pipe nativa |> no podem fer servir el placeholder "."!
+# Això NO funciona: liver |> mice(method = 'rf') |> complete()
+# Perquè mice() espera el dataframe com a primer argument però complete() no
 
-miced = mice(liver, method = 'rf') # mètode basat en arbres trees
-nou_liver = complete(miced)
-forest = randomForest(Dataset~., data=nou_liver)
+# Versió correcta:
+miced <- mice(liver, method = 'rf') # mètode basat en random forest
+nou_liver <- complete(miced)
+forest <- randomForest(Dataset ~ ., data = nou_liver)
 
-# centenars d'altres implacables, insensibles i inespearts errors que inexorablement
+# O també podem fer:
+nou_liver <- liver |> 
+  mice(method = 'rf') |> 
+  complete()
+
+# centenars d'altres implacables, insensibles i inesperats errors que inexorablement
 # us amargaran les vostres primeres sessions d'R 

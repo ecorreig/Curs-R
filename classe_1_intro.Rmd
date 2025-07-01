@@ -6,8 +6,39 @@ date: "`r format(Sys.time(), '%d de %B de %Y')`"
 output: ioslides_presentation
 ---
 
-
 # Primera sessió amb R
+
+## Baixar i instal·lar R
+
+R és un llenguatge de programació, però s'instal·la a l'ordinador com qualsevol altre programa.
+El podeu trobar a:
+
+> https://cran.r-project.org/
+
+On trobareu versions per linux, mac i windows. 
+
+Baixeu-vos l'última versió disponible, que en el moment d'escriure aquest text és la 4.5.1.
+
+Seguiu després les instruccions per instal·lar-lo al vostre ordinador. 
+
+## RStudio
+
+Una vegada instal·lat R ja el podem utilitzar, el que passa és que és difícil d'utilitzar com a tal, i per això fem servir un IDE (Entorn integrat de desenvolupament (en anlgès)), que bàsicament ens facilita la vida a l'hora de programar
+
+L'IDE més utilitzat per R és RStudio, i és el que nosaltres utilitzarem. El podeu trobar a:
+
+**mac**: https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-mac-e911606ce4f4
+
+**Windows**: https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-windows-5f503f708027
+
+**LINUX**: https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-ubuntu-12-04-14-04-16-04-b6b3107f7779
+
+Seguiu també les instruccions per instal·lar-lo.
+
+
+## ![](input/RStudio-Ball.png){ width=7% } Studio
+
+![](input/RStudio2.png){ width=90% }
 
 ## Consola
 
@@ -24,78 +55,7 @@ output: ioslides_presentation
 
 - Per sortir del programa podem tancar o executar ">q()"
 
-
-## Càlculs simples
-
-```{r}
-4 + 5
-
-sqrt(49)
-
-log(2)
-
-rnorm(3)
-
-```
-
-
-
-##  Càlculs simples
-
-```{r }
-w <- 4 + 5 #deso el resultat de 4 + 5 a l'objecte w
-w
-
-sqrt(w)
-
-x <- rnorm(3)
-print(x)
-
-```
-
-
-
-
-
-## Espai de treball
-
-- És l'espai on es desen de forma temporal o no tots els objectes que anem creant o carregant.
-- Quan tanquem el programa el podem desar.
-
-
-```{r , eval=FALSE}
-getwd() #on és el meu espai de treball
-ls() #quins objectes hi ha?
-
-setwd("PATH") # hem de substituir el "path" pel de l'espai de 
-# treball on volem estar
-```
-
-
-
-## Ajuda
-
-Imaginem que volem saber més sóbre les funcions de distribució normals en R, escrivim:
-
-```{r, eval = F}
-?sample
-```
-
-- Ens surt una informació com aquesta: 
-
-![](input/help.png){ width=70% }
-
-## Com interpretar l'ajuda
-
-
-- Hi ha informació sobre diverses funcions, amb tots els paràmetres explicats. 
-- Com veiem, les funcions a R sempre van amb el nom i parèntesis després on, si cal, hi poso els arguemnts (no s'ha de confondre amb les subseleccions, que van amb claudàtors).
-- Important: els paràmetres que no tenen signe "=", per exemple x, q, p o n, són *obligatoris*
-- Els que sí que tenen un signe "=", per exemple, mean o sd són opcionals i tenen valor per defecte el valor que trobem deprés de l'=. Per exemple el *valor per defecte* de la mitja és 0 i el de la desviació estàndard és 1. 
-
-
 ## Paquets i les llibreries
-
 
 - R consta d'un sistema "base", que inclou molts mètodes estadístics, i un sistema per paquets que permeten anar molt més enllà.
 
@@ -118,50 +78,120 @@ Un cop instal·lat l'haurem de carregar a la biblioteca:
 library(readr)
 ```
 
-Si volem saber-ne més... :
+## Llenguatge interpretat
+
+- R és un llenguatge interpretat, per això no cal compilar.
+
+- Per executar una ordre, només cal escriure-la i pulsar "Enter".
+
+- Exemples:
+
+```{r}
+4 + 5
+
+sqrt(49)
+
+log(2)
+```
+
+## Funcions
+
+- Una funció és un conjunt d'ordres que es poden executar amb un sol nom.
+
+- Per exemple, la funció `sqrt()` calcula la arrel quadrada d'un nombre.
+
+- Les funcions tenen paràmetres, que són els valors que li passem per a que la funció funcioni.
+
+- Els paràmetres poden ser:
+
+- **Obligatoris**: són els que no tenen valor per defecte i s'han de posar.
+
+- **Opcionals**: són els que tenen valor per defecte i s'han de posar si volem canviar el valor per defecte.
+
+## Funcions
+
+Per exemple, la funció `sqrt()` té un paràmetre obligatori, que és el nombre del qual volem calcular l'arrel quadrada.
+
+```{r}
+sqrt(49)
+```
+
+- Per exemple, la funció `rnorm()` té dos paràmetres opcionals, que són el nombre de nombres aleatoris que volem generar i la mitjana i la desviació estàndard de la distribució normal.
+
+```{r}
+rnorm(3, mean = 0, sd = 1)
+```
+
+## Funcions
+
+Els paràmetres es poden passar per posició o per nom.
+
+```{r}
+rnorm(3, 0, 1)
+rnorm(n = 3, mean = 0, sd = 1)
+```
+
+## Funcions: ajuda
+
+Imaginem que volem saber més sóbre les funcions de distribució normals en R, escrivim:
+
+```{r, eval = F}
+?sample
+```
+
+- Ens surt una informació com aquesta: 
+
+![](input/help.png){ width=70% }
+
+## Funcions: ajuda
+
+- Hi ha informació sobre diverses funcions, amb tots els paràmetres explicats. 
+- Com veiem, les funcions a R sempre van amb el nom i parèntesis després on, si cal, hi poso els arguemnts (no s'ha de confondre amb les subseleccions, que van amb claudàtors).
+- Important: els paràmetres que no tenen signe "=", per exemple x, q, p o n, són *obligatoris*
+- Els que sí que tenen un signe "=", per exemple, mean o sd són opcionals i tenen valor per defecte el valor que trobem deprés de l'=. Per exemple el *valor per defecte* de la mitja és 0 i el de la desviació estàndard és 1. 
+
+
+## Espai de treball
+
+- És l'espai on es desen tots els objectes que anem creant o carregant.
+- Quan tanquem el programa el podem desar.
+
 
 ```{r , eval=FALSE}
-library(help="readr")
+getwd() #on és el meu espai de treball
+ls() #quins objectes hi ha?
+
+setwd("PATH") # hem de substituir el "path" pel de l'espai de 
+# treball on volem estar
 ```
 
 
-
 # Objectes
-
-
-
 
 ## Variables
 
 - Les variables són els objectes més simple i poden ser:
 
-
 1. numèric: números reals (3.1415)
 
-2. complex: números complexes (2 + 5i)
+1. complex: números complexes (2 + 5i)
 
-3. character: cadenes alfanumèriques de text ("patata")
+1. character: cadenes alfanumèriques de text ("patata")
 
-4. logical: variables lògiques (TRUE) 
+1. factor: variables categòriques (sexe, color, etc.)
 
-
+1. logical: variables lògiques (TRUE) 
 
 ## Objectes
 
-- Recordem que R és un llenguatge de programació orientat a objectes.
-- Els objectes estan formats per elements.
+- Els objectes són elements que es guarden en l'espai de treball (és a dir, en la memòria RAM).
+- Un objecte pot contenir un o més elements.
 
 ```{r}
-w <- 3 + 4 #Creem l'objecte w 
+w <- 3 + 4 # Creem l'objecte w
 print(w)
 
 ```
-
-- 7 és l'únic element de l'objecte w
-- Els objectes més habituals són: variables, vectors, matrius, llistes i data frames.
-
-
-
 
 ## Tipus d'objectes
 
@@ -175,39 +205,32 @@ print(w)
 En aquest curs treballarem vectors i dataframes.
 
 
-
 ## Tipus d'objectes: vectors
 \tiny
 
 - És una col·lecció ordenada d'elements del **mateix tipus** (numèric, factor...)
-- Es creen amb la funció c(), segurament la funció més important d'R!
+- Es creen amb la funció c()
 
 ```{r }
-x <- c(2, 4, 6) #vector de 3 elements numèrics parells
+x <- c(2, 4, 6) # Vector de 3 elements numèrics parells
 x
-y <- c("A", "B", "C") #vector de 3 elements cadena
+y <- c("A", "B", "C") # Vector de 3 elements cadena
 y
-z <- c(TRUE, FALSE, TRUE) #vector de 3 elements lògics
+z <- c(TRUE, FALSE, TRUE) # Vector de 3 elements lògics
 z
 ```
-
-
 
 ## Algunes operacions: vectors
 \tiny
 ```{r}
-x <- 1:10 #genera un vector d'1 a 10
+x <- 1:10 # Genera un vector d'1 a 10
 x
-x[4] #la posició 4 és
+x[4] # La posició 4 és
 
-x[x > 7] #elements més grans de 7
+x[x > 7] # Elements més grans de 7
 
-x + 2 #sumar un escalar
-
-
+x + 2 # Sumar un nombre
 ```
-
-
 
 ## Tipus d'objectes: dataframes
 
@@ -219,7 +242,7 @@ library(tibble)
 
 id <- 1:10
 
-sexe <- rep(c("M","D"),5)
+sexe <- rep(c("M", "D"), 5)
 
 normal <- rnorm(10)
 
@@ -233,6 +256,8 @@ head(dades) # Mostrar primeres files/registres
 
 # Manipulació de dades
 
+## Introducció
+
 Ara utilitzarem les funcions del paquet **dplyr** per fer les subseleccions més habituals.  
 Algunes de les funcions bàsiques són:
 
@@ -242,9 +267,9 @@ Algunes de les funcions bàsiques són:
 * `arrange()` – ordena files  
 * `mutate()` – crea o transforma variables
 
-Totes aquestes funcions es poden combinar amb l'operador de tub `|>` (pipe natiu de R 4.1) per llegir-les de manera natural: "agafa `dades`, després ...".
+Això ho farem amb el paquet 'dplyr'
 
-```{r}
+```{r, message=F}
 library(dplyr)
 ```
 
@@ -252,13 +277,13 @@ library(dplyr)
 
 ```{r}
 # Seleccionem una cel·la concreta: fila 2
-dades |> slice(2)
+slice(dades, 2)
 
 # Seleccionem una fila, per exemple de la 4 a la 10
-dades |> slice(4:10)
+slice(dades, 4:10)
 
 # També ho podem fer pel nom de la variable
-dades |> select(normal)
+select(dades, normal)
 
 # També ho podem fer amb el símbol del dòlar "$"
 dades$normal
@@ -269,17 +294,17 @@ dades$normal
 
 ```{r}
 # Seleccionem un conjunt de columnes
-dades |> select(id, sexe, normal)
+select(dades, id, sexe, normal)
 
 # O totes menys algunes
-dades |> select(-id, -normal)
+select(dades, -id, -normal)
 ```
 
 ## Subseleccions
 
 ```{r}
 # Creem un nou objecte amb la subselecció
-dades2 <- dades |> select(id, sexe, normal)
+dades2 <- select(dades, id, sexe, normal)
 
 head(dades2)
 ```
@@ -288,14 +313,40 @@ head(dades2)
 
 ```{r}
 # Subseleccionar amb una condició lògica
-dones <- dades |> filter(sexe == "D")
+dones <- filter(dades, sexe == "D")
 head(dones)
 
 # Un altre exemple
-grans <- dades |> filter(normal > 1.96)
+grans <- filter(dades, normal > 1.96)
 head(grans)
 ```
 
+## L'operador pipe
+
+L'operador pipe `|>` ens permet **encadenar** funcions de manera llegible:
+
+- Passa el resultat de l'esquerra com a **primer argument** de la funció de la dreta
+- Ens estalvia crear variables intermèdies
+- Fa el codi més llegible i natural
+- També es pot escriure com a '%>%', són equivalents però lleugerament diferents.
+
+## L'operador pipe
+
+Exemple:
+
+**Sense pipe:**
+```{r, eval=FALSE}
+resultat <- select(filter(dades, sexe == "D"), id, normal)
+```
+
+**Amb pipe:**
+```{r, eval=FALSE}
+resultat <- dades |>
+  filter(sexe == "D") |>
+  select(id, normal)
+```
+
+Es llegeix com: "agafa `dades`, després filtra per sexe femení, després selecciona id i normal"
 
 
 # Llegir dades externes
@@ -322,6 +373,12 @@ dades <- read_csv("ruta/fitxer.csv", show_col_types = FALSE)
 
 # Fitxer delimitat per punt i coma
 dades <- read_delim("ruta/fitxer.csv", delim = ";", show_col_types = FALSE)
+
+# o
+dades <- read_csv2("ruta/fitxer.csv")
+
+# Fitxer delimitat per tabulador
+dades <- read_tsv("ruta/fitxer.tsv")
 ```
 
 ### Importar fitxers Excel
@@ -345,8 +402,6 @@ sas   <- read_sas("ruta/dades.sas7bdat") # SAS
 dades <- read_csv("input/dades.csv", show_col_types = FALSE)
 ```
 
-
-
 # Exploració de les dades
 
 ## Estructura
@@ -355,11 +410,13 @@ Fem una ullada a les dades
 
 ```{r, eval=T}
 str(dades) # mostra estructura d'un objecte
-glimpse(dades) # mostra estructura d'un objecte
-
 ```
 
+## Estructura
 
+```{r}
+glimpse(dades) # forma de tidyverse
+```
 
 ## Primeres / últimes files
 
@@ -376,9 +433,6 @@ tail(dades) # mostra les últimes files
 View(dades) # mostra tot el conjunt de dades 
 ```
 
-
-
-
 # Manipulació de variables
 
 ## Creació de noves variables
@@ -388,9 +442,8 @@ Fem servir `mutate()` per afegir columnes al nostre tibble:
 ```{r}
 dades <- dades |> 
   mutate(
-    alçada = rnorm(n(), mean = 170, sd = 10),
-    pes    = rnorm(n(), mean = 75,  sd = 10),
-    imc    = pes / (alçada / 100) ^ 2   # índex de massa corporal
+    alçada_metres = alçada / 100,
+    imc    = pes / alçada_metres ^ 2   # índex de massa corporal
   )
 ```
 
@@ -425,6 +478,8 @@ Els factors són un tipus de variable especial en R que serveix per representar 
 - Mantenir un ordre específic en les categories
 - Fer anàlisis estadístics i gràfics
 
+## Factors
+
 Per treballar amb factors, el paquet `forcats` (part de tidyverse) ofereix moltes funcions útils:
 
 ```{r}
@@ -433,11 +488,8 @@ library(forcats)
 # Convertim imccat a factor i ordenem els nivells
 dades <- dades |>
   mutate(
-    imccat = fct_relevel(imccat, 
-                         "baix pes", 
-                         "normal",
-                         "sobrepes", 
-                         "obesitat")
+    imccat = fct_relevel(
+      imccat, "baix pes", "normal", "sobrepes", "obesitat")
   )
 
 # Comprovem els nivells
@@ -459,6 +511,8 @@ dades <- dades |>
   mutate(alçada_num = as.numeric(alçada))
 ```
 
+## Transformació de variables
+
 Compte quan convertim factors directament a numèrics; sovint convé passar per `as.character()`:
 
 ```{r}
@@ -471,12 +525,11 @@ as.numeric(as.character(levels_ex))
 
 ## Ordenar files
 
+\tiny
 ```{r}
-# Per una sola variable
-dades |> arrange(imc) |> head()
+dades |> arrange(imc) |> head(3)
 
-# Per més d'una variable i en ordre descendent
-dades |> arrange(sexe, desc(imc)) |> head()
+dades |> arrange(sexe, desc(imc)) |> head(3)
 ```
 
 
@@ -525,14 +578,14 @@ plot(edat ~ sexe, dades)
 - Si les dues variables són contínues fa un gràfic de punts:
 
 ```{r fig2, fig.height=4.5}
-plot(dades$pes, dades$imc, pch = 20, col = "red", cex = 2.5,
+plot(imc ~ pes, dades, pch = 20, col = "red", cex = 2.5,
      main = "diagrama de punts", xlab = "pes", ylab = "imc")
 ```
 
 ## Histograma
 
 ```{r fig3, fig.height=5.5}
-hist( dades$normal, main = "histograma",xlab = "imc")
+hist(dades$normal, main = "histograma",xlab = "imc")
 ```
 
 ## Fi

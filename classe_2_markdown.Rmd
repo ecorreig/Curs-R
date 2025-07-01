@@ -29,15 +29,17 @@ Aquí puc escriure el que vulgui, s'imprimirà com a text normal.
 
 ```{r}
 # Aquí dins només puc escriure com si estés programant, si no em donarà error
-x = rnorm(10000)
-a = sin(pi*x)
+x <- rnorm(10000)
+a <- sin(pi * x)
 ```
 
 Aquí puc tornar a escriure normal. Fins i tot puc fer coses com **negreta** o *cursiva*.
 
 ```{r}
+library(readr)
+
 # Puc fer que imprimeixi resultats
-liver = read.csv('input/indian_liver_patient.csv')
+liver <- read_csv('input/indian_liver_patient.csv')
 summary(liver)
 ```
 
@@ -70,6 +72,25 @@ També puc posar links de manera molt fàcil:
 I per acabar, també puc incloure imatges (evidentment, les imatges a les que fan referència han d'estar a la mateixa carpeta que el fitxer de markdown):
 
 ![Aquí poso el peu de foto](input/logo_urv.png)
+
+## Knit
+
+- Per compilar un fitxer .Rmd, cal anar a la barra de menús i seleccionar "Knit"
+
+- Es pot compilar a HTML, PDF o Word.
+
+- Per defecte, es compila a HTML.
+
+- Per compilar a PDF, cal anar a la barra de menús i seleccionar "Knit" i després "Knit to PDF".
+ -> Compte, que heu d'instal·lar latex abans de poder compilar a PDF.
+
+- Per instal·lar latex, feu servir tinytex.
+
+```{r, eval=FALSE}
+install.packages("tinytex")
+tinytex::install_tinytex()
+```
+
 
 # Espais de treball
 
@@ -110,5 +131,5 @@ install.packages("paquet") # això també ho fem a la consola però no al markdo
 dades # això no donarà un error però imprimirà pàgines i pàgines de dades que no cal.
 #
 
-read.csv("dades_prova.csv") # això només carrega el fitxer i l'imprimeix en pantalla, però no el guarda!
+read_csv("dades_prova.csv") # això només carrega el fitxer i l'imprimeix en pantalla, però no el guarda!
 ```

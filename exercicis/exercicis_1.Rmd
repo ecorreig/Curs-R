@@ -1,0 +1,74 @@
+---
+title: "Classe 1: Exercicis"
+author: "El vostre nom"    # Poseu aquí davant el vostre nom! No us oblideu de les cometes
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# No toqueu aquesta part
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(1234)
+```
+
+# Instruccions:
+
+1. Heu de solucionar els exercicis en aquest mateix fitxer.
+1. Recordeu de posar el vostre nom a dalt, on diu author:.
+1. Poseu també el vostre nom a l'html que es creï.
+1. Heu d'entregar tots els exercicis pujant-los al moodle.
+1. Els heu d'entregar abans de la següent pràctica.
+1. Us recomanem que feu els exercicis en grup.
+
+# Exercici 1
+
+* On és físicament el teu espai de treball?
+
+```{r}
+# Recorda, crea "chunks" per les solucions, en pots crear un per cada exercici o un per cada pregunta.
+# Per crear un "chunk" pots pulsar ctrl + alt + i.
+
+```
+
+* Crea un nou objecte que sigui la suma de dos nombres
+* Llista els objectes que tens a l'espai de treball
+* Esborra aquest objecte
+* Torna a llistar els objectes; ara t'hauria d'haver desaparegut.
+
+<details>
+  <summary>Pista</summary>
+    Recorda que, quan demanem on és el teu espai de treball, volem saber en quin directori (carpeta) està treballant l'R en aquests moments. Tingues en compte que, independentment d'on sigui el directori de treball local en els moments en que estàs treballant, l'espai de treball d'un markdown sempre és aquella carpeta on es troba el markdown. Per saber on és aquest espai, pots fer servir la funció "getwd". 
+    Cal no confondre el directori de l'espai de treball (és a dir, a quina carpeta del teu ordinador estàs) amb els objectes dins de l'espai de treball. Amb això ens referim a tots els objectes que has creat o bé en la sessió local o en el markdown. Aquests els pots veure utilitzant la funció "ls".
+</details> 
+
+# Exercici 2
+
+* Descarrega el paquet RXKCD (fora del markdown)
+* Consulta l'ajuda per saber què fa aquest paquet (fora del markdown)
+* Afegeix la llibreria 
+* Investiga què fa la funció getXKCD (fora del markdown)
+* Consulta el còmic 539
+
+```{r}
+# Pots utilitzar aquest chunk.
+
+```
+
+<details>
+  <summary>Pista</summary>
+    Recorda que per descarregar (o instal·lar, que és el mateix) un paquet, has de fer servir la funció "install.packages" i posar el nom del paquet entre cometes. Tingues en compte que això ho has de fer a la consola i *no* posar-ho al markdown. Només cal que ho facis una vegada. Després, has de carregar la llibreria amb la funció "library". Això sí que ho has de posar dins del markdown i ho hauràs de córrer cada vegada que engeguis R. 
+</details> 
+
+# Exercici 3: vectors
+
+* Busca informació de la funció sample() (fora del markdown, és a dir, a la consola). Per exemple, si volem 10 números entre el 0 i 20 escriurem:
+sample(0:20, 10).
+* Genera una mostra aleatòria de 20 nombres entre 1 i 100.
+* Genera un vector de nom a amb 20 elements del 1 al 40 cada 2.
+* Genera un vector de nom b amb 20 elements on es repeteixin alternativament els valors "home" i "dona" (recorda la funció "rep").
+* Genera un vector de nom d amb 20 elements on es repeteixin alternativament els valors "control" i "intervenció"
+* Genera un vector de nom e resultat de triar els valor més petits de 25 del vector a (recorda operacions amb vectors).
+
+```{r}
+# Escriu la solució aquí.
+
+```

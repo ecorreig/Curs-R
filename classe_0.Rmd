@@ -1,16 +1,15 @@
 ---
-title: "Curs d'introducció a R"
-subtitle: "Classe 0: Què és R"
-author: "Eudald Correig i Fraga"
+title: "Curs d'estadística en R"
+subtitle: "Classe 0: Introducció"
+author: "Eudald Correig Fraga"
 
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
 output: ioslides_presentation
-
 ---
 
 # Estructura del curs
 
-## Classe 0: Què és R 
+## Classe 0: Introducció
 
 \bgroup
 \hypersetup{linkcolor = red}
@@ -66,125 +65,42 @@ output: ioslides_presentation
 ## Classe 7: Gràfics
 - Utilització de ggplot2
 
+## Classe 8: TBD
 
+#  Classe 0: Introducció
 
-#  Classe 0
+# Bibliografia
 
+## Introducció a R i tidyverse
 
-## Fonts test d'hipòtesi
+> Hadley Wickham & Garrett Grolemund, R for Data Science. O'Reilly Media, 2017.  [https://r4ds.had.co.nz/](https://r4ds.had.co.nz/)
 
+> Hadley Wickham, Romain François, Lionel Henry & Kirill Müller. dplyr: A Grammar of Data Manipulation. R package version 1.1.3. [https://dplyr.tidyverse.org/](https://dplyr.tidyverse.org/)
 
-La part de test d'hipòtesi no la cobreixen, aquesta està basada en el llibre:
+> Kuhn, Max and Silge, Julia. Hands-On Machine Learning with R. O'Reilly Media, 2019. [https://bradleyboehmke.github.io/HOML/](https://bradleyboehmke.github.io/HOML/)
 
-> Statistics, An introduction using R, de Michael J. Crawley
+> Hadley Wickham, Danielle Navarro & Thomas Lin Pedersen. ggplot2: Elegant Graphics for Data Analysis. Springer, 2016. [https://ggplot2-book.org/](https://ggplot2-book.org/)
 
-Tant en els llibres com en els vídeos hi ha moltíssima més informació de la que farem en el curs i és un lloc fantàstic pels que vulguin ampliar.
+## Introducció a Tests d'Hipòtesi
 
-Un altre llibre que us pot interessar és "Discovering Statistics Using R", de Andy Field i altres. És un molt bon compendi i un lloc d'on treure llibreries útils.
+> Chester Ismay & Albert Y. Kim. Statistical Inference via Data Science: A ModernDive into R and the Tidyverse, 2nd Edition. CRC Press, 2024. [https://moderndive.com/v2/](https://moderndive.com/v2/)
 
+> Simon P. Couch, Andrew P. Bray, Chester Ismay, Evgeni Chasnovski, Benjamin S. Baumer & Mine Çetinkaya-Rundel. infer: An R package for tidyverse-friendly statistical inference. R package version 1.0.7.  
+> [https://infer.netlify.app/](https://infer.netlify.app/)
 
-## Fonts models predictius
+> Måns Thulin. Modern Statistics with R: From Wrangling and Exploring Data to Inference and Predictive Modelling, 2nd Edition. Chapman & Hall/CRC, 2024. [https://modernstatisticswithr.com/](https://modernstatisticswithr.com/)
 
-Aquesta classe està basada en les classes de Trevor Hastie i Rob Tibshirani (Stanford University) i en el llibre "An Introduction to Statistical Learning with Applications in R" 
+> Max Kuhn & Julia Silge. Tidy Modeling with R. O'Reilly Media, 2022. [https://www.tmwr.org/](https://www.tmwr.org/)
 
-Podeu trobar les classes aquí:
+## Models Predictius i Machine Learning
 
-https://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/
+> Gareth James, Daniela Witten, Trevor Hastie & Robert Tibshirani. An Introduction to Statistical Learning: with Applications in R, 2nd Edition. Springer, 2021. [https://www.statlearning.com/](https://www.statlearning.com/)
 
-I el llibre està penjat gratuïtament aquí (també és a la biblioteca): 
+> Trevor Hastie & Robert Tibshirani. Statistical Learning MOOC: 15 hours of expert videos.   [https://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/](https://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/)
 
-http://www-bcf.usc.edu/~gareth/ISL/
+> Max Kuhn & Julia Silge. Tidy Modeling with R. O'Reilly Media, 2022.   [https://www.tmwr.org/](https://www.tmwr.org/)
 
-## Fonts models predictius
-
-De totes les classes que hi ha, farem:
-
-- Lab: Introduction to R del capítol 2
-
-- Lab: Linear Regression 
-
-- Lab: Logistic Regression  dels capítols 3 i 4)
-
-- Lab: Forward Stepwise Selection and Model Selection Using Validation Set (tema 6)
-
-- Lab: Model Selection Using Cross-Validation (tema 6)
-
-- Evidentment també són útils les parts teòriques relacionades amb les pràctiques dels vídeos
-
-
-## Obtenir informació i ajuda
-
-Llocs on treure informació sobre llibreries, tutorials o demanar ajuda:
-
-**Tutorials**: https://www.statmethods.net/index.html, https://www.r-bloggers.com
-
-**Documentació**: https://cran.r-project.org/manuals.html
-
-**LLibreries** (exemple): https://cran.r-project.org/web/packages/lme4/lme4.pdf
-
-**Demanar ajuda**: https://stackoverflow.com (prgramar)
-
-**Demanar ajuda**: https://stats.stackexchange.com/ (estadística)
-
-Per qualsevol altra cosa, google.
-
-Aquesta classe la podeu trobar actualitzada a 
-
-> https://github.com/ecorreig/Curs-R
-
-
-
-## Introducció
-
-- R és un potent i flexible programari pensat per tractar dades, fer gràfics i anàlisis estadístics. 
-
-- També és un llenguatge de programació amb funcions orientades a objectes.
-
-- És programari lliure i funciona sota Windows, MAC OS i Linux.
-
-
-## Baixar i instal·lar R
-
-R és un llenguatge de programació, però s'instal·la a l'ordinador com qualsevol altre programa.
-El podeu trobar a:
-
-> https://cran.r-project.org/
-
-On trobareu versions per linux, mac i windows. 
-
-Baixeu-vos l'última versió disponible, que en el moment d'escriure aquest text és la 4.5.1.
-
-Seguiu després les instruccions per instal·lar-lo al vostre ordinador. 
-
-
-
-## RStudio
-
-Una vegada instal·lat R ja el podem utilitzar, el que passa és que és difícil d'utilitzar com a tal, i per això fem servir un IDE (Entorn integrat de desenvolupament (en anlgès)), que bàsicament ens facilita la vida a l'hora de programar
-
-L'IDE més utilitzat per R és RStudio, i és el que nosaltres utilitzarem. El podeu trobar a:
-
-**mac**: https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-mac-e911606ce4f4
-
-**Windows**: https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-windows-5f503f708027
-
-**LINUX**: https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-ubuntu-12-04-14-04-16-04-b6b3107f7779
-
-Seguiu també les instruccions per instal·lar-lo.
-
-
-
-## ![](input/RStudio-Ball.png){ width=7% } Studio
-
-![](input/RStudio2.png)
-
-
-
-## Dialectes d'R
-
-R té el que s'anomena un dialecte, que és el conjunt de funcions i llibreries que s'utilitzen en el llenguatge i que segueixen la mateixa filosofia.
-
-Nosaltres farem servir el dialecte "tidyverse", creada per Hadley Wickham i altres, i que es basa en oferir una manipulació de dades ordenada i el que se'n diu "opinionada", és a dir, que redueix la flexibilitat per homogeneitzar l'ús i reduir els errors.
+> Måns Thulin. Modern Statistics with R: From Wrangling and Exploring Data to Inference and Predictive Modelling, 2nd Edition. Chapman & Hall/CRC, 2024. [https://modernstatisticswithr.com/](https://modernstatisticswithr.com/)
 
 ## Fi
 
