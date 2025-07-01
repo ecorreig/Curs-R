@@ -40,7 +40,6 @@ output: ioslides_presentation
 - Markdown
 - Espais de treball
 
-
 ## Classe 3: Estadística bàsica
 - Test d'hipòtesi
 - Implementació en R

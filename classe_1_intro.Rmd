@@ -588,6 +588,14 @@ plot(imc ~ pes, dades, pch = 20, col = "red", cex = 2.5,
 hist(dades$normal, main = "histograma",xlab = "imc")
 ```
 
+## Dreceres de teclat útils
+
+- `Ctrl + Alt + I` per crear un chunk
+
+- `Alt Gr + -` per crear l'assignació `<-`
+
+- `Ctrl + Shift + M` per crear una pipe
+
 ## Fi
 
 \center
