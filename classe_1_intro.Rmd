@@ -399,7 +399,7 @@ sas   <- read_sas("ruta/dades.sas7bdat") # SAS
 
 ```{r}
 # Llegim les dades d'exemple amb readr
-dades <- read_csv("input/dades.csv", show_col_types = FALSE)
+dades <- read_csv("data/dades.csv", show_col_types = FALSE)
 ```
 
 # Exploració de les dades
