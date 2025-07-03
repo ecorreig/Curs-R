@@ -1,5 +1,5 @@
 ---
-title: "Curs d'introducció a R"
+title: "Curs d'introducció a estadística en R"
 subtitle: "Classe 1: Introducció a R"
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
@@ -348,6 +348,53 @@ resultat <- dades |>
 
 Es llegeix com: "agafa `dades`, després filtra per sexe femení, després selecciona id i normal"
 
+# Tidyverse
+
+## Introducció
+
+Conjunt de paquets d'R per fer "data science".
+
+[https://www.tidyverse.org/](https://www.tidyverse.org/)
+
+Unifica l'anàlisi de dades en R.
+
+## Paquets dins de tidyverse
+
+Llistat aquí: 
+
+[https://www.tidyverse.org/packages/](https://www.tidyverse.org/packages/)
+
+## Importació
+
+| Paquet | Propòsit | Funcions |
+|--------|-------------| ------ |
+| readr | Importar csv, txt, etc. | read_delim |
+| readxl | Importar xls, xlsx	| read_excel|
+| haven | Importar spss, stata, sas	| read_spss, read_stata, read_sas|
+| jsonlinte | Importar json	| fromJSON, toJSON |
+| xml2 | Importar XML	| read_xml, read_html |
+| DBI | Bases de dades	| base per altres paquets |
+
+## Manipulació
+
+| Paquet | Propòsit | Funcions
+|---|--------| --------- |
+| tibble | Dataframes millorats	| as_tibble, tibble, rownames_to_column |
+| dplyr | Manipulació de dades	| mutate, select, filter, group_by, summarise, xx_join |
+| tidyr | Manipulació "avançada" | pivot_longer, pivot_wider, unnest_longer, unnest_wider | 
+|  | 	| nest, unnest, separate, extract, unite, complete, drop_na, replace_na, fill | 
+| stringr | Caràcters | str_subset, str_replace, str_detect... |
+| forcats | Factors | fct_reorder, fct_infreq, fct_relevel |
+| lubridate | Dates | ymd_hms, month, bday, today, floor_date | 
+
+## Altres
+
+| Paquet | Propòsit | Funcions
+|--------|-------------| ------- |
+| ggplot2 | Gràfics | ggplot, geom_xx |
+| purrr | Funcions vectoritzades | split, map, map2 |
+| magrittr | pipes | %>%, %$%, %<>% |
+| glue | Enganxar caràcters | glue | 
 
 # Llegir dades externes
 

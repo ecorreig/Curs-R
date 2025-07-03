@@ -1,5 +1,5 @@
 ---
-title: "Curs d'introducció a R"
+title: "Curs d'introducció a estadística en R"
 subtitle: "Classe 2: Markdown"
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"

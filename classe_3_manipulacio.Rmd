@@ -1,6 +1,6 @@
 ---
-title: "Curs de manipulació de dades en R"
-subtitle: "Sessió 3: Manipulació de dades en R"
+title: "Curs d'introducció a estadística en R"
+subtitle: "Classe 3: Manipulació de dades en R"
 author: "Eudald Correig i Fraga"
 date: "`r format(Sys.time(), '%d de %B de %Y')`"
 output: ioslides_presentation
@@ -125,160 +125,9 @@ for (i in 1:nrow(df)) {
 Vectoritzat:
 
 ```{r}
-df$d <- ifelse(df$c > 5, "Malalt", "No malalt")
+df$d <- if_else(df$c > 5, "Malalt", "No malalt")
 ```
 
-
-# Tidyverse
-
-## Introducció
-
-Conjunt de paquets d'R per fer "data science".
-
-[https://www.tidyverse.org/](https://www.tidyverse.org/)
-
-Unifica l'anàlisi de dades en R.
-
-## Paquets dins de tidyverse
-
-Llistat aquí: 
-
-[https://www.tidyverse.org/packages/](https://www.tidyverse.org/packages/)
-
-## Importació
-
-| Paquet | Propòsit | Funcions |
-|--------|-------------| ------ |
-| readr | Importar csv, txt, etc. | read_delim |
-| readxl | Importar xls, xlsx	| read_excel|
-| haven | Importar spss, stata, sas	| read_spss, read_stata, read_sas|
-| jsonlinte | Importar json	| fromJSON, toJSON |
-| xml2 | Importar XML	| read_xml, read_html |
-| DBI | Bases de dades	| base per altres paquets |
-
-## Manipulació
-
-| Paquet | Propòsit | Funcions
-|---|--------| --------- |
-| tibble | Dataframes millorats	| as_tibble, tibble, rownames_to_column |
-| dplyr | Manipulació de dades	| mutate, select, filter, group_by, summarise, xx_join |
-| tidyr | Manipulació "avançada" | pivot_longer, pivot_wider, unnest_longer, unnest_wider | 
-|  | 	| nest, unnest, separate, extract, unite, complete, drop_na, replace_na, fill | 
-| stringr | Caràcters | str_subset, str_replace, str_detect... |
-| forcats | Factors | fct_reorder, fct_infreq, fct_relevel |
-| lubridate | Dates | ymd_hms, month, bday, today, floor_date | 
-
-## Altres
-
-| Paquet | Propòsit | Funcions
-|--------|-------------| ------- |
-| ggplot2 | Gràfics | ggplot, geom_xx |
-| purrr | Funcions vectoritzades | split, map, map2 |
-| magrittr | pipes | %>%, %$%, %<>% |
-| glue | Enganxar caràcters | glue | 
-
-# Exploració de les dades
-
-## Estructura
-
-Fem una ullada a les dades
-
-```{r, eval=T}
-dades <- readr::read_csv("input/dades.csv", locale = readr::locale(encoding = "latin1"))
-str(dades) #mostra estructura d'un objecte
-```
-
-## Primeres i últimes files
-
-```{r, eval=F}
-head(dades) #mostra les primeres files
-```
-
-```{r, eval=T}
-tail(dades) #mostra les darreres files
-```
-
-## Visualització tipus "excel"
-
-```{r, eval=FALSE}
-View(dades) # mostra tot el conjunt de dades 
-```
-
-## Resum
-
-```{r}
-summary(dades)
-```
-
-# Manipulació de variables
-
-##  Creació noves variables: mutate
-
-Entrem les alçades i els pesos:
-
-```{r}
-dades <- dades %>%
-  mutate(
-    alcada = rnorm(nrow(.), mean = 170, sd = 10),
-    pes = rnorm(nrow(.), mean = 75, sd = 10)
-  )
-dades
-```
-
-##  Creació noves variables: mutate 
-
-Índex de massa corporal $imc= \frac{pes}{alçada^{2}}$
-
-```{r, eval=T}
-dades <- dades %>% 
- mutate(imc = pes / (alcada / 100) ^ 2)
-dades
-```
-
-## Recodificació de variables: case_when {.smaller}
-
-re-codificar imc: <18;18-<25;25-<30;>30
-```{r, eval=T}
-dades <- dades %>%
-  mutate(
-    cat_oms = case_when(
-      imc < 18 ~ "baix pes",
-      imc < 25 ~ "normopès",
-      imc < 30 ~ "sobrepès",
-      T ~ "obesitat"
-    ),
-    cat_oms = as.factor(cat_oms)
-  )
-dades
-```
-
-
-## Funcions de transformació de variables
-
-- as.numeric(): números
-
-- as.character(): cadenes alfanumèriques
-
-- as.factor(): factors
-
-## Seleccionar variables: select {.smaller}
-
-```{r}
-dades %>%
- select(c(sexe, curació, edat, imc, cat_oms))
-```
-
-```{r}
-dades %>%
- select(-c(id, normal, imc))
-```
-
-## Condicions: where {.smaller}
-
-```{r}
-dades %>% 
- select(where(is.numeric))
-```
 
 ## Seleccionar amb ends_with, starts_with {.smaller}
 
@@ -287,17 +136,17 @@ url <- "https://analisi.transparenciacatalunya.cat/resource/tasf-thgu.json"
 q <- "?$where= data >= '2019-01-01' and data <= '2020-03-13'"
 l <- paste0(url, q)
 data <- RSocrata::read.socrata(l, stringsAsFactors = F)
-aa <- data %>% 
-        filter(municipi %in% c("Reus", "Tarragona")) %>% 
+aa <- data |> 
+        filter(municipi %in% c("Reus", "Tarragona")) |> 
         select(-c(geocoded_column.type, geocoded_column.coordinates))
-write.csv(aa, "input/contaminacio.csv", row.names = F)
+write.csv(aa, "data/contaminacio.csv", row.names = F)
 ```
 
 Dades de contaminació
 
 ```{r}
 library(readr)
-cont <- read_csv("input/contaminacio.csv", locale = locale(encoding="latin1"))
+cont <- read_csv("data/contaminacio.csv")
 orig <- cont
 head(cont)
 ```
@@ -305,7 +154,7 @@ head(cont)
 ## Seleccionar amb ends_with, starts_with {.smaller}
 
 ```{r}
-cont <- cont %>%
+cont <- cont |>
   select(data, municipi, contaminant, unitats, starts_with("h"))
 cont
 ```
@@ -313,7 +162,7 @@ cont
 ## Filtrar: filter {.smaller}
 
 ```{r}
-cont %>%
+cont |>
  filter(municipi == "Reus", contaminant == "CO", data > "2019-12-29")
 ```
 
@@ -324,7 +173,7 @@ nrow(cont)
 ```
 
 ```{r}
-cont <- cont %>%
+cont <- cont |>
  distinct()
 nrow(cont)
 ```
@@ -333,7 +182,7 @@ nrow(cont)
 
 ```{r}
 library(tidyr)
-cont <- cont %>%
+cont <- cont |>
  pivot_longer(starts_with("h"))
 cont
 ```
@@ -341,7 +190,7 @@ cont
 ## Netejar: drop_na
 
 ```{r}
-cont <- cont %>% 
+cont <- cont |> 
         drop_na() 
 cont
 ```
@@ -349,8 +198,8 @@ cont
 ## Pivotar: pivot_wider {.smaller}
 
 ```{r}
-wcont <- cont %>% 
-  distinct(data, municipi, contaminant, name, .keep_all = T) %>%
+wcont <- cont |> 
+  distinct(data, municipi, contaminant, name, .keep_all = T) |>
   pivot_wider(names_from = contaminant, values_from = value)
 wcont
 ```
@@ -358,9 +207,9 @@ wcont
 ## Agrupar i resumir: group_by i summarize {.smaller}
 
 ```{r}
-wcont %>%
-  drop_na(CO) %>%
-  group_by(municipi) %>%
+wcont |>
+  drop_na(CO) |>
+  group_by(municipi) |>
   summarise(across(CO, mean))
 ```
 
@@ -369,34 +218,34 @@ wcont %>%
 Sobre múltiples columnes a la vegada
 
 ```{r}
-wcont %>%
-  drop_na(c(H2S, NO, NO2)) %>%
-  group_by(municipi) %>%
+wcont |>
+  drop_na(c(H2S, NO, NO2)) |>
+  group_by(municipi) |>
   summarise(across(c(H2S, NO, NO2), mean))
 ```
 
 ## Agrupar i resumir: group_by i summarize {.smaller}
 
 ```{r}
-wcont %>%
-  drop_na(CO) %>%
-  group_by(data, municipi) %>%
-  summarise(across(CO, max))
+wcont |>
+  drop_na(CO) |>
+  group_by(data, municipi) |>
+  summarise(n = n(), m = mean(CO), sd = sd(CO))
 ```
 
 ## Canviar els noms: rename
 
 ```{r}
-wcont %>%
-  rename(c("Ciutat" = "municipi", "Hora" = "name", "Data" = "data"))
+wcont |>
+  rename(c(Ciutat = municipi, Hora = name, Data = data))
 ```
 
 ## Canviar els noms: rename_with
 
 ```{r}
 library(stringr)
-tt <- orig %>%
-  rename_with(~ gsub("h", "Hora - ", .x, fixed = T), starts_with("h"))
+tt <- orig |>
+  rename_with(\(x) gsub("h", "Hora - ", x, fixed = T), starts_with("h"))
 names(tt)
 ```
 
@@ -422,7 +271,7 @@ print(glue("Hola, em dic {nom}."))
 ## Treballar amb caràcters
 
 ```{r}
-cont %>%
+cont |>
   mutate(
     contaminant = glue("{contaminant} ({unitats})")
   )
@@ -452,7 +301,7 @@ dmy_hm(dt)
 ## Dates: floor_date
 
 ```{r}
-wcont <- wcont %>%
+wcont <- wcont |>
   mutate(Setmana = floor_date(data, "week"))
 wcont
 ```
@@ -460,10 +309,10 @@ wcont
 ## Dates: floor_date
 
 ```{r}
-wcont %>%
+wcont |>
   mutate(
     Setmana = glue("Setmana {week(Setmana)}")
-  ) %>%
+  ) |>
   select(c(data, municipi, Setmana))
 ```
 
@@ -474,12 +323,13 @@ Què passa si volem ajuntar dos datasets?
 Agafem dades de població per municipi (que podeu trobar al fitxer municipis.xlsx)
 
 ```{r}
-muns <- readxl::read_excel("input/municipis.xlsx")
+library(readxl)
+muns <- read_excel("data/municipis.xlsx")
 muns
 ```
 
 ```{r}
-wcont <- wcont %>%
+wcont <- wcont |>
         inner_join(muns, by = c("municipi" = "Municipi"))
 ```
 
@@ -490,11 +340,12 @@ wcont <- wcont %>%
 ## Show off {.smaller}
 
 ```{r}
-wcont %>%  drop_na(CO) %>%
-  group_by(floor_date(data, "week"), municipi) %>%
-  summarise(across(CO, mean)) %>%
-  rename_with(~ c("Setmana", "Ciutat", "CO")) %>%
-  group_by(Ciutat) %>%
+wcont |>  
+  drop_na(CO) |>
+  group_by("Setmana" = floor_date(data, "week"), municipi) |>
+  summarise(across(CO, mean)) |> 
+  rename(Ciutat = municipi) |>
+  group_by(Ciutat) |>
   plotly::plot_ly(x = ~ Setmana, y = ~ CO, color = ~ Ciutat, 
                   type = 'scatter', mode = 'lines')
 ```
