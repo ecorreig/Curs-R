@@ -20,17 +20,9 @@ library(dplyr)
 
 R és molt lent.
 
-Cada vegada que fas un loop Déu mata un gatet. 
-
-![(El gatet)](input/baixa.jfif)
-
 S'ha de vectoritzar.
 
-## Vectorització
-
 ![](input/vectorization.png)
-
-R està pensat per vectoritzar sempre que es pugui.
 
 ## Exemple {.smaller}
 
@@ -128,8 +120,59 @@ Vectoritzat:
 df$d <- if_else(df$c > 5, "Malalt", "No malalt")
 ```
 
+# Importar dades
 
-## Seleccionar amb ends_with, starts_with {.smaller}
+## Bases de dades
+
+* Per accedir a una base de dades, primer ens hi haurem de connectar i crear un objecte de connexió.
+> Des d'R ens hi connectem a través de la interfície estàndard `DBI`. Aquesta capa és compatible amb la majoria de motors i drivers (`RPostgres`, `RMariaDB`, `odbc`, etc.).
+* Després, podrem executar consultes SQL i obtenir resultats.
+> Un cop establerta la connexió (`con`), podem:
+> - Fer consultes directament amb `dbGetQuery(con, "SELECT …")`.
+> - O bé usar `dplyr`/`dbplyr` per escriure codi tidyverse que es tradueix automàticament a SQL.
+
+## Redshift
+
+```{r}
+library(DBI)
+library(RPostgres)
+readRenviron(".Renviron")
+
+con <- dbConnect(
+  Postgres(),
+  host = "redshift-nlb-3b198d27e4a92bad.elb.eu-west-1.amazonaws.com",
+  dbname = "dev",
+  port = 5439,
+  user = Sys.getenv("REDSHIFT_USER"),
+  password = Sys.getenv("REDSHIFT_PASSWORD")
+)
+
+df <- con |>
+  dbGetQuery("
+    select * from research.all_tests_global_info
+  ")
+```
+
+## Exemple: dades conmat
+
+```{r}
+query <- "
+select 
+  student_id, 
+  student_course_age, 
+  gender, 
+  score, 
+  num_assessable_statements
+from research.math_knowledge_test_results
+where classroom_course_age = 11
+and test_name = 'ConMAT 2024 - post'
+"
+
+conmat <- con |>
+  dbGetQuery(query)
+```
+
+## Exemple: dades obertes de contaminació
 
 ```{r, include=F, eval=F, echo=F}
 url <- "https://analisi.transparenciacatalunya.cat/resource/tasf-thgu.json"
@@ -237,7 +280,7 @@ wcont |>
 
 ```{r}
 wcont |>
-  rename(c(Ciutat = municipi, Hora = name, Data = data))
+  rename(Ciutat = municipi, Hora = name, Data = data)
 ```
 
 ## Canviar els noms: rename_with
@@ -252,19 +295,9 @@ names(tt)
 ## Treballar amb caràcters
 
 ```{r}
-nom <- "Eudald"
-```
-
-Abans:
-
-```{r}
-print(paste("Hola, em dic ", nom, ".", sep = ""))
-```
-
-Ara:
-
-```{r}
 library(glue)
+
+nom <- "Eudald"
 print(glue("Hola, em dic {nom}."))
 ```
 
@@ -282,19 +315,9 @@ cont |>
 Tinc una cadena alfanumèrica que vull convertir a data:
 
 ```{r}
-dt <- "16/03/2021 12:23"
-```
-
-Abans:
-
-```{r}
-as.POSIXlt(dt, format = "%d/%m/%Y %H:%M")
-```
-
-Ara:
-
-```{r}
 library(lubridate)
+
+dt <- "16/03/2021 12:23"
 dmy_hm(dt)
 ```
 
@@ -337,18 +360,43 @@ wcont <- wcont |>
 
 ![Tipus de joins en dplyr](input/joins.png)
 
-## Show off {.smaller}
+## Més tipus de joins {.smaller}
+
+| Funció | Equivalent SQL | Quan usar-la? |
+|--------|----------------|---------------|
+| `inner_join(x, y)` | INNER JOIN | Només files que apareixen a ambdues taules |
+| `left_join(x, y)`  | LEFT OUTER JOIN | Totes les files de `x`; afegeix columnes de `y` si hi ha correspondència |
+| `right_join(x, y)` | RIGHT OUTER JOIN | Totes les files de `y`; afegeix columnes de `x` si hi ha correspondència |
+| `full_join(x, y)`  | FULL OUTER JOIN | Combina totes les files de `x` i `y` |
+| `semi_join(x, y)`  | EXISTS | Conserva files de `x` que apareixen a `y` (no afegeix columnes) |
+| `anti_join(x, y)`  | NOT EXISTS | Conserva files de `x` que NO apareixen a `y` |
+| `cross_join(x, y)` | CROSS JOIN | Producte cartesià: totes les combinacions possibles |
+
+## Exemple de `semi_join` i `anti_join` {.smaller}
 
 ```{r}
-wcont |>  
-  drop_na(CO) |>
-  group_by("Setmana" = floor_date(data, "week"), municipi) |>
-  summarise(across(CO, mean)) |> 
-  rename(Ciutat = municipi) |>
-  group_by(Ciutat) |>
-  plotly::plot_ly(x = ~ Setmana, y = ~ CO, color = ~ Ciutat, 
-                  type = 'scatter', mode = 'lines')
+pregs <- tibble(id = 1:4, pregunta = c("A", "B", "C", "D"))
+resp  <- tibble(id = c(1, 3), resposta = c("Sí", "No"))
+
+# Preguntes contestades
+contestades <- semi_join(pregs, resp, by = "id")
+contestades
+
+# Preguntes pendents
+pendents <- anti_join(pregs, resp, by = "id")
+pendents
 ```
+
+## Esculls comuns amb joins {.smaller}
+
+* Noms de columnes clau diferents → usa `by = c("id_x" = "id_y")` o `join_by(id_x = id_y)`.
+* Noms de columnes iguals -> usa `by = "id"` o `by = join_by(id)`.
+* Si s'ha de fer join de més d'una columna → `by = c("col1x" = "col1y", "col2")` o `join_by(col1x = col1y, col2)`.
+* Tipus de dades inconsistents (`character` vs `integer`) → converteix abans o el match fallarà.
+* Duplicats a la clau → multiplica files i pot causar **explosió cartesiana**.
+* Columnes duplicades als dos dataframes → dplyr aplica sufixos `.x`/`.y`; ajusta'ls amb `suffix` o `rename()`.  
+* Valors `NA` a la clau → no fan match; decideix si ometre'ls o imputar-los.
+* Rendiment: per taules grans millor fer el join dins la base de dades amb `dbplyr` o indexar les columnes clau.
 
 ## Fi
 

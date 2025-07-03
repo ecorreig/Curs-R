@@ -1,0 +1,151 @@
+---
+title: "Exercicis classe 3 - resolts"
+author: "Eudald"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+library(dplyr)
+library(tidyr)
+library(RPostgres)
+library(kableExtra)
+library(glue)
+library(stringr)
+library(RSocrata)
+library(ggplot2)
+
+con <- dbConnect(
+  Postgres(),
+  host = "redshift-nlb-3b198d27e4a92bad.elb.eu-west-1.amazonaws.com",
+  dbname = "dev",
+  port = 5439,
+  user = Sys.getenv("REDSHIFT_USER"),
+  password = Sys.getenv("REDSHIFT_PASSWORD")
+)
+```
+
+# 1 Conmat
+
+```{r}
+qq <- "
+select 
+  student_id, 
+  classroom_id,
+  gender,
+  score / num_assessable_statements as score,
+  organization_name
+from 
+  research.math_knowledge_test_results mktr
+  join dimensions.customer_organizations co on mktr.organization_id = co.organization_uuid
+where organization_region = 'Catalunya'
+and classroom_course_age = 11
+and test_name = 'ConMAT 2024 - post'
+  "
+```
+
+```{r}
+df <- con |> 
+  dbGetQuery(qq)
+```
+
+Find the gender gap per school
+
+```{r}
+gender_gap <- df |> 
+  group_by(organization_name, gender) |>
+  summarise(mean_score = mean(score), n = n()) |> 
+  filter(n > 20) |> 
+  pivot_wider(names_from = gender, values_from = mean_score, id_cols = organization_name) |> 
+  # traiem les escoles que només tenen nens o nenes
+  drop_na() |> 
+  mutate(percent_diff = 100 * (Male - Female) / Male) |> 
+  arrange(percent_diff) 
+```
+
+Escoles amb més nota de noies que nois:
+
+```{r}
+head(gender_gap)
+```
+
+Escoles amb més nota de nois que noies:
+
+```{r}
+tail(gender_gap)
+```
+
+En general:
+
+```{r}
+hist(gender_gap$percent_diff)
+```
+
+```{r}
+summary(gender_gap$percent_diff)
+```
+
+Hi ha un gap de gènere.
+
+# 2 Pràctica digital
+
+```{r}
+query <- "
+select student_uuid,
+classroom_uuid,
+scene_name, 
+pack,
+score
+from dwh_digital_practice.f_elementary_attempts
+where local_attempt_at > '2025-06-01'
+"
+
+pd <- con |> 
+  dbGetQuery(query)
+```
+
+Calculem la nota mitjana per alumne:
+
+```{r}
+pd <- pd |> 
+  group_by(student_uuid, classroom_uuid) |> 
+  summarise(score = mean(score, na.rm = T), .groups = "drop")
+```
+
+Hem d'ajuntar amb les dades de conmat per treure el gènere:
+
+```{r}
+all <- pd |> 
+  inner_join(
+    df |> select(student_uuid = student_id, gender), 
+    by = "student_uuid"
+    )
+```
+
+```{r}
+all |> 
+  group_by(gender) |> 
+  summarise(mean_score = mean(score, na.rm = T), sd = sd(score, na.rm = T), n = n())
+```
+
+
+# 3 Dades generalitat
+
+```{r}
+base_url <- "https://analisi.transparenciacatalunya.cat/resource/rk5x-gny6.json"
+url_with_filters <- paste0(base_url, "?$where=any='2023'&$select=pmat,genere")
+
+dades_pri <- read.socrata(url_with_filters) |> 
+  mutate(pmat = as.numeric(pmat))
+```
+
+```{r}
+dades_pri |> 
+  ggplot(aes(x = genere, y = pmat, fill = genere)) + 
+  geom_boxplot()
+```
+
+```{r}
+t.test(pmat ~ genere, dades_pri)
+```

@@ -1,0 +1,26 @@
+---
+title: "Exercicis classe 3"
+author: "Eudald"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Exercici 1: mira el gap de gènere a sisè de primària a Catalunya a partir de les dades següents:
+
+1. ConMAT Post 2024
+
+| Pista: podeu trobar les dades a research.math_knowledge_test_results, i les dades sobre les escoles (per trobar les catalanes) a dimensions.customer_organizations.
+
+2. Pràctica digital (mes de juny 2024)
+
+| Pista: podeu trobar les dades a dwh_digital_practice.f_elementary_attempts
+
+3. Dades generalitat
+
+| Pista: podeu trobar les dades a https://analisi.transparenciacatalunya.cat/resource/rk5x-gny6.json i fer servir el codi que teniu a la classe 3
+
+

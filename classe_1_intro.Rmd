@@ -439,14 +439,14 @@ full <- read_excel("ruta/fitxer.xlsx", sheet = "Full1")
 ```{r, eval=FALSE}
 enc   <- read_spss("ruta/dades.sav")      # SPSS
 stata <- read_dta("ruta/dades.dta")       # Stata
-sas   <- read_sas("ruta/dades.sas7bdat") # SAS
+sas   <- read_sas("ruta/dades.sas7bdat")  # SAS
 ```
 
 ### Exemple
 
 ```{r}
 # Llegim les dades d'exemple amb readr
-dades <- read_csv("data/dades.csv", show_col_types = FALSE)
+dades <- read_csv("data/dades.csv")
 ```
 
 # Exploració de les dades
