@@ -1,13 +1,14 @@
 ---
 title: "Curs d'introducció a estadística en R"
-subtitle: "Classe 2: Markdown"
 author: "Eudald Correig i Fraga"
-date: "`r format(Sys.time(), '%d de %B de %Y')`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
+subtitle: 'Classe 2: Markdown'
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
 # Què és el Markdown?

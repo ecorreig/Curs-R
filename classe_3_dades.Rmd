@@ -117,7 +117,15 @@ for (i in 1:nrow(df)) {
 Vectoritzat:
 
 ```{r}
-df$d <- if_else(df$c > 5, "Malalt", "No malalt")
+df$d <- ifelse(df$c > 5, "Malalt", "No malalt")
+
+df <- df |> 
+  mutate(d = case_when(
+    c > 5 ~ "Molt malalt",
+    c > 8 ~ "Malalt",
+    c > 10 ~ "No malalt",
+    )
+  )
 ```
 
 # Importar dades
