@@ -8,3 +8,5 @@ exercicis_resolts.html
 proves*
 *_cache
 .Renviron
+*.tex
+*.log
