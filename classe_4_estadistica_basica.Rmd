@@ -7,22 +7,27 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 set.seed(2901)
 
 # Carregar llibreries necessàries
+library(dplyr)
 library(readr)
+library(ggplot2)
+library(glue)
+library(forcats)
+library(GGally)
 library(haven)
 library(gmodels)
-library(GGally)
+library(tidyr)
 
 # Llegir i preparar dades
-dades <- read_csv("input/dades.csv", show_col_types = FALSE)
+dades <- read_csv("data/dades.csv", show_col_types = FALSE)
 dades <- dades |> 
   mutate(
-    alcada = rnorm(n(), 170, 10),
+    alçada = rnorm(n(), 170, 10),
     pes = rnorm(n(), 75, 10),
-    imc = pes / (alcada / 100)^2,
+    imc = pes / (alçada / 100)^2,
     imccat = case_when(
       imc < 18 ~ "Baix pes",
       imc < 25 ~ "Pes normal", 
@@ -93,7 +98,7 @@ summary(dades$edat)
 
 # Versió tidyverse amb select
 dades |> 
-  select(1, 3, 5) |> 
+  select(sexe, edat, alçada) |> 
   summary()
 ```
 
@@ -236,7 +241,7 @@ Friedman | friedman.test(y, groups) | friedman.test(formula, data)
 Per mostrar els contrastos d'hipòtesi utilitzarem el següent conjunt:
 
 ```{r, message = FALSE}
-fitxer <- "input/pulse2sa.sav"
+fitxer <- "data/pulse2sa.sav"
 dades_pulse <- read_sav(fitxer)
 head(dades_pulse)
 ```
@@ -524,7 +529,7 @@ Anem a veure com s'utilitzen. Seguim amb el fitxer de malalties del fetge.
 Quines dades teníem?
 
 ```{r}
-liver <- read_csv('input/indian_liver_patient.csv', show_col_types = FALSE)
+liver <- read_csv('data/indian_liver_patient.csv')
 ```
 
 ```{r}
@@ -573,10 +578,6 @@ La p < 0.05 per tant hem rebutgem la hipòtesi nula i assumim que els nivells de
 Això és veritat?
 
 ```{r}
-# Versió base R
-plot(liver$Gender, liver$Total_Protiens)
-
-# Versió tidyverse
 liver |> 
   ggplot(aes(x = Gender, y = Total_Protiens)) +
   geom_boxplot() +
@@ -608,10 +609,6 @@ wilcox.test(Albumin_and_Globulin_Ratio ~ Gender, data = liver)
 A veure?
 
 ```{r}
-# Versió base R
-plot(liver$Gender, liver$Albumin_and_Globulin_Ratio)
-
-# Versió tidyverse
 liver |> 
   ggplot(aes(x = Gender, y = Albumin_and_Globulin_Ratio)) +
   geom_boxplot() +
@@ -655,10 +652,6 @@ cor.test(liver$Albumin, liver$Total_Protiens, method = "spearman")
 Clarament sí! Anem a veure-ho:
 
 ```{r}
-# Versió base R
-plot(liver$Albumin, liver$Total_Protiens)
-
-# Versió tidyverse
 liver |> 
   ggplot(aes(x = Albumin, y = Total_Protiens)) +
   geom_point(alpha = 0.6) +
@@ -671,18 +664,25 @@ liver |>
   theme_minimal()
 ```
 
-```{r, fig.width = 12, fig.height = 12, warning = FALSE, message = FALSE}
+```{r, fig.width = 12, fig.height = 12}
 ggpairs(liver)
 ```
 
 Veient aquest gràfic, ens trobem que hi ha moltes mesures que estan molt escorades a l'esquerra; això passa molt sovint en medicina i s'ha de mirar d'arreglar. Això se sol fer traient el logaritme de la variable, en R és molt senzill:
 
-```{r}
-liver <- liver |> 
+```{r, fig.width = 12, fig.height = 12}
+liver |>
   mutate(
-    Total_Bilirubin = log1p(Total_Bilirubin),
-    across(c(Direct_Bilirubin, Alkaline_Phosphotase, 
-             Alamine_Aminotransferase, Aspartate_Aminotransferase), 
-           log1p) # log1p(x) = log(x + 1)
-  )
+    across(
+      c(
+        Total_Bilirubin,
+        Direct_Bilirubin,
+        Alkaline_Phosphotase,
+        Alamine_Aminotransferase,
+        Aspartate_Aminotransferase
+      ),
+      log1p # log1p(x) = log(x + 1)
+    )
+  ) |> 
+  ggpairs()
 ```

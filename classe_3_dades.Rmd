@@ -234,9 +234,16 @@ nrow(cont)
 ```{r}
 library(tidyr)
 cont <- cont |>
- pivot_longer(starts_with("h"))
+ pivot_longer(starts_with("h")) 
 cont
 ```
+
+```{r}
+cont |> 
+  mutate(across(everything(), as.character)) |>
+  pivot_longer(everything()) |> View()
+```
+
 
 ## Netejar: drop_na
 
@@ -258,10 +265,23 @@ wcont
 ## Agrupar i resumir: group_by i summarize {.smaller}
 
 ```{r}
+dades_reus <- wcont |>
+  filter(municipi == "Reus") 
+mean(dades_reus$CO, na.rm = T)
+dades_tarragona <- wcont |>
+  filter(municipi == "Tarragona")
+
+mean(dades_tarragona$CO, na.rm = T)
+```
+
+
+```{r}
 wcont |>
   drop_na(CO) |>
   group_by(municipi) |>
-  summarise(across(CO, mean))
+  summarise(m = mean(CO, na.rm = T), 
+            sd = sd(CO, na.rm = T), 
+            n = n())
 ```
 
 ## Agrupar i resumir: group_by i summarize {.smaller}
@@ -315,7 +335,9 @@ print(glue("Hola, em dic {nom}."))
 cont |>
   mutate(
     contaminant = glue("{contaminant} ({unitats})")
-  )
+  ) |> 
+  distinct(data, municipi, contaminant, name, .keep_all = T) |>
+  pivot_wider(names_from = contaminant, values_from = value)
 ```
 
 ## Dates: lubridate {.smaller}
