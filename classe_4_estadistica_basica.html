@@ -352,7 +352,7 @@ display: none;
 <h1 class="title toc-ignore">Curs d’introducció a R</h1>
 <h3 class="subtitle">Classe 3: Estadística bàsica</h3>
 <h4 class="author">Eudald Correig i Fraga</h4>
-<h4 class="date">08 de de juliol de 2025</h4>
+<h4 class="date">17 de de juliol de 2025</h4>
 
 </div>
 
@@ -449,6 +449,182 @@ dades |&gt;
 ##                     Max.   :92.00   Max.   :178.2</code></pre>
 </div>
 </div>
+<div id="intervals-de-confiança" class="section level1">
+<h1>Intervals de confiança</h1>
+<div id="el-teorema-central-del-límit" class="section level2">
+<h2>El Teorema Central del Límit</h2>
+<p>El <strong>Teorema Central del Límit (TCL)</strong> és un dels
+resultats més importants de l’estadística. Ens diu que:</p>
+<blockquote>
+<p>Si agafem mostres aleatòries d’una població (independentment de la
+seva distribució original), la distribució de les mitjanes d’aquestes
+mostres tendeix a una distribució normal quan la mida de la mostra és
+gran.</p>
+</blockquote>
+<div id="simulació-del-teorema-central-del-límit" class="section level3">
+<h3>Simulació del Teorema Central del Límit</h3>
+<p>Per veure com funciona el TCL, podem utilitzar una simulació
+interactiva:</p>
+<pre class="r"><code># Executar la simulació del TCL
+source(&quot;central_limit_theorem.R&quot;)</code></pre>
+<p>Aquesta simulació mostra com: - La població original pot tenir
+qualsevol distribució (en aquest cas, log-normal per les rendes) - Les
+mitjanes de mostres aleatòries tendeixen a una distribució normal - Com
+més gran és la mida de la mostra, més normal és la distribució de les
+mitjanes</p>
+</div>
+</div>
+<div id="error-estàndard-i-marge-derror" class="section level2">
+<h2>Error estàndard i marge d’error</h2>
+<div id="error-estàndard" class="section level3">
+<h3>Error estàndard</h3>
+<p>L’<strong>error estàndard</strong> és la desviació estàndard de la
+distribució de les mitjanes mostrals:</p>
+<p><span class="math display">\[ SE = \frac{s}{\sqrt{n}} \]</span></p>
+<p>On: - <span class="math inline">\(s\)</span> és la desviació
+estàndard de la mostra - <span class="math inline">\(n\)</span> és la
+mida de la mostra</p>
+</div>
+<div id="marge-derror" class="section level3">
+<h3>Marge d’error</h3>
+<p>El <strong>marge d’error</strong> depèn del nivell de confiança que
+volem:</p>
+<p><span class="math display">\[ ME = z_{\alpha/2} \times SE
+\]</span></p>
+<p>On <span class="math inline">\(z_{\alpha/2}\)</span> és el valor
+crític de la distribució normal estàndard per al nivell de confiança
+desitjat.</p>
+</div>
+</div>
+<div id="intervals-de-confiança-1" class="section level2">
+<h2>Intervals de confiança</h2>
+<p>Un <strong>interval de confiança</strong> és un rang de valors que,
+amb una probabilitat determinada (nivell de confiança), conté el
+veritable valor del paràmetre poblacional.</p>
+<div id="fórmula-general" class="section level3">
+<h3>Fórmula general</h3>
+<p>Quan coneixem la desviació estàndard poblacional (<span class="math inline">\(\sigma\)</span>): <span class="math display">\[ IC
+= \bar{x} \pm z_{\alpha/2} \times \frac{\sigma}{\sqrt{n}} \]</span></p>
+<p>Quan utilitzem la desviació estàndard de la mostra (<span class="math inline">\(s\)</span>): <span class="math display">\[ IC =
+\bar{x} \pm t_{\alpha/2, n-1} \times \frac{s}{\sqrt{n}} \]</span></p>
+<p>On <span class="math inline">\(t_{\alpha/2, n-1}\)</span> és el valor
+crític de la distribució t de Student amb <span class="math inline">\(n-1\)</span> graus de llibertat.</p>
+</div>
+<div id="per-què-la-distribució-t" class="section level3">
+<h3>Per què la distribució t?</h3>
+<ul>
+<li>Quan coneixem <span class="math inline">\(\sigma\)</span>
+(poblacional), utilitzem la distribució normal estàndard (z)</li>
+<li>Quan utilitzem <span class="math inline">\(s\)</span> (mostral),
+introduïm incertesa addicional perquè <span class="math inline">\(s\)</span> és una estimació de <span class="math inline">\(\sigma\)</span></li>
+<li>La distribució t té cues més pesades que la normal, reflectint
+aquesta incertesa addicional</li>
+<li>Quan <span class="math inline">\(n\)</span> és gran (<span class="math inline">\(n &gt; 30\)</span>), la distribució t s’aproxima
+molt a la normal</li>
+</ul>
+</div>
+<div id="exemple-pràctic" class="section level3">
+<h3>Exemple pràctic</h3>
+<pre class="r"><code># Calcular interval de confiança per a la mitjana d&#39;edat
+edat_mitjana &lt;- mean(dades$edat)
+edat_sd &lt;- sd(dades$edat)
+n &lt;- nrow(dades)
+
+# Error estàndard
+se_edat &lt;- edat_sd / sqrt(n)
+
+# Marge d&#39;error amb distribució t (95% de confiança)
+# qt(0.975, n-1) per 95% de confiança (2.5% a cada cua)
+t_critic &lt;- qt(0.975, n-1)
+me_edat &lt;- t_critic * se_edat
+
+# Interval de confiança
+ic_inferior &lt;- edat_mitjana - me_edat
+ic_superior &lt;- edat_mitjana + me_edat
+
+cat(&quot;Mitjana d&#39;edat:&quot;, round(edat_mitjana, 2), &quot;\n&quot;)</code></pre>
+<pre><code>## Mitjana d&#39;edat: 77.5</code></pre>
+<pre class="r"><code>cat(&quot;Desviació estàndard:&quot;, round(edat_sd, 2), &quot;\n&quot;)</code></pre>
+<pre><code>## Desviació estàndard: 12.31</code></pre>
+<pre class="r"><code>cat(&quot;Mida de mostra:&quot;, n, &quot;\n&quot;)</code></pre>
+<pre><code>## Mida de mostra: 10</code></pre>
+<pre class="r"><code>cat(&quot;Error estàndard:&quot;, round(se_edat, 2), &quot;\n&quot;)</code></pre>
+<pre><code>## Error estàndard: 3.89</code></pre>
+<pre class="r"><code>cat(&quot;Valor crític t (95%):&quot;, round(t_critic, 3), &quot;\n&quot;)</code></pre>
+<pre><code>## Valor crític t (95%): 2.262</code></pre>
+<pre class="r"><code>cat(&quot;Marge d&#39;error (95%):&quot;, round(me_edat, 2), &quot;\n&quot;)</code></pre>
+<pre><code>## Marge d&#39;error (95%): 8.81</code></pre>
+<pre class="r"><code>cat(&quot;Interval de confiança 95%: [&quot;, round(ic_inferior, 2), &quot;, &quot;, round(ic_superior, 2), &quot;]&quot;, sep = &quot;&quot;)</code></pre>
+<pre><code>## Interval de confiança 95%: [68.69, 86.31]</code></pre>
+<pre class="r"><code># Comparació amb z (per veure la diferència)
+z_critic &lt;- 1.96
+me_edat_z &lt;- z_critic * se_edat
+cat(&quot;\n\nComparació amb distribució normal (z = 1.96):&quot;)</code></pre>
+<pre><code>## 
+## 
+## Comparació amb distribució normal (z = 1.96):</code></pre>
+<pre class="r"><code>cat(&quot;\nMarge d&#39;error amb z:&quot;, round(me_edat_z, 2))</code></pre>
+<pre><code>## 
+## Marge d&#39;error amb z: 7.63</code></pre>
+<pre class="r"><code>cat(&quot;\nDiferència:&quot;, round(me_edat - me_edat_z, 3))</code></pre>
+<pre><code>## 
+## Diferència: 1.177</code></pre>
+</div>
+<div id="interpretació" class="section level3">
+<h3>Interpretació</h3>
+<ul>
+<li><strong>95% de confiança</strong>: Si repetíssim l’estudi moltes
+vegades, el 95% dels intervals calculats contindrien el veritable valor
+de la mitjana poblacional.</li>
+<li><strong>No significa</strong>: Hi ha un 95% de probabilitat que la
+mitjana poblacional estigui en aquest interval.</li>
+</ul>
+</div>
+<div id="factors-que-afecten-lamplitud-de-linterval" class="section level3">
+<h3>Factors que afecten l’amplitud de l’interval</h3>
+<ol style="list-style-type: decimal">
+<li><strong>Mida de la mostra</strong>: Com més gran és <span class="math inline">\(n\)</span>, més petit és l’interval</li>
+<li><strong>Variabilitat</strong>: Com més gran és <span class="math inline">\(s\)</span>, més gran és l’interval</li>
+<li><strong>Nivell de confiança</strong>: Com més alt és el nivell de
+confiança, més gran és l’interval</li>
+</ol>
+<pre class="r"><code># Comparar intervals per diferents nivells de confiança (utilitzant t)
+nivells_confianca &lt;- c(0.90, 0.95, 0.99)
+probabilitats &lt;- c(0.95, 0.975, 0.995)  # Per 2.5%, 2.5% i 0.5% a cada cua
+
+cat(&quot;Intervals de confiança utilitzant distribució t:\n&quot;)</code></pre>
+<pre><code>## Intervals de confiança utilitzant distribució t:</code></pre>
+<pre class="r"><code>for(i in 1:length(nivells_confianca)) {
+  t_critic &lt;- qt(probabilitats[i], n-1)
+  me &lt;- t_critic * se_edat
+  ic_inf &lt;- edat_mitjana - me
+  ic_sup &lt;- edat_mitjana + me
+  
+  cat(&quot;Nivell de confiança&quot;, nivells_confianca[i]*100, &quot;% (t =&quot;, round(t_critic, 3), &quot;): [&quot;, 
+      round(ic_inf, 2), &quot;, &quot;, round(ic_sup, 2), &quot;]\n&quot;)
+}</code></pre>
+<pre><code>## Nivell de confiança 90 % (t = 1.833 ): [ 70.36 ,  84.64 ]
+## Nivell de confiança 95 % (t = 2.262 ): [ 68.69 ,  86.31 ]
+## Nivell de confiança 99 % (t = 3.25 ): [ 64.85 ,  90.15 ]</code></pre>
+<pre class="r"><code># Comparació amb z per mostres grans
+cat(&quot;\nComparació amb z (vàlid només per mostres grans, n &gt; 30):\n&quot;)</code></pre>
+<pre><code>## 
+## Comparació amb z (vàlid només per mostres grans, n &gt; 30):</code></pre>
+<pre class="r"><code>z_valors &lt;- c(1.645, 1.96, 2.576)
+for(i in 1:length(nivells_confianca)) {
+  me_z &lt;- z_valors[i] * se_edat
+  ic_inf_z &lt;- edat_mitjana - me_z
+  ic_sup_z &lt;- edat_mitjana + me_z
+  
+  cat(&quot;Nivell de confiança&quot;, nivells_confianca[i]*100, &quot;% (z =&quot;, z_valors[i], &quot;): [&quot;, 
+      round(ic_inf_z, 2), &quot;, &quot;, round(ic_sup_z, 2), &quot;]\n&quot;)
+}</code></pre>
+<pre><code>## Nivell de confiança 90 % (z = 1.645 ): [ 71.09 ,  83.91 ]
+## Nivell de confiança 95 % (z = 1.96 ): [ 69.87 ,  85.13 ]
+## Nivell de confiança 99 % (z = 2.576 ): [ 67.47 ,  87.53 ]</code></pre>
+</div>
+</div>
+</div>
 <div id="tests-dhipòtesi" class="section level1">
 <h1>Tests d’hipòtesi</h1>
 <ul>
@@ -456,13 +632,13 @@ dades |&gt;
 la hipòtesi alternativa</li>
 <li>Quan les podem refutar?
 <ul>
-<li>Depèn de la confiança (sovint en 95%)</li>
+<li>Depèn de l’error tipus I (sovint en 5%)</li>
 </ul></li>
 <li><strong>Quan la probabilitat de que la mostra vingui d’una
-distribució que segueix la hipòtesi nul·la sigui menor que 1 menys la
-confiança</strong>
+distribució que segueix la hipòtesi nul·la sigui menor que 1 menys
+l’error tipus I</strong>
 <ul>
-<li>Si la confiança és del 95% serà quan la p &lt; 0.05</li>
+<li>Si l’error tipus I és del 5% serà quan la p &lt; 0.05</li>
 </ul></li>
 </ul>
 <div id="exemple-1" class="section level2">
@@ -475,13 +651,10 @@ significativamet més baixos que els que no han pres la pastilla.</p>
 colesterol &lt;- c(rnorm(20, mean = 85, sd = 10), rnorm(20, mean = 95, sd = 14))
 grup &lt;- c(rep(&quot;tractament&quot;, 20), rep(&quot;placebo&quot;, 20))
 
-df &lt;- tibble(
+tibble(
   colesterol = as.numeric(colesterol),
   grup = fct_inorder(grup)
-)
-
-# Gràfic amb ggplot2
-df |&gt; 
+) |&gt; 
   ggplot(aes(x = grup, y = colesterol)) +
   geom_boxplot() +
   geom_jitter(width = 0.2, alpha = 0.6) +

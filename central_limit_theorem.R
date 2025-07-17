@@ -106,7 +106,7 @@ server <- function(input, output, session) {
   
   output$clt_plot <- renderPlot({
     
-    y_limit <- ceiling(sample_num * 0.4 / sqrt(input$sample_size))
+    y_limit <- 40
     
     if (length(values$sample_means) == 0) {
       # Gràfic buit al començament

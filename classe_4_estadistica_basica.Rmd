@@ -102,13 +102,153 @@ dades |>
   summary()
 ```
 
+# Intervals de confiança
+
+## El Teorema Central del Límit
+
+El **Teorema Central del Límit (TCL)** és un dels resultats més importants de l'estadística. Ens diu que:
+
+> Si agafem mostres aleatòries d'una població (independentment de la seva distribució original), la distribució de les mitjanes d'aquestes mostres tendeix a una distribució normal quan la mida de la mostra és gran.
+
+### Simulació del Teorema Central del Límit
+
+Per veure com funciona el TCL, podem utilitzar una simulació interactiva:
+
+```{r, eval = FALSE}
+# Executar la simulació del TCL
+source("central_limit_theorem.R")
+```
+
+Aquesta simulació mostra com:
+- La població original pot tenir qualsevol distribució (en aquest cas, log-normal per les rendes)
+- Les mitjanes de mostres aleatòries tendeixen a una distribució normal
+- Com més gran és la mida de la mostra, més normal és la distribució de les mitjanes
+
+## Error estàndard i marge d'error
+
+### Error estàndard
+
+L'**error estàndard** és la desviació estàndard de la distribució de les mitjanes mostrals:
+
+\[ SE = \frac{s}{\sqrt{n}} \]
+
+On:
+- $s$ és la desviació estàndard de la mostra
+- $n$ és la mida de la mostra
+
+### Marge d'error
+
+El **marge d'error** depèn del nivell de confiança que volem:
+
+\[ ME = z_{\alpha/2} \times SE \]
+
+On $z_{\alpha/2}$ és el valor crític de la distribució normal estàndard per al nivell de confiança desitjat.
+
+## Intervals de confiança
+
+Un **interval de confiança** és un rang de valors que, amb una probabilitat determinada (nivell de confiança), conté el veritable valor del paràmetre poblacional.
+
+### Fórmula general
+
+Quan coneixem la desviació estàndard poblacional ($\sigma$):
+\[ IC = \bar{x} \pm z_{\alpha/2} \times \frac{\sigma}{\sqrt{n}} \]
+
+Quan utilitzem la desviació estàndard de la mostra ($s$):
+\[ IC = \bar{x} \pm t_{\alpha/2, n-1} \times \frac{s}{\sqrt{n}} \]
+
+On $t_{\alpha/2, n-1}$ és el valor crític de la distribució t de Student amb $n-1$ graus de llibertat.
+
+### Per què la distribució t?
+
+- Quan coneixem $\sigma$ (poblacional), utilitzem la distribució normal estàndard (z)
+- Quan utilitzem $s$ (mostral), introduïm incertesa addicional perquè $s$ és una estimació de $\sigma$
+- La distribució t té cues més pesades que la normal, reflectint aquesta incertesa addicional
+- Quan $n$ és gran ($n > 30$), la distribució t s'aproxima molt a la normal
+
+### Exemple pràctic
+
+```{r}
+# Calcular interval de confiança per a la mitjana d'edat
+edat_mitjana <- mean(dades$edat)
+edat_sd <- sd(dades$edat)
+n <- nrow(dades)
+
+# Error estàndard
+se_edat <- edat_sd / sqrt(n)
+
+# Marge d'error amb distribució t (95% de confiança)
+# qt(0.975, n-1) per 95% de confiança (2.5% a cada cua)
+t_critic <- qt(0.975, n-1)
+me_edat <- t_critic * se_edat
+
+# Interval de confiança
+ic_inferior <- edat_mitjana - me_edat
+ic_superior <- edat_mitjana + me_edat
+
+cat("Mitjana d'edat:", round(edat_mitjana, 2), "\n")
+cat("Desviació estàndard:", round(edat_sd, 2), "\n")
+cat("Mida de mostra:", n, "\n")
+cat("Error estàndard:", round(se_edat, 2), "\n")
+cat("Valor crític t (95%):", round(t_critic, 3), "\n")
+cat("Marge d'error (95%):", round(me_edat, 2), "\n")
+cat("Interval de confiança 95%: [", round(ic_inferior, 2), ", ", round(ic_superior, 2), "]", sep = "")
+
+# Comparació amb z (per veure la diferència)
+z_critic <- 1.96
+me_edat_z <- z_critic * se_edat
+cat("\n\nComparació amb distribució normal (z = 1.96):")
+cat("\nMarge d'error amb z:", round(me_edat_z, 2))
+cat("\nDiferència:", round(me_edat - me_edat_z, 3))
+```
+
+### Interpretació
+
+- **95% de confiança**: Si repetíssim l'estudi moltes vegades, el 95% dels intervals calculats contindrien el veritable valor de la mitjana poblacional.
+- **No significa**: Hi ha un 95% de probabilitat que la mitjana poblacional estigui en aquest interval.
+
+### Factors que afecten l'amplitud de l'interval
+
+1. **Mida de la mostra**: Com més gran és $n$, més petit és l'interval
+2. **Variabilitat**: Com més gran és $s$, més gran és l'interval
+3. **Nivell de confiança**: Com més alt és el nivell de confiança, més gran és l'interval
+
+```{r}
+# Comparar intervals per diferents nivells de confiança (utilitzant t)
+nivells_confianca <- c(0.90, 0.95, 0.99)
+probabilitats <- c(0.95, 0.975, 0.995)  # Per 2.5%, 2.5% i 0.5% a cada cua
+
+cat("Intervals de confiança utilitzant distribució t:\n")
+for(i in 1:length(nivells_confianca)) {
+  t_critic <- qt(probabilitats[i], n-1)
+  me <- t_critic * se_edat
+  ic_inf <- edat_mitjana - me
+  ic_sup <- edat_mitjana + me
+  
+  cat("Nivell de confiança", nivells_confianca[i]*100, "% (t =", round(t_critic, 3), "): [", 
+      round(ic_inf, 2), ", ", round(ic_sup, 2), "]\n")
+}
+
+# Comparació amb z per mostres grans
+cat("\nComparació amb z (vàlid només per mostres grans, n > 30):\n")
+z_valors <- c(1.645, 1.96, 2.576)
+for(i in 1:length(nivells_confianca)) {
+  me_z <- z_valors[i] * se_edat
+  ic_inf_z <- edat_mitjana - me_z
+  ic_sup_z <- edat_mitjana + me_z
+  
+  cat("Nivell de confiança", nivells_confianca[i]*100, "% (z =", z_valors[i], "): [", 
+      round(ic_inf_z, 2), ", ", round(ic_sup_z, 2), "]\n")
+}
+```
+
+
 # Tests d'hipòtesi
 
 - Creem hipòtesis nules (H0) i les intentem refutar per tal d'acceptar la hipòtesi alternativa
 - Quan les podem refutar?
-    - Depèn de la confiança (sovint en 95%)
-- **Quan la probabilitat de que la mostra vingui d'una distribució que segueix la hipòtesi nul·la sigui menor que 1 menys la confiança**
-    - Si la confiança és del 95% serà quan la p < 0.05
+    - Depèn de l'error tipus I (sovint en 5%)
+- **Quan la probabilitat de que la mostra vingui d'una distribució que segueix la hipòtesi nul·la sigui menor que 1 menys l'error tipus I**
+    - Si l'error tipus I és del 5% serà quan la p < 0.05
 
 ## Exemple 1
 
@@ -119,13 +259,10 @@ Tenim una pastilla per baixar el colesterol i un placebo, volem demostrar que la
 colesterol <- c(rnorm(20, mean = 85, sd = 10), rnorm(20, mean = 95, sd = 14))
 grup <- c(rep("tractament", 20), rep("placebo", 20))
 
-df <- tibble(
+tibble(
   colesterol = as.numeric(colesterol),
   grup = fct_inorder(grup)
-)
-
-# Gràfic amb ggplot2
-df |> 
+) |> 
   ggplot(aes(x = grup, y = colesterol)) +
   geom_boxplot() +
   geom_jitter(width = 0.2, alpha = 0.6) +
