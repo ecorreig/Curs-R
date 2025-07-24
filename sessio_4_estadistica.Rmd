@@ -17,6 +17,8 @@ library(stringi)
 library(lubridate)
 library(glue)
 library(gmodels)
+library(caret)
+library(tibble)
 ```
 
 ```{r, echo=F}
@@ -331,133 +333,113 @@ wilcox.test(value ~ municipi, cont)
 
 El p-valor és 0, per tant la diferència és moooolt significativa. Tarragona està estadísticament més contaminat d'H2S que Reus.
 
-## Exemple: variables categòriques {.smaller}
+## Exemple: supervivència al Titanic
 
-Tornem a les variables antigues: qui té més malaltia, homes o dones?
-
-```{r}
-ggplot(df, aes(x = Gender, fill = Malaltia)) + 
-  geom_bar(stat = "count", position = "dodge")
-```
-
-
-
-## {.smaller}
-
-```{r, echo=F}
-gmodels::CrossTable(df$Gender, df$Malaltia)
-```
-
-## Test d'hipòtesi
-
-La variable independent és categòrica amb dos factors: home o dona.
-
-La variable dependent és categòrica amb dos factors: malalt o no malalt.
-
-> Test de chi quadrat
+Carreguem i preparem les dades del Titanic:
 
 ```{r}
-chisq.test(df$Gender, df$Malaltia)
-```
+# install.packages("titanic") # Descomenta si no el tens
+library(titanic)
+library(dplyr)
+library(ggplot2)
 
-Amb un 95% de confiança, **no** hi ha diferències significatives!
-
-## Exemple: a més edat, més bilirrubina?
-
-Ja sabem que la bilirrubina no segueix una distribució normal, així que hem de fer un test de correlació d'Spearman:
-
-```{r}
-cor.test(df$Age, df$Total_Bilirubin, method = "spearman")
-```
-
-Sí que hi ha correlació significativa. Però...
-
-## Gràficament
-
-```{r}
-ggplot(df, aes(x = Age, y = log(Total_Bilirubin))) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
-```
-
-No! Això és un desastre!
-
-## Exemple: hi ha més casos de covid (en proporció) en poblacions més grans?
-
-Mirem els últims 30 dies per simplicitat
-
-Agafem dades covid:
-
-```{r}
-library(RSocrata)
-start <- lubridate::today() - 30
-p <- "https://analisi.transparenciacatalunya.cat/resource/jj6z-iyrp.json"
-q <- glue::glue("?$where= data > '{start}'")
-covid <- read.socrata(glue::glue(p, q))
-```
-
-Agafem dades població
-
-```{r}
-muns <- readxl::read_excel("data/municipis.xlsx")
-```
-
-## Netegem i ajuntem
-
-```{r}
-covid <- covid %>%
-  select(-c(ends_with("codi"), districtedescripcio)) %>%
+df <- titanic_train |> 
   mutate(
-    numcasos = as.numeric(numcasos),
-    across(where(is.character), as.factor)
-  ) 
+    Survived = factor(Survived, levels = c(0, 1), labels = c("No", "Sí")),
+    Sex = factor(Sex),
+    Pclass = factor(Pclass)
+  ) |> 
+  select(Survived, Sex, Age, Fare, Pclass) |> 
+  drop_na(Age, Fare)
 ```
 
+## 1. Supervivència segons edat
+
 ```{r}
-muns <- muns %>%
-  mutate(
-    Municipi = toupper(
-      stringi::stri_trans_general(Municipi, "Latin-ASCII")
-      )
-  )
+ggplot(df, aes(x = Survived, y = Age, fill = Survived)) +
+  geom_boxplot() +
+  labs(title = "Supervivència segons edat", x = "Supervivència", y = "Edat")
 ```
 
+## 1. T-test
+
 ```{r}
-tot <- covid %>% 
-  inner_join(muns, by = c("municipidescripcio" = "Municipi"))
+t.test(Age ~ Survived, data = df)
 ```
 
-## Càlculs
-
-Calculem els casos per habitant (per cada dia) i en fem la mitjana ( també prenem el logaritme de la Població.)
+## 2. Supervivència segons preu del bitllet
 
 ```{r}
-tot <- tot %>%
-  mutate(
-    ratio_casos = numcasos / Població,
-    densitat = Població / Superfície
-    ) %>%
-  drop_na() %>%
-  group_by(municipidescripcio, densitat, Població) %>%
-  summarise(total_casos = sum(ratio_casos))
+ggplot(df, aes(x = Survived, y = Fare, fill = Survived)) +
+  geom_boxplot() +
+  labs(title = "Supervivència segons preu del bitllet", x = "Supervivència", y = "Preu del bitllet")
+```
+
+## 2. Mann-Whitney U
+
+```{r}
+wilcox.test(Fare ~ Survived, data = df)
+```
+
+## 3. Sexe i supervivència
+
+```{r}
+ggplot(df, aes(x = Sex, fill = Survived)) +
+  geom_bar(position = "fill") +
+  labs(title = "Supervivència segons sexe", x = "Sexe", y = "Proporció")
+```
+
+## Chi-quadrat
+
+```{r}
+tab <- table(df$Sex, df$Survived)
+chisq.test(tab)
+```
+
+## Exemple: hi ha més ozó en dies amb més temperatura?
+
+Analitzem la relació entre temperatura i nivells d'ozó
+
+Agafem dades de qualitat de l'aire:
+
+```{r}
+# Carreguem les dades de qualitat de l'aire
+data(airquality)
 ```
 
 ## Gràfics
 
-```{r}
-ggplot(tot, aes(x = log(densitat), y = log(total_casos), size = Població)) + 
-  geom_point() +
-  geom_smooth(method = "lm", se = F) + 
-  theme(legend.position = "none")
+```{r, echo = F}
+# Gràfic 1: Temperatura vs Ozó (relació significativa)
+p1 <- ggplot(airquality, aes(x = Temp, y = Ozone)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Temperatura vs Ozó", x = "Temperatura (°F)", y = "Ozó (ppb)") +
+  theme_bw()
+
+# Gràfic 2: Vent vs Solar.R (relació no significativa)
+p2 <- ggplot(airquality, aes(x = Wind, y = Solar.R)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Vent vs Radiació Solar", x = "Velocitat del vent (mph)", y = "Radiació solar (lang)") +
+  theme_bw()
+
+# Mostrem els dos gràfics junt
+gridExtra::grid.arrange(p1, p2, ncol = 2)
 ```
 
-## Test de correlació
+## Temperatura vs Ozó
 
 ```{r}
-cor.test(~ log(sum) + log(densitat), tot)
+cor.test(~ Temp + Ozone, airquality)
 ```
 
-No hi ha associació (correlació).
+## Vent vs Solar.R
+
+```{r}
+cor.test(~ Wind + Solar.R, airquality, method = "spearman")
+```
+
 
 # Models predictius
 
@@ -509,92 +491,58 @@ ggplot(liver[sample, ], aes(x=Albumin, y=Total_Protiens, colour="orange")) +
 ## Regressió lineal en R - Univariant {.smaller}
 
 ```{r, echo = TRUE}
-model = lm(Total_Protiens ~ Albumin + Gender, data = df)
+# Carreguem les dades de fertilitat suïssa
+data(swiss)
+
+ggplot(swiss, aes(x = Agriculture, y = Fertility)) + 
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(x = "Agricultura (%)", y = "Fertilitat", 
+       title = "Regressió lineal: Fertilitat vs Agricultura") +
+  theme_bw()
+```
+
+## Regressió lineal en R - Univariant {.smaller}
+
+```{r, echo = TRUE}
+# Regressió univariant: Fertilitat vs Agricultura
+model = lm(Fertility ~ Agriculture, data = swiss)
 summary(model)
 ```
 
 ## Regressió lineal en R - Multivariant {.smaller}
 
+```{r}
+library(GGally)
+ggpairs(swiss)
+```
+
+## Regressió lineal en R - Multivariant {.smaller}
+
 ```{r, echo=F}
-df <- df %>%
-  select(-Direct_Bilirubin, -Aspartate_Aminotransferase) %>%
-  mutate(
-    Total_Bilirubin = log(Total_Bilirubin),
-    Alkaline_Phosphotase = log(Alkaline_Phosphotase),
-    Alamine_Aminotransferase = log(Alamine_Aminotransferase)
-  ) %>%
-  drop_na()
+# Netegem les dades per la regressió multivariant
+swiss_clean <- swiss |>
+  drop_na() |>
+  # Estandarditzem les variables per comparar coeficients
+  scale() |>
+  as_tibble()
 ```
 
 ```{r}
-model2 = lm(Total_Protiens ~ . - Malaltia, data = df); summary(model2)
+# Regressió multivariant: Fertilitat vs totes les altres variables
+model2 = lm(Fertility ~ ., data = swiss_clean)
+summary(model2)
 ```
 
-## Regressió logística
-
-La fem servir quan la variable dependent és dicotòmica:
-
-\[\phantom{aa} Y = \frac{1}{1+e^{-(\beta_o+\beta_1X+\epsilon)}}\]
-
-```{r, echo=F}
-liver <- liver %>%
-  mutate(
-    Malaltia = Dataset - 1,
-    Total_Bilirubin = ifelse(Malaltia == 1, log(Total_Bilirubin) + 3, log(Total_Bilirubin))
-  )
-ggplot(liver, aes(x = Total_Bilirubin, y = Malaltia)) +
-  geom_point(colour="orange") + 
-  theme_bw() +
-  geom_smooth(method = "glm", method.args = list(family = "binomial"))+
-  scale_y_discrete(limits=c(0, 1), 
-                   labels = c("0" = "Sa", "1" = "Malalt")) 
-
-```
-
-## Regressió logística en R {.smaller}
-
-```{r, echo=TRUE}
-model4 = glm(Malaltia ~ Age + Gender + Total_Bilirubin, data=df, family="binomial"); summary(model4)
-```
-
-## Gràficament
+## Gràfics de la regressió lineal
 
 ```{r}
-ggplot(df, aes(x = Age, y = Total_Bilirubin, colour = Malaltia)) + 
-  geom_point()
+# 3. Diagnòstics del model
+par(mfrow = c(2, 2))
+plot(model2)
 ```
-
-## Models de classificació
-
-```{r, echo=F}
-df <- df %>%
-  mutate(
-    edat_cat = case_when(
-      Age < 30 ~ "<30",
-      Age < 65 ~ "30-65",
-      T ~ "> 65"
-    )
-  )
-table(df$edat_cat)
-```
-
-Multinomial Regression
-
-Random Forest
-
-```{r}
-library(randomForest)
-randomForest(Malaltia ~ Age + Gender + Total_Bilirubin, data=df)
-```
-
-Boosted models
-
-paquet: xgboost
-
-
 
 ## Resum
-
 
 Independent  \\  Dependent | Categòrica | Contínua
 ----- | ---------- |--------------- |

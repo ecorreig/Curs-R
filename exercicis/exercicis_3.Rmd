@@ -23,4 +23,7 @@ Exercici 1: mira el gap de gènere a sisè de primària a Catalunya a partir de 
 
 | Pista: podeu trobar les dades a https://analisi.transparenciacatalunya.cat/resource/rk5x-gny6.json i fer servir el codi que teniu a la classe 3
 
+Exercici 2: fes tests d'hipòtesi per veure si les diferències anteriors són significatives.
+
+Exercici 3: compara la relació que hi ha entre lectura i matemàtiques a les dades de la generalitat. Estan correlacionats?
 

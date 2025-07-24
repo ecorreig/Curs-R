@@ -15,6 +15,8 @@ library(glue)
 library(stringr)
 library(RSocrata)
 library(ggplot2)
+library(effsize)
+library(effectsize)
 
 con <- dbConnect(
   Postgres(),
@@ -26,7 +28,9 @@ con <- dbConnect(
 )
 ```
 
-# 1 Conmat
+# Exercici 1: mira el gap de gènere a sisè de primària a Catalunya a partir de les dades següents:
+
+## 1 Conmat
 
 ```{r}
 qq <- "
@@ -88,7 +92,7 @@ summary(gender_gap$percent_diff)
 
 Hi ha un gap de gènere.
 
-# 2 Pràctica digital
+## 2 Pràctica digital
 
 ```{r}
 query <- "
@@ -130,14 +134,14 @@ all |>
 ```
 
 
-# 3 Dades generalitat
+## 3 Dades generalitat
 
 ```{r}
 base_url <- "https://analisi.transparenciacatalunya.cat/resource/rk5x-gny6.json"
-url_with_filters <- paste0(base_url, "?$where=any='2023'&$select=pmat,genere")
+url_with_filters <- paste0(base_url, "?$where=any='2023'&$select=pmat,pcat,genere")
 
 dades_pri <- read.socrata(url_with_filters) |> 
-  mutate(pmat = as.numeric(pmat))
+  mutate(across(c(pmat, pcat), as.numeric))
 ```
 
 ```{r}
@@ -146,6 +150,85 @@ dades_pri |>
   geom_boxplot()
 ```
 
+# Exercici 3: compara la relació que hi ha entre lectura i matemàtiques a les dades de la generalitat. Estan correlacionats?
+
+```{r}
+# Scatterplot amb línia de regressió
+dades_pri |> 
+  ggplot(aes(x = pcat, y = pmat)) + 
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method = "lm", se = TRUE, colour = "blue") +
+  labs(x = "Prova de Lectura (pcat)", y = "Prova de Matemàtiques (pmat)",
+       title = "Relació entre Lectura i Matemàtiques (6è Primària 2023)")
+```
+
+```{r}
+# Correlacions
+# Pearson (paramètric)
+cor.test(dades_pri$pcat, dades_pri$pmat, method = "pearson", use = "complete.obs")
+
+# Spearman (no paramètric)
+cor.test(dades_pri$pcat, dades_pri$pmat, method = "spearman", use = "complete.obs")
+
+# Variància explicada (R²) del model lineal
+mod <- lm(pmat ~ pcat, data = dades_pri)
+summary(mod)$r.squared
+```
+
+# Exercici 2: fes tests d'hipòtesi per veure si les diferències anteriors són significatives. Calcula també les mides d'efecte.
+
+## 1 Conmat
+
+Amb totes les categories:
+
+```{r}
+anova <- aov(score ~ gender, df)
+summary(anova)
+```
+
+```{r}
+# Test no paramètric equivalent: Kruskal-Wallis
+kruskal.test(score ~ gender, df)
+```
+
+```{r}
+# Mida d'efecte per ANOVA: eta²
+effectsize::eta_squared(anova)
+```
+
+Només amb nens i nenes:
+
+```{r}
+library(forcats)
+df2 <- df |> 
+  filter(gender %in% c("Male", "Female")) |> 
+  mutate(gender = fct_drop(gender))
+t.test(score ~ gender, df2)
+# Test no paramètric equivalent: Wilcoxon rank-sum
+wilcox.test(score ~ gender, df2, exact = FALSE)
+# Cohen's d
+effsize::cohen.d(score ~ gender, data = df2)
+# Hodges–Lehmann
+wilcox.test(score ~ gender, df2, exact = FALSE)$estimate
+```
+
+## Pràctica digital
+
+```{r}
+all2 <- all |> 
+  filter(gender %in% c("Male", "Female")) |> 
+  mutate(gender = fct_drop(gender))
+t.test(score ~ gender, all2)
+wilcox.test(score ~ gender, all2, exact = FALSE)
+effsize::cohen.d(score ~ gender, data = all2)
+wilcox.test(score ~ gender, all2, exact = FALSE)$estimate
+```
+
+## Gene
+
 ```{r}
 t.test(pmat ~ genere, dades_pri)
+wilcox.test(pmat ~ genere, dades_pri, exact = FALSE)
+effsize::cohen.d(pmat ~ genere, data = dades_pri)
+wilcox.test(pmat ~ genere, dades_pri, exact = FALSE)$estimate
 ```

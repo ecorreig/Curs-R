@@ -1,0 +1,392 @@
+---
+title: "Curs de manipulació de dades en R"
+subtitle: "Sessió 4: Introducció a l'estadística"
+author: "Eudald Correig i Fraga"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, message = F, warning = F)
+library(dplyr)
+library(readr)
+library(ggplot2)
+theme_set(theme_bw())
+library(tidyr)
+library(stringi)
+library(lubridate)
+library(glue)
+library(gmodels)
+library(caret)
+library(tidymodels)
+library(tibble)
+```
+
+## Regressió logística
+
+La fem servir quan la variable dependent és dicotòmica:
+
+\[\phantom{aa} Y = \frac{1}{1+e^{-(\beta_o+\beta_1X+\epsilon)}}\]
+
+```{r, echo=F}
+# Carreguem les dades del Titanic
+library(titanic)
+titanic_data <- titanic_train |>
+  mutate(
+    Survived = factor(Survived, labels = c("No", "Sí")),
+    Sex = factor(Sex)
+  ) |>
+  drop_na(Age, Fare)
+
+# Gràfic comparatiu: Regressió lineal vs logística
+p1 <- ggplot(titanic_data, aes(x = Fare, y = as.numeric(Survived) - 1)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = TRUE,  fullrange = TRUE) +
+  labs(
+    x = "Preu bitllet", 
+    y = "Probabilitat de supervivència",
+    title = "Regressió lineal"
+    ) +
+  theme_bw() +
+  xlim(-100, 300) +
+  ylim(-0.5, 1.5)
+
+# Gràfic només amb regressió logística
+p2 <- ggplot(titanic_data, aes(x = Fare, y = as.numeric(Survived) - 1)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"), 
+              se = TRUE, fullrange = TRUE) +
+  labs(x = "Preu bitllet", y = "Probabilitat de supervivència", 
+       title = "Regressió logística") +
+  theme_bw() +
+  xlim(-100, 300) +
+  ylim(-0.5, 1.5)
+
+# Mostrem els dos gràfics junt
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+## Interpretació dels gràfics de regressió logística
+
+**Gràfic esquerra**: Comparació entre regressió lineal (línia vermella) i logística (línia blava). La regressió lineal se surt dels límits [0,1], cosa que no té sentit per probabilitats.
+
+**Gràfic dreta**: Només regressió logística. La corba es manté sempre entre 0 i 1, que és el que volem per probabilitats.
+
+## Regressió logística univariant {.smaller}
+
+```{r, echo=TRUE}
+# Regressió logística univariant amb tidymodels
+library(tidymodels)
+log_reg_spec <- logistic_reg() |> 
+  set_engine("glm")
+
+model4 <- workflow() |>
+  add_formula(Survived ~ Fare) |>
+  add_model(log_reg_spec) |>
+  fit(data = titanic_data)
+
+tidy(model4)
+```
+
+## Regressió logística multivariant {.smaller}
+
+```{r, echo=TRUE}
+# Regressió logística multivariant amb tidymodels
+log_reg_spec <- logistic_reg() |> set_engine("glm")
+
+model4 <- workflow() |>
+  add_formula(Survived ~ Fare + Age + Sex) |>
+  add_model(log_reg_spec) |>
+  fit(data = titanic_data)
+
+tidy(model4)
+```
+
+## Com de bé ho hem fet?
+
+```{r, echo=F}
+# Utilitzem els datasets separats del paquet titanic
+train_data <- titanic_train |>
+  mutate(
+    Survived = factor(Survived, levels = c(0, 1), labels = c("No", "Sí")),
+    Sex = as.factor(Sex)
+  ) |>
+  drop_na(Age, Fare)
+
+# Combinem les dades de test amb les respostes
+test_data <- titanic_test |>
+  inner_join(titanic_gender_class_model, by = join_by(PassengerId)) |>
+  mutate(
+    Survived = factor(Survived, levels = c(0, 1), labels = c("No", "Sí")),
+    Sex = as.factor(Sex)
+  ) |>
+  drop_na(Age, Fare)
+```
+
+
+```{r}
+# Entrenem el model amb tidymodels
+library(tidymodels)
+log_reg_spec <- logistic_reg() |> set_engine("glm")
+
+logistic_workflow <- workflow() |>
+  add_formula(Survived ~ Fare + Age + Sex) |>
+  add_model(log_reg_spec)
+
+logistic_fit <- logistic_workflow |>
+  fit(data = train_data)
+
+# Fem prediccions al test set
+predictions_prob <- predict(logistic_fit, new_data = test_data, type = "prob")$.pred_Sí
+predictions_class <- factor(if_else(predictions_prob > 0.5, "Sí", "No"), levels = c("No", "Sí"))
+
+# Matriu de confusió per la regressió logística
+logistic_conf_matrix <- confusionMatrix(predictions_class, test_data$Survived, positive = "Sí")
+```
+
+## Avaluació del model
+
+```{r, eval=F}
+library(caret)
+confusionMatrix(
+  predictions_class, 
+  test_data$Survived, 
+  positive = "Sí", 
+  mode = "everything"
+  )
+```
+
+##  Avaluació del model
+
+\tiny
+```{r, echo=F}
+confusionMatrix(
+  predictions_class, 
+  test_data$Survived, 
+  positive = "Sí", 
+  mode = "everything"
+  )
+```
+
+## Interpretació de les mètriques
+
+- **Accuracy**: Proporció total de prediccions correctes
+- **Sensitivity (Recall)**: Proporció de supervivents reals que hem predit correctament
+- **Specificity**: Proporció de no-supervivents reals que hem predit correctament  
+- **Precision**: Proporció de prediccions de supervivència que són correctes
+- **F1-Score**: Mitjana harmònica entre precision i recall (bona per classes desbalancejades)
+
+
+# Random Forest
+
+## Què és?
+
+Random Forest és un mètode d'ensemble que combina múltiples arbres de decisió per millorar la precisió i reduir l'overfitting.
+
+Avantatges:
+
+- Menys propens a overfitting que arbres individuals
+
+- No requereix normalització de dades
+
+- Proporciona importància de variables
+
+Desavantatges:
+
+- S'han d'ajustar diversos hiperparàmetres
+
+- Una mica lent d'entrenar
+
+- Difícil d'interpretar
+
+## Preparació de les dades
+
+```{r}
+# Preparació de les dades per Random Forest
+train_rf <- train_data |>
+  select(Survived, Age, Fare, Sex, Pclass) |>
+  mutate(across(where(is.character), as.factor)) |>
+  drop_na()
+
+# Preparació de les dades de test per Random Forest
+test_rf <- test_data |>
+  select(Survived, Age, Fare, Sex, Pclass) |>
+  mutate(across(where(is.character), as.factor)) |>
+  drop_na()
+```
+
+## Entrenament del model
+
+```{r}
+library(tidymodels)
+# Definim el model Random Forest amb tidymodels
+rf_spec <- rand_forest(
+  mtry = 3,
+  trees = 500,
+  min_n = 5
+) |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("classification")
+
+# Creem el workflow
+rf_workflow <- workflow() |>
+  add_formula(Survived ~ .) |>
+  add_model(rf_spec)
+
+# Entrenem el model
+rf_fit <- rf_workflow |>
+  fit(data = train_rf)
+```
+
+## Prediccions i avaluació
+
+```{r}
+# Prediccions
+rf_predictions <- rf_fit |>
+  predict(test_rf, type = "class")
+
+# Avaluació
+rf_conf_matrix <- confusionMatrix(
+  rf_predictions$.pred_class,
+  test_rf$Survived,
+  positive = "Sí"
+)
+print(glue("Random Forest Accuracy: {rf_conf_matrix$overall['Accuracy']}"))
+```
+
+## Importància de variables
+
+```{r}
+library(vip)
+
+vip(rf_fit, num_features = 10) +
+  labs(title = "Importància de variables - Random Forest")
+```
+
+# XGBoost (Gradient Boosting)
+
+## Què és?
+
+XGBoost és un algorisme de gradient boosting optimitzat que construeix seqüencialment models febles per crear un model fort.
+
+Avantatges:
+
+- Inclou regularització per evitar overfitting
+
+- Excel·lent rendiment en competicions de machine learning
+
+Desavantatges:
+
+- S'han d'ajustar diversos hiperparàmetres
+
+- Molt lent d'entrenar
+
+- Difícil d'interpretar
+
+## Preparació de les dades
+
+```{r}
+# Preparació de les dades per XGBoost amb tidymodels
+train_xgb <- train_data |>
+  select(Survived, Age, Fare, Sex, Pclass) |>
+  mutate(Survived = as.factor(Survived)) |>
+  drop_na()
+
+test_xgb <- test_data |>
+  select(Survived, Age, Fare, Sex, Pclass) |>
+  mutate(Survived = as.factor(Survived)) |>
+  drop_na()
+```
+
+## Creació del model i preprocessament
+
+```{r}
+# Definim el model XGBoost
+xgb_spec <- boost_tree(
+  trees = 100,
+  tree_depth = 3,
+  min_n = 5,
+  loss_reduction = 0,
+  sample_size = 1,
+  mtry = 3
+) |>
+  set_engine("xgboost") |>
+  set_mode("classification")
+
+# Creem el workflow amb preprocessament automàtic
+xgb_workflow <- workflow() |>
+  add_formula(Survived ~ .) |>
+  add_model(xgb_spec)
+```
+
+## Entrenament del model
+
+```{r}
+# Entrenem el model
+xgb_fit <- xgb_workflow |>
+  fit(data = train_xgb)
+```
+
+## Prediccions i avaluació
+
+```{r}
+# Prediccions
+xgb_predictions <- xgb_fit |>
+  predict(test_xgb, type = "class")
+
+# Avaluació
+xgb_conf_matrix <- confusionMatrix(
+  xgb_predictions$.pred_class, 
+  test_xgb$Survived, 
+  positive = "Sí"
+)
+print(glue("XGBoost Accuracy: {xgb_conf_matrix$overall['Accuracy']}"))
+```
+
+## Importància de variables
+
+```{r}
+library(vip)
+vip(xgb_fit, num_features = 10) +
+  labs(title = "Importància de variables - XGBoost")
+```
+
+## Comparació de models
+
+```{r, echo=F}
+# Creem una taula comparativa amb Accuracy i F1
+comparison <- tibble(
+  Model = c("Regressió Logística", "Random Forest", "XGBoost"),
+  Accuracy = c(
+    logistic_conf_matrix$overall["Accuracy"],
+    rf_conf_matrix$overall["Accuracy"],
+    xgb_conf_matrix$overall["Accuracy"]
+  ),
+  F1 = c(
+    logistic_conf_matrix$byClass["F1"],
+    rf_conf_matrix$byClass["F1"],
+    xgb_conf_matrix$byClass["F1"]
+  )
+)
+
+knitr::kable(comparison, digits = 3, 
+       col.names = c("Model", "Accuracy", "F1-score"),
+       caption = "Comparació de mètriques entre models")
+```
+
+## Interpretació
+
+- **Regressió Logística**: Model lineal simple, fàcil d'interpretar
+- **Random Forest**: Model no lineal, robust i estable
+- **XGBoost**: Model avançat, sovint amb millor rendiment
+
+
+
+## Resum
+
+Independent  \\  Dependent | Categòrica | Contínua
+----- | ---------- |--------------- |
+Categòrica | $\chi^2$; Test de Fisher  | Test T; U de Mann Whitney; ANOVA|
+Contínua | Regressió logística | Correlació; regressió lineal|
+
+# Fi
