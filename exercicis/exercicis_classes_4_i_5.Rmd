@@ -1,0 +1,519 @@
+---
+title: "Exercicis classes 4 i 5"
+output: html_document
+date: "2025-07-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+library(dplyr)
+library(readr)
+library(here)
+library(stringr)
+library(tidyr)
+library(compareGroups)
+library(ggplot2)
+theme_set(theme_bw())
+library(corrplot)
+library(Hmisc)
+
+# Models
+library(future)
+library(broom)
+library(themis)
+library(tidymodels)
+library(vip)
+library(glmnet)
+library(yardstick)
+```
+
+# Introducció
+
+A la carpeta del Drive anomenada "10 de Juliol 2025" hi ha 4 datasets que farem servir en aquest exercici:
+- `df_stundents_conmat.csv`: conté les dades per alumne de pràctica digital i resultats de ConMat pre i post del curs 2024-2025, a part de les dades basals dels alumnes (edat, gènere, etc.).
+- `df_classrooms.csv`: conté informació a nivell de classe de sessions fetes, pràctica digital agregada, i respostes de l'enquesta per alguns profes. 
+**Nota:** aneu amb compte perquè hi ha una fila per cada mestre, no per cada classe. Podeu agregar les informacions dels diferents mestres per poder tenir una fila per cada classe, si no, us pot donar problemes
+- `df_school.csv`: conté dades generals de l'escola, incloen si han fet churn.
+- `renda_per_capita_familiar_per_escoles.csv`: conté la renda familiar (gdp) mitjana per escola.
+
+```{r}
+df <- read_csv(
+  here("exercicis", "data", "df_students.csv"),
+  col_select = c(student_id, classroom_id)
+  ) |> 
+  distinct()
+students <- read_csv(here("exercicis", "data", "df_students_conmat.csv"))
+classrooms <- read_csv(here("exercicis", "data", "df_classrooms.csv"))
+schools <- read_csv(here("exercicis", "data", "df_school.csv"))
+renda <- read_csv(here("exercicis", "data", "renda_per_capita_familiar_per_escoles.csv"))
+```
+
+# Exercici
+
+En aquest exercici volem entendre quines variables afecten més les notes de les conmat. Per fer-ho, podeu prendre tant la nota de les conmat final, com la diferència entre conmats inicial i final. 
+
+Començarem l'exercici creant el dataset complet per analitzar, després farem una anàlisi descriptiva de les variables i la seva relació amb les conmat. Finalment farem models predictius que ens donaran les relacions entre les variables i les conmat de forma multivariada, és a dir, tenint també en compte les altres variables.
+
+# Part 1: creació del dataset
+
+Crea un dataset amb una fila per cada alumne i amb totes les columnes que creguis necessàries per la predicció. Per simplificar-te la vida, pots eliminar tots els registres que tinguin dades faltants. Dóna el nombre d'alumnes que treus perquè tenen dades faltants (i assegura't que no sigui molt alt).
+
+## Resposta
+
+```{r}
+students_clean <- students |>
+  mutate(country = str_remove(academic_year_id, "_2024")) |>
+  # Sempre eliminem columnes com més aviat millor
+  select(
+    -c(
+      # Ja tenim el 'country'
+      academic_year_id,
+      # Ja ho tenim al dataset de classes i escoles. No volem info duplicada
+      classroom_course_age,
+      organization_id,
+      school_years_doing_innovamat,
+      school_type,
+      # Això no sé què és
+      PD
+    )
+  ) |> 
+  # Canviem aquest nom perquè no es confongui amb les sessions d'aula després
+  rename(pd_sessions = total_sessions_24_25) |> 
+  inner_join(df, join_by(student_id))
+
+classrooms_clean <- classrooms |> 
+      mutate(
+        # Creem una variable de si ho tenen tot comprat o no per simplificar
+        complete = if_else(
+          # Com que ave i lab tenen "digital", la variable és caràcter, 
+          #  en canvi, com que app només és TRUE o FALSE, és directament boolean
+          pack_type_ave == "TRUE" & pack_type_lab == "TRUE" & pack_type_app,
+          "Yes", "No"
+        )
+      ) |> 
+      select(
+        organization_id,
+        classroom_uuid,
+        # Trec aquest perquè és igual que el de l'escola
+        # years_doing_innovamat,
+        classroom_students_age = students_age,
+        number_of_students,
+        total_sessions, 
+        # podem canviar el nom al vol
+        total_sessions_lab = total_sessions_ab,
+        total_sessions_ave,
+        total_events, 
+        distinct_events,
+        minutes_in_school_hours,
+        minutes_out_of_school_hours
+        # No agafo les coses de l'enquesta perquè perdríem moltes classes
+      ) |> 
+  # Hi ha algunes classes estranyes que no tenen organization_id, les traiem
+  drop_na(organization_id) |> 
+  # Seguint la nota anterior, agreguem per classe
+  group_by(organization_id, classroom_uuid) |> 
+  summarise(across(everything(), mean), .groups = "drop")
+
+schools_clean <- schools |> 
+  select(
+    organization_uuid,
+    school_type,
+    school_years_doing_innovamat
+    # per ara, no agafo res més
+  )
+
+# Ajuntem tot, creant un dataset amb una fila per nen
+all <- students_clean |> 
+  inner_join(classrooms_clean, by = join_by(classroom_id == classroom_uuid)) |> 
+  inner_join(schools_clean, by = join_by(organization_id == organization_uuid)) |> 
+  # Deixem alguns noms més bonics
+  rename_with(\(x) str_remove(x, "_24_25")) |> 
+  rename(
+    s_half_done = sessions_more_than_half_done,
+    distinct_act_weeks = semanas_de_actividad_distintas,
+    school_years_IM = school_years_doing_innovamat,
+    mins_school = minutes_in_school_hours,
+    mins_out_of_school = minutes_out_of_school_hours,
+    conmat_pre = Nota_ConMat_inicial,
+    conmat_post = Nota_ConMat_final
+    ) |> 
+  # Canviem el curs, que no té sentit que sigui un nombre
+  mutate(
+    grade = case_when(
+      student_course_age == 8 ~ "Grade 3",
+      student_course_age == 9 ~ "Grade 4",
+      student_course_age == 10 ~ "Grade 5",
+      student_course_age == 11 ~ "Grade 6",
+    ),
+    classroom_grade = case_when(
+      classroom_students_age == 8 ~ "Grade 3",
+      classroom_students_age == 9 ~ "Grade 4",
+      classroom_students_age == 10 ~ "Grade 5",
+      classroom_students_age == 11 ~ "Grade 6",
+    )
+  ) |> 
+  # Per acabar, passema factor les variables que ho han de ser i ara són strings
+  mutate(across(c(gender, grade, classroom_grade, school_type), as.factor)) |> 
+  select(-student_course_age, -classroom_students_age)
+```
+
+El dataset que ens queda té aquesta pinta:
+
+```{r}
+glimpse(all)
+```
+
+```{r}
+summary(all)
+```
+
+Tenim 86948 alumnes, tot i que alguns tenen missing data; els traiem:
+
+```{r}
+all_clean <- all |> 
+  drop_na()
+```
+
+Ara ens queden `nrow(all_clean)` alumnes.
+
+# Part 2: anàlisi descriptiva de les variables
+
+Fes una anàlisi descriptiva de les variables i de la seva relació amb la variable final (conmat post, o conmat post - conmat pre). Fes Gràfics per veure les relacions.
+
+## Resposta
+
+Com que la variable final és contínua, estem en la situació de tenir una variable dependent contínua, i variables independents o bé categòriques o bé contínues. Per les categòriques, farem tests de comparació de medianes (assumim que res és normal) i gràfics de caixes. Per les contínues, farem tests de correlació d'spearman i gràfics de punts.
+
+Variables categòriques:
+
+Gender:
+
+```{r}
+all_clean |> 
+  # Method = 4 és perquè tracti les dades com a no paramètriques
+  compareGroups(formula = gender ~ conmat_post, method = 4) |> 
+  createTable() |> 
+  export2md()
+```
+
+```{r}
+all_clean |> 
+  ggplot(aes(x = gender, y = conmat_post, fill = gender)) + 
+  geom_boxplot()
+```
+
+School type:
+
+```{r}
+all_clean |> 
+  # Method = 4 és perquè tracti les dades com a no paramètriques
+  compareGroups(formula = school_type ~ conmat_post, method = 4) |> 
+  createTable() |> 
+  export2md()
+```
+
+```{r}
+all_clean |> 
+  ggplot(aes(x = school_type, y = conmat_post, fill = school_type)) + 
+  geom_boxplot()
+```
+
+Tingueu en compte que això ho haguéssim pogut fer per curs també.
+
+Variables contínues
+
+Fem una matriu de correlacions i indiquem si són significatives.
+
+```{r, fig.width=10, fig.height=10}
+cor_results <- all_clean |> 
+  select(where(is.numeric)) |> 
+  as.matrix() |> 
+  rcorr() 
+corrplot(
+  cor_results$r,
+  method = "color",
+  type = "upper",
+  p.mat = cor_results$P,
+  sig.level = 0.05,
+  insig = "blank",
+  addCoef.col = "black",
+  number.cex = 0.6,
+  tl.cex = 0.8
+)
+```
+
+en aquest gràfic, les correlacions que no apareixen és que no són significatives.
+
+Ara mirem totes les relacions entre variables:
+
+```{r}
+all_clean |> 
+  select(where(is.numeric), grade) |> 
+  pivot_longer(-c(conmat_post, grade)) |> 
+  ggplot(aes(x = value, y = conmat_post, colour = grade)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  facet_wrap(~ name, scale = "free")
+```
+
+Tot això també ho podríem fer amb:
+
+```{r, fig.width=10, fig.height=10}
+library(GGally)
+ggpairs(all_clean)
+```
+
+
+# Models
+
+Feu models predictius del resultat de conmat dels alumnes. Aquests models no són per predir, si no per entendre com es relacionen totes les variables a la vegada amb conmat post.
+
+## Resposta
+
+Per començar, hem de veure que, en el gràfic de correlacions anterior, hi ha moltes variables que correlacionen massa (per exemple, podem dir que "massa" és r > 0.9). En aquest cas, traiem alguna de les variables. Això només passa amb total_sessions i total_sessions_lab. Traiem total_sessions perquè assumim que és la sum de lab i ave.
+
+```{r}
+all_mods <- all_clean |>
+  select(-c(
+    total_sessions,
+    # traiem també els ids
+    student_id,
+    classroom_id,
+    organization_id,
+    # per ara, traiem també el curs. segurament ho podríem fer pels 4 cursos per separat
+    classroom_grade
+  ))
+```
+
+Comencem fent un model lineal simple:
+
+```{r}
+mod <- lm(conmat_post ~ ., data = all_mods)
+summary(mod)
+```
+
+Podem predir un 52% de la variança. Mirem els diagnòstics sobre el model:
+
+```{r}
+plot(mod)
+```
+
+Ara fem tota la resta de models:
+
+```{r model_training, fig.width=10, fig.height=6}
+# Set up parallel processing
+plan(multisession, workers = parallel::detectCores() - 1)
+
+# Data preparation
+data_split <- all_mods |>
+  initial_split(prop = 0.8)
+
+train_data <- training(data_split)
+test_data  <- testing(data_split)
+
+# Create preprocessing recipe
+rec <- recipe(conmat_post ~ ., data = train_data) |>
+  step_impute_median(all_numeric_predictors()) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors())
+
+# Create resampling folds for hyperparameter tuning
+folds <- vfold_cv(train_data, v = 5)
+
+# Model specifications
+# 1. Regularized Linear Regression (Elastic Net)
+linear_spec <- linear_reg(
+  penalty = tune(),
+  mixture = tune()
+) |>
+  set_engine("glmnet") |>
+  set_mode("regression")
+
+# 2. Random Forest
+rf_spec <- rand_forest(
+  mtry = tune(),
+  trees = tune(),
+  min_n = tune()
+) |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("regression")
+
+# 3. Boosted Model (XGBoost)
+boost_spec <- boost_tree(
+  trees = tune(),
+  tree_depth = tune(),
+  learn_rate = tune(),
+  mtry = tune(),
+  min_n = tune(),
+  sample_size = tune()
+) |>
+  set_engine("xgboost") |>
+  set_mode("regression")
+
+# Create workflows
+linear_wf <- workflow() |>
+  add_recipe(rec) |>
+  add_model(linear_spec)
+
+rf_wf <- workflow() |>
+  add_recipe(rec) |>
+  add_model(rf_spec)
+
+boost_wf <- workflow() |>
+  add_recipe(rec) |>
+  add_model(boost_spec)
+
+# Hyperparameter grids
+linear_grid <- grid_regular(
+  penalty(range = c(-10, 1)),
+  mixture(range = c(0, 1)),
+  levels = 10
+)
+
+rf_grid <- grid_latin_hypercube(
+  mtry(range = c(1, 15)),
+  trees(range = c(200, 1000)),
+  min_n(range = c(2, 40)),
+  size = 20
+)
+
+boost_grid <- grid_latin_hypercube(
+  trees(range = c(100L, 500L)),
+  tree_depth(range = c(2L, 5L)),
+  learn_rate(range = c(0.01, 0.3)),
+  mtry(range = c(2L, 10L)),
+  min_n(range = c(10L, 20L)),
+  sample_size = sample_prop(range = c(0.5, 1.0)),
+  size = 20
+)
+
+# Define metrics once to reuse across models
+metrics <- metric_set(rmse, rsq, mae)
+
+# Tune hyperparameters
+linear_tune <- linear_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = linear_grid,
+    metrics = metrics,
+    control = control_grid(save_pred = TRUE)
+  )
+
+rf_tune <- rf_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = rf_grid,
+    metrics = metrics,
+    control = control_grid(save_pred = TRUE)
+  )
+
+boost_tune <- boost_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = boost_grid,
+    metrics = metrics,
+    control = control_grid(save_pred = TRUE)
+  )
+
+# View best parameters for each model
+linear_best <- linear_tune |> select_best(metric = "rmse")
+rf_best     <- rf_tune     |> select_best(metric = "rmse")
+boost_best  <- boost_tune  |> select_best(metric = "rmse")
+
+# Finalize workflows with best parameters
+final_linear <- linear_wf |> finalize_workflow(linear_best)
+final_rf     <- rf_wf     |> finalize_workflow(rf_best)
+final_boost  <- boost_wf  |> finalize_workflow(boost_best)
+
+# Fit final models
+final_linear_fit <- final_linear |> fit(train_data)
+final_rf_fit     <- final_rf     |> fit(train_data)
+final_boost_fit  <- final_boost  |> fit(train_data)
+
+# Evaluate on test set
+test_results <- bind_rows(
+  augment(final_linear_fit, test_data) |> mutate(model = "Linear"),
+  augment(final_rf_fit, test_data)     |> mutate(model = "Random Forest"),
+  augment(final_boost_fit, test_data)  |> mutate(model = "XGBoost")
+)
+
+# Performance metrics
+test_results |>
+  group_by(model) |>
+  rmse(truth = conmat_post, estimate = .pred) |>
+  arrange(.estimate)
+
+test_results |>
+  group_by(model) |>
+  rsq(truth = conmat_post, estimate = .pred) |>
+  arrange(desc(.estimate))
+
+test_results |>
+  group_by(model) |>
+  mae(truth = conmat_post, estimate = .pred) |>
+  arrange(.estimate)
+
+# Variable importance / coefficients
+final_linear_fit |>
+  extract_fit_parsnip() |>
+  tidy(conf.int = TRUE) |>
+  filter(term != "(Intercept)") |>
+  mutate(
+    abs_estimate = abs(estimate),
+    significant  = ifelse(abs(estimate) > 0.1, "High Impact", "Low Impact")
+  ) |>
+  arrange(desc(abs_estimate)) |>
+  slice_head(n = 25) |>
+  ggplot(aes(x = reorder(term, estimate), y = estimate, color = significant)) +
+  geom_point(size = 3) +
+  geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.5) +
+  coord_flip() +
+  labs(
+    title = "Linear Regression Coefficients with Impact Classification",
+    x = "Variables",
+    y = "Coefficient Value",
+    color = "Impact Level"
+  ) +
+  theme_minimal()
+
+cat("Random forest")
+final_rf_fit |>
+  extract_fit_parsnip() |>
+  vip(num_features = 15) +
+  labs(title = "Random Forest Variable Importance")
+
+cat("Boosted model")
+final_boost_fit |>
+  extract_fit_parsnip() |>
+  vip(num_features = 15) +
+  labs(title = "Boosted Model Variable Importance")
+
+# Stop parallel processing
+plan(sequential)
+```
+
+```{r correlations_predictions, fig.width=10, fig.height=6}
+# Correlació entre predicció i valor real per a cada model
+corr_tbl <- test_results |>
+  group_by(model) |>
+  summarise(
+    correlation = cor(conmat_post, .pred, use = "complete.obs")
+  ) |>
+  arrange(desc(abs(correlation)))
+
+print(corr_tbl)
+
+# Scatterplot de prediccions vs realitat
+
+ggplot(test_results, aes(x = .pred, y = conmat_post)) +
+  geom_point(alpha = 0.4, colour = "#2c3e50") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#e74c3c", linewidth = 0.6) +
+  facet_wrap(~ model, scales = "free", ncol = 1) +
+  labs(
+    title = "Correlació entre prediccions dels models i grade_percentage",
+    x = "Predicció del model",
+    y = "Nota real conmat"
+  ) +
+  ylim(c(0, 100)) + 
+  theme_minimal()
+```
